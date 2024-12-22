@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../screens/account_screen/account.dart';
+import '../screens/growth_garden/growth_garden.dart';
 import '../screens/homescreen/homescreen.dart';
+import '../screens/mindhub/mindhubscreen.dart';
+import '../screens/safe_talks/safe_talks.dart';
 import '../utils/constants/colors.dart';
 
 class NavigationBarMenu extends StatefulWidget {
@@ -17,7 +21,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
     SafeTalksScreen(),
     MindHubScreen(),
     AccountScreen(),
-  ];
+ ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -79,50 +83,6 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
   }
 }
 
-class GrowthGardenScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Welcome to Growth Garden',
-        style: TextStyle(fontSize: 20),
-      ),
-    );
-  }
-}
 
-class SafeTalksScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Welcome to Safe Talks',
-        style: TextStyle(fontSize: 20),
-      ),
-    );
-  }
-}
 
-class MindHubScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Welcome to MindHub',
-        style: TextStyle(fontSize: 20),
-      ),
-    );
-  }
-}
 
-class AccountScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Welcome to Account Page',
-        style: TextStyle(fontSize: 20),
-      ),
-    );
-  }
-}
