@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../widgets/homescreen_widgets/call_customer_support_widget.dart';
 import '../booking_review_screen.dart';
-import '../../../widgets/accounts_screen/consultation_status_widget.dart';
 
 class ConsultationScreen extends StatefulWidget {
   const ConsultationScreen({Key? key}) : super(key: key);
@@ -16,15 +15,40 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
   String _selectedConsultationType = "Online";  // Default to Online
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
-  String? _selectedSpecialist;
+  String? _selectedService;
   int availableCredits = 5;
 
   final List<String> _specialists = [
-    "Dr. John Doe",
-    "Dr. Jane Smith",
-    "Dr. Alex Brown"
+    "Psychological Assessment",
+    "Consultation",
+    "Couple Therapy/Counseling",
+    "Counseling and Psychotherapy",
   ];
 
+  final Map<String, String> _serviceDetails = {
+    "Psychological Assessment":
+    "Use of integrative tools such as testing, interviews, observation, or other assessment tools for a "
+        "comprehensive understanding of a client’s system, concern, or condition depending on their needs and "
+        "purpose (e.g. school, employment, diagnosis, legal requirement, emotional support animal).",
+
+    "Consultation":
+    "A session where you can freely express, share, and consult your mental health concerns, experiences, "
+        "thoughts, and emotions. A recommendation or established therapeutic goals will be provided at the end of this "
+        "session.\n\n"
+        "A. Psychiatric Consultation – A consultation with a psychiatrist.\n"
+        "B. Adult Psychological Consultation – A session for adults with a psychologist.\n"
+        "C. Child and Adolescent Psychological Consultation – A session for children and adolescents with a psychologist.",
+
+    "Couple Therapy/Counseling":
+    "An intervention aimed at helping couples build healthy relationships and facilitate conflict resolution "
+        "to overcome issues that hinder a satisfying relationship.",
+
+    "Counseling and Psychotherapy":
+    "A therapeutic session with a psychologist to assist a client towards healing, intervention, or recovery from "
+        "their concerns, experiences, trauma, or any psychological and mental health challenges."
+  };
+
+  // Pick Date
   void _pickDate() async {
     final date = await showDatePicker(
       context: context,
@@ -33,46 +57,85 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (date != null) {
-      setState(() => _selectedDate = date);
+      setState(() {
+        _selectedDate = date;
+      });
     }
   }
 
+  // Pick Time
   void _pickTime() async {
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
     if (time != null) {
-      setState(() => _selectedTime = time);
+      setState(() {
+        _selectedTime = time;
+      });
     }
   }
 
+  // Show Specialist Picker
   void _showSpecialistPicker() async {
-    final specialist = await showModalBottomSheet<String>(
+    final service = await showModalBottomSheet<String>(
       context: context,
       builder: (context) => ListView.builder(
         itemCount: _specialists.length,
         itemBuilder: (context, index) => ListTile(
           title: Text(_specialists[index]),
-          onTap: () => Navigator.of(context).pop(_specialists[index]),
+          trailing: IconButton(
+            icon: const Icon(Icons.info_outline, color: Colors.blue),
+            onPressed: () {
+              Navigator.of(context).pop();
+              _showServiceDetails(_specialists[index]);
+            },
+          ),
+          onTap: () {
+            Navigator.of(context).pop(_specialists[index]);
+          },
         ),
       ),
     );
-    if (specialist != null) {
-      setState(() => _selectedSpecialist = specialist);
+    if (service != null) {
+      setState(() {
+        _selectedService = service;
+      });
     }
   }
 
-  void _showCustomerSupportPopup() {
+  // Show Service Details
+  void _showServiceDetails(String service) {
     showDialog(
       context: context,
-      builder: (context) => CallCustomerSupportPopup(),
+      builder: (context) {
+        return AlertDialog(
+          title: Text(service),
+          content: Text(_serviceDetails[service] ?? "No description available."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
     );
   }
 
+  // Customer Support Popup
+  void _showCustomerSupportPopup() {
+    showDialog(
+      context: context,
+      builder: (context) =>CallCustomerSupportPopup(),
+    );
+  }
+
+  // Build Consultation Form
   Widget _buildConsultationForm() {
     String _formatDate(DateTime date) =>
         DateFormat('EEE., MMM. d').format(date);
+
     String _formatTime(TimeOfDay time) {
       final now = DateTime.now();
       final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
@@ -97,9 +160,11 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // AppBar-like Consultation Type Toggle
+          // Consultation Type Toggle
           Container(
-            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.5)))),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.5))),
+            ),
             padding: const EdgeInsets.symmetric(vertical: 5),
             child: Row(
               children: [
@@ -111,61 +176,58 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
           const SizedBox(height: 30),
 
           // Date and Time Selection
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _pickDate,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.greenAccent.withOpacity(0.3),
-                    ),
-                    child: Text(
-                      _selectedDate == null
-                          ? "Select Date"
-                          : _formatDate(_selectedDate!),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _pickTime,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.greenAccent.withOpacity(0.3),
-                    ),
-                    child: Text(
-                      _selectedTime == null
-                          ? "Select Time"
-                          : _formatTime(_selectedTime!),
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildDateTimeSelection(_formatDate, _formatTime),
+
           const SizedBox(height: 10),
 
           // Specialist Selection
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          _buildSpecialistSelection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateTimeSelection(_formatDate, _formatTime) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          Expanded(
             child: ElevatedButton(
-              onPressed: _showSpecialistPicker,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent.withOpacity(0.3),
-              ),
+              onPressed: _pickDate,
               child: Text(
-                _selectedSpecialist == null
-                    ? "Select Specialist"
-                    : "Specialist: $_selectedSpecialist",
-                style: const TextStyle(color: Colors.black),
+                _selectedDate == null
+                    ? "Select Date"
+                    : _formatDate(_selectedDate!),
+              ),
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: _pickTime,
+              child: Text(
+                _selectedTime == null
+                    ? "Select Time"
+                    : _formatTime(_selectedTime!),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSpecialistSelection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: ElevatedButton(
+        onPressed: _showSpecialistPicker,
+        child: Text(
+          _selectedService == null
+              ? "Select Service"
+              : "Service: $_selectedService",
+        ),
       ),
     );
   }
@@ -179,13 +241,9 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
             _selectedConsultationType = type;
           });
         },
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.transparent,
-        ),
         child: Text(
           type,
           style: TextStyle(
-            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: isSelected ? Colors.green : Colors.grey,
           ),
@@ -194,6 +252,7 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
     );
   }
 
+  // **Build Method (Required for the State Class)**
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -205,7 +264,6 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildConsultationForm(),
             const SizedBox(height: 20),
@@ -222,11 +280,11 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 20),
-
           ],
         ),
       ),
+
+
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -250,13 +308,13 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
                 onPressed: availableCredits > 0 &&
                     _selectedDate != null &&
                     _selectedTime != null &&
-                    _selectedSpecialist != null
+                    _selectedService != null
                     ? () {
                   Get.to(() => BookingReviewScreen(
                     consultationType: _selectedConsultationType,
                     selectedDate: DateFormat('EEE., MMM. d').format(_selectedDate!),
                     selectedTime: _selectedTime!.format(context),
-                    specialist: _selectedSpecialist!,
+                    service: _selectedService!,
                   ));
                 } : null,
                 child: const Text("Book A Session"),

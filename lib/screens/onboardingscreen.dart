@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:llps_mental_app/screens/loginscreen.dart';
-
-
 
 class OnBoardingScreen extends StatefulWidget {
   @override
@@ -16,17 +13,14 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
 
   final List<Map<String, String>> onboardingData = [
     {
-      'image': 'https://via.placeholder.com/400', // Replace with your asset image
       'title': 'Welcome to App',
       'description': 'Discover features that help you grow and connect.'
     },
     {
-      'image': 'https://via.placeholder.com/400',
       'title': 'Easy to Use',
       'description': 'Our intuitive design makes it easy for everyone.'
     },
     {
-      'image': 'https://via.placeholder.com/400',
       'title': 'Get Started Now',
       'description': 'Let’s dive right in and get you onboard!'
     },
@@ -56,7 +50,6 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
               },
               itemCount: onboardingData.length,
               itemBuilder: (context, index) => OnboardingContent(
-                image: onboardingData[index]['image']!,
                 title: onboardingData[index]['title']!,
                 description: onboardingData[index]['description']!,
               ),
@@ -70,20 +63,15 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
             ),
           ),
           SizedBox(height: 20),
-          currentPage == onboardingData.length - 1
-              ? ElevatedButton(
+          ElevatedButton(
             onPressed: () {
-              Get.to(() => const LoginScreen());
-
+              if (currentPage == onboardingData.length - 1) {
+                Get.to(() => const LoginScreen());
+              } else {
+                nextPage();
+              }
             },
-            child: Text("Get Started"),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-            ),
-          )
-              : ElevatedButton(
-            onPressed: nextPage,
-            child: Text("Next"),
+            child: Text(currentPage == onboardingData.length - 1 ? "Get Started" : "Next"),
             style: ElevatedButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
             ),
@@ -109,11 +97,10 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
 }
 
 class OnboardingContent extends StatelessWidget {
-  final String image, title, description;
+  final String title, description;
 
   const OnboardingContent({
     Key? key,
-    required this.image,
     required this.title,
     required this.description,
   }) : super(key: key);
@@ -121,30 +108,35 @@ class OnboardingContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(30.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.network(
-            image,
+          // Empty Container or Placeholder Box (no images)
+          SizedBox(
             height: 250,
-            fit: BoxFit.cover,
+            child: Center(
+              child: Text(
+                'No Image',
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            ),
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 30),
           Text(
             title,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 15),
           Text(
             description,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               color: Colors.black54,
             ),
           ),

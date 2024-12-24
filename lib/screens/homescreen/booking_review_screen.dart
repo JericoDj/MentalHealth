@@ -8,14 +8,14 @@ class BookingReviewScreen extends StatefulWidget {
   final String consultationType;
   final String selectedDate;
   final String selectedTime;
-  final String specialist;
+  final String service;
 
   const BookingReviewScreen({
     Key? key,
     required this.consultationType,
     required this.selectedDate,
     required this.selectedTime,
-    required this.specialist,
+    required this.service,
   }) : super(key: key);
 
   @override
@@ -116,7 +116,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                   Text("Consultation Type: ${widget.consultationType}"),
                   Text("Date: ${widget.selectedDate}"),
                   Text("Time: ${widget.selectedTime}"),
-                  Text("Specialist: ${widget.specialist}"),
+                  Text("Service: ${widget.service}"),
                 ],
               ),
             ),

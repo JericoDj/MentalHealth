@@ -2,37 +2,34 @@
 <html>
 <head>
   <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
+    Base href configuration. Adjust this if the app is served from a subdirectory.
   -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A project for mental health">
 
-  <!-- iOS meta tags & icons -->
+  <!-- Mobile web app compatibility -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000"> <!-- Customize theme color -->
+
+  <!-- iOS specific (for compatibility with older iOS versions) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="llps_mental_app">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
   <title>llps_mental_app</title>
-  <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+<!-- Flutter Bootstrap -->
+<script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
