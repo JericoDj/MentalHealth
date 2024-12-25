@@ -5,7 +5,7 @@ import 'package:llps_mental_app/utils/constants/colors.dart';
 import '../../widgets/homescreen_widgets/consultation_touchpoint.dart';
 import '../../widgets/homescreen_widgets/progress_widget.dart';
 import '../../widgets/homescreen_widgets/safe_space.dart';
-import '../../widgets/homescreen_widgets/wellness_map.dart';
+import '../../widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
