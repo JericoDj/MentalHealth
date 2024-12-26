@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
 
 import '../../widgets/homescreen_widgets/consultation_touchpoint.dart';
-import '../../widgets/homescreen_widgets/progress_widget.dart';
 import '../../widgets/homescreen_widgets/safe_space.dart';
+import '../../widgets/homescreen_widgets/welcome_message_section.dart';
 import '../../widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -24,9 +24,9 @@ class HomeScreen extends StatelessWidget {
               // Daily Moods Section
 
               // Progress Dashboard
-              const ProgressDashboardCard(),
+              ProgressDashboardCard(),
               const SizedBox(height: 20),
-              ProgressSection(),
+              WelcomeMessageSection(),
               const SizedBox(height: 20),
 
               // Carousel Slider Section

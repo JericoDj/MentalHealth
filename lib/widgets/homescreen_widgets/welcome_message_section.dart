@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../utils/constants/colors.dart';
 
-class ProgressSection extends StatelessWidget {
+class WelcomeMessageSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
