@@ -24,21 +24,26 @@ class ProgressDashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: MyColors.color1),
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.transparent,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _buildHeader(),
-          _buildMoodSection(context),
-          const SizedBox(height: 10),
-          _buildProgressButtons(context),
-        ],
-      ),
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: MyColors.color1),
+            borderRadius: BorderRadius.circular(15),
+            color: Colors.transparent,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildHeader(),
+              _buildMoodSection(context),
+
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        _buildProgressButtons(context),
+      ],
     );
   }
 
@@ -69,7 +74,7 @@ class ProgressDashboardCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: MyColors.color2.withOpacity(0.3),
-        border: Border.all(color: MyColors.color1.withOpacity(0.5)),
+
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8),
           bottomRight: Radius.circular(8),

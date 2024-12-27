@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/achievements_section.dart';
+import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/mood_trends_section.dart';
+import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/progress_section.dart';
+import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/stress_management_section.dart';
+
 class ProgressMapScreen extends StatefulWidget {
   final int? scrollToIndex;
 
@@ -48,71 +53,23 @@ class _ProgressMapScreenState extends State<ProgressMapScreen> {
             const SizedBox(height: 20),
 
             // User Progress Section (Index 0)
-            Container(
-              key: _sectionKeys[0],
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.greenAccent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                "User Progress: 25 Check-ins\nStreak: 10 Days",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
+            UserProgressSection(sectionKeys: _sectionKeys),
 
-            const SizedBox(height: 300),
+            const SizedBox(height: 10),
 
             // Achievements Section (Index 1)
-            Container(
-              key: _sectionKeys[1],
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                "Achievements Unlocked:\n🏆 10 Day Streak\n🏅 50 Check-ins",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
+            AchievementsSection(sectionKeys: _sectionKeys),
 
-            const SizedBox(height: 300),
+            const SizedBox(height: 10),
 
             // Mood Trends Section (Index 2)
-            Container(
-              key: _sectionKeys[2],
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.orangeAccent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                "Mood Trends Section",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
+            MoodSection(sectionKeys: _sectionKeys),
 
-            const SizedBox(height: 300),
+            const SizedBox(height: 10),
 
             // Stress Level Section (Index 3)
-            Container(
-              key: _sectionKeys[3],
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.redAccent,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                "Stress Level Management",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 300),
+            StressLevelSection(sectionKeys: _sectionKeys),
+            const SizedBox(height: 30),
           ],
         ),
       ),
