@@ -7,6 +7,7 @@ import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/stress_level_popup.dart';
 
 import '../../../../utils/constants/colors.dart';
+import '../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
 
 class ProgressDashboardCard extends StatelessWidget {
   ProgressDashboardCard({Key? key}) : super(key: key);
@@ -131,14 +132,13 @@ class ProgressDashboardCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCircularIconWithLabel(
-      BuildContext context, {
-        required IconData icon,
-        required String label,
-        required String value,
-        required Color color,
-        required String displayMode,
-      }) {
+  Widget _buildCircularIconWithLabel(BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+    required String displayMode,
+  }) {
     return GestureDetector(
       onTap: () {
         _showPopup(context, displayMode);
@@ -181,7 +181,8 @@ class ProgressDashboardCard extends StatelessWidget {
   }
 
   // Trigger the Appropriate Pop-up
-  void _showPopup(BuildContext context, String mode, {String selectedDay = "", String mood = "😊"}) {
+  void _showPopup(BuildContext context, String mode,
+      {String selectedDay = "", String mood = "😊"}) {
     switch (mode) {
       case 'progress':
         showDialog(
@@ -190,14 +191,9 @@ class ProgressDashboardCard extends StatelessWidget {
         );
         break;
       case 'mood_trends':
-        showDialog(
-          context: context,
-          builder: (context) => const MoodTrendsPopup(
-            title: "Mood Trends",
-            moodSummary: "Positive Mood this week!",
-            recommendation: "Keep tracking for better insights.",
-          ),
-        );
+      // Navigate to Mood Trends Section and Highlight Day
+        Navigator.of(context).pop(); // Close existing popup
+        _scrollToMoodSection(context, selectedDay);
         break;
       case 'stress_level':
         showDialog(
@@ -214,14 +210,21 @@ class ProgressDashboardCard extends StatelessWidget {
       case 'daily_mood':
         showDialog(
           context: context,
-          builder: (context) => DailyMoodPopup(
-            mood: mood,
-            selectedDay: selectedDay,
-          ),
+          builder: (context) =>
+              DailyMoodPopup(
+                mood: mood,
+                selectedDay: selectedDay,
+              ),
         );
         break;
       default:
         break;
     }
   }
+
+  void _scrollToMoodSection(BuildContext context, String selectedDay) {
+    // Navigate to ProgressMapScreen and Scroll to Mood Section
+    Get.to(() => ProgressMapScreen(scrollToIndex: 2, selectedDay: selectedDay));
+  }
+
 }

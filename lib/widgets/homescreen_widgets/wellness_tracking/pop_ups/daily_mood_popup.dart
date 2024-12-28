@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
+import '../../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
 class DailyMoodPopup extends StatelessWidget {
   final String selectedDay;
   final String mood;
@@ -26,7 +28,11 @@ class DailyMoodPopup extends StatelessWidget {
         ElevatedButton(
           onPressed: () {
             Navigator.of(context).pop();
-            // Navigate to mood tracking details
+            // Navigate to Progress Map with Mood Section Scroll
+            Get.to(() => ProgressMapScreen(
+              scrollToIndex: 2,  // Scroll to Mood Section (index 2)
+              selectedDay: selectedDay,  // Pass selected day
+            ));
           },
           child: const Text("View Details"),
         ),

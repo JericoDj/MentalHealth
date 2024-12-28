@@ -7,10 +7,12 @@ import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widge
 
 class ProgressMapScreen extends StatefulWidget {
   final int? scrollToIndex;
+  final String? selectedDay;
 
   const ProgressMapScreen({
     Key? key,
     this.scrollToIndex,
+    this.selectedDay,
   }) : super(key: key);
 
   @override
@@ -27,6 +29,8 @@ class _ProgressMapScreenState extends State<ProgressMapScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.scrollToIndex != null) {
         _scrollToIndex(widget.scrollToIndex!);
+      } else if (widget.selectedDay != null) {
+        _scrollToMoodSection();
       }
     });
   }
@@ -36,6 +40,17 @@ class _ProgressMapScreenState extends State<ProgressMapScreen> {
     if (context != null) {
       Scrollable.ensureVisible(
         context,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  void _scrollToMoodSection() {
+    final moodContext = _sectionKeys[2].currentContext;
+    if (moodContext != null) {
+      Scrollable.ensureVisible(
+        moodContext,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
@@ -63,7 +78,7 @@ class _ProgressMapScreenState extends State<ProgressMapScreen> {
             const SizedBox(height: 10),
 
             // Mood Trends Section (Index 2)
-            MoodSection(sectionKeys: _sectionKeys),
+            MoodSection(sectionKeys: _sectionKeys, selectedDay: widget.selectedDay),
 
             const SizedBox(height: 10),
 
