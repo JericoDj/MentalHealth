@@ -6,23 +6,16 @@ class GrowthGardenScreen extends StatelessWidget {
     return Scaffold(
 
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero Section (Optional)
-              _buildHeroSection(),
-              const SizedBox(height: 30),
 
               // Section 1: Gratitude Journaling
               GratitudeJournalingContainer(),
-              const SizedBox(height: 30),
 
-              // Section 2: Insight Quest Button
-              InsightQuestButton(),
-              const SizedBox(height: 30),
-
+              const SizedBox(height: 20),
               // Section 3: Grid View of Wellness Tools
               const Text(
                 "Quick Wellness Tools",
@@ -50,15 +43,27 @@ class GrowthGardenScreen extends StatelessWidget {
                   ),
                 ],
               ),
+
+
+
+              const SizedBox(height: 20),
+              // Section 4: Thrive Guide / Customized Plans
+
+              CustomizedPlansContainer(),
+
+              const SizedBox(height: 20),
+
+
+
+              // Section 2: Insight Quest Button
+              InsightQuestButton(),
+              const SizedBox(height: 20),
+
+
               const SizedBox(height: 30),
 
-              // Section 4: Thrive Guide / Customized Plans
-              const Text(
-                "Customized Plans",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-              CustomizedPlansContainer(),
+
+
             ],
           ),
         ),
@@ -70,7 +75,7 @@ class GrowthGardenScreen extends StatelessWidget {
   Widget _buildHeroSection() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         color: Colors.green[200],
         borderRadius: BorderRadius.circular(20),
@@ -79,12 +84,12 @@ class GrowthGardenScreen extends StatelessWidget {
         children: [
           const Text(
             "Welcome to Your Growth Garden",
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
           Text(
             "Nurture your mental wellness with small daily actions.",
-            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
           ),
 
         ],
@@ -97,34 +102,35 @@ class GrowthGardenScreen extends StatelessWidget {
 class GratitudeJournalingContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          'Gratitude Journaling',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.orange[800],
+
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Column(
+        children: [
+          Text(
+            'Gratitude Journaling',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.orange[800],
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Card(
-          elevation: 5,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: InkWell(
+
+
+          InkWell(
             onTap: () => _showJournalDialog(context),
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(10.0),
               child: Text(
                 'Click here to reflect on three things you are grateful for today.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -162,15 +168,15 @@ class InsightQuestButton extends StatelessWidget {
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.all(12),
         leading: const Icon(Icons.psychology, size: 40, color: Colors.blue),
         title: const Text(
           'Insight Quest',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         subtitle: const Text(
           'Science-based quizzes to boost your insights.',
-          style: TextStyle(fontSize: 14, color: Colors.black54),
+          style: TextStyle(fontSize: 12, color: Colors.black54),
         ),
         onTap: () {
           // Navigate to Insight Quest Page
