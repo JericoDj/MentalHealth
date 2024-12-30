@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:llps_mental_app/screens/growth_garden/widgets/gratitude_journaling_widget.dart';
+import 'package:llps_mental_app/screens/growth_garden/widgets/insight_quest.dart';
+import 'package:llps_mental_app/screens/growth_garden/widgets/personalized_plans.dart';
+import 'package:llps_mental_app/screens/growth_garden/widgets/quick_wellness_tools.dart';
 
 class GrowthGardenScreen extends StatelessWidget {
   @override
@@ -17,33 +21,7 @@ class GrowthGardenScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
               // Section 3: Grid View of Wellness Tools
-              const Text(
-                "Quick Wellness Tools",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                children: [
-                  FeatureCard(
-                    title: 'Mindful Breathing',
-                    icon: Icons.air,
-                    description: 'Guided breathing exercises to calm the mind.',
-                    color: Colors.cyan[100],
-                  ),
-                  FeatureCard(
-                    title: 'Quick Meditation',
-                    icon: Icons.self_improvement,
-                    description: 'A 5-minute mindfulness session.',
-                    color: Colors.purple[100],
-                  ),
-                ],
-              ),
-
+              QuickWellnessTools(),
 
 
               const SizedBox(height: 20),
@@ -98,174 +76,7 @@ class GrowthGardenScreen extends StatelessWidget {
   }
 }
 
-// Gratitude Journaling Section
-class GratitudeJournalingContainer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Column(
-        children: [
-          Text(
-            'Gratitude Journaling',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.orange[800],
-            ),
-          ),
 
 
-          InkWell(
-            onTap: () => _showJournalDialog(context),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                'Click here to reflect on three things you are grateful for today.',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  void _showJournalDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Add to Gratitude Journal'),
-          content: const TextField(
-            decoration: InputDecoration(hintText: 'Write something you are grateful for...'),
-            maxLines: 3,
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
 
-// Separate Button for Insight Quest
-class InsightQuestButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        leading: const Icon(Icons.psychology, size: 40, color: Colors.blue),
-        title: const Text(
-          'Insight Quest',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        subtitle: const Text(
-          'Science-based quizzes to boost your insights.',
-          style: TextStyle(fontSize: 12, color: Colors.black54),
-        ),
-        onTap: () {
-          // Navigate to Insight Quest Page
-        },
-      ),
-    );
-  }
-}
-
-// Grid Feature Card
-class FeatureCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final String description;
-  final Color? color;
-
-  const FeatureCard({
-    required this.title,
-    required this.icon,
-    required this.description,
-    this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: color ?? Colors.white,
-      child: InkWell(
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 50, color: Colors.grey[800]),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Customized Plans Section
-class CustomizedPlansContainer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Your Customized Plan',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Daily guided activities tailored to your wellness journey.',
-              style: TextStyle(fontSize: 14, color: Colors.black54),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.edit),
-              label: const Text('Customize Plan'),
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
