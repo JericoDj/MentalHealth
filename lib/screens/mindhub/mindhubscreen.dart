@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class MindHubScreen extends StatelessWidget {
   @override
@@ -46,7 +47,7 @@ class MindHubScreen extends StatelessWidget {
           ),
         ),
         Container(
-          height: 200,
+          height: 150,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: 5,
@@ -58,7 +59,7 @@ class MindHubScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       Expanded(
-                        child: Icon(icon, size: 80, color: Colors.blueAccent),
+                        child: Icon(icon, size: 60, color: MyColors.color1),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),

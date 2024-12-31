@@ -32,6 +32,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
         children: [
           _headerSection(),
           const Divider(height: 1, color: Colors.black12),
+          SizedBox(height: 10,),
           _journalListView(),
           _buildAddEntryButton(),
         ],
@@ -117,7 +118,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
 
   Widget _buildAddEntryButton() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 40),
       child: GestureDetector(
         onTap: () => _showJournalDialog(context),
         child: Container(
@@ -125,15 +126,15 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
             color: MyColors.color1,
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.add, size: 20, color: Colors.white),
+              const Icon(Icons.add, size: 15, color: Colors.white),
               const SizedBox(width: 8),
               const Text(
                 'Add Gratitude Entry',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                style: TextStyle(fontSize: 14, color: Colors.white),
               ),
             ],
           ),

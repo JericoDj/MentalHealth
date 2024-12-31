@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class SafeTalksScreen extends StatefulWidget {
   @override
@@ -65,8 +66,10 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
             ),
           ),
           TabBar(
+            labelColor: MyColors.color1,
+            indicatorColor: MyColors.color1,
             tabs: [
-              Tab(text: 'For You'),
+              Tab(text: 'For You',),
               Tab(text: 'Following'),
             ],
           ),
@@ -110,7 +113,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
 
   Widget _buildPostInput() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(15.0),
       child: Row(
         children: [
           CircleAvatar(
@@ -121,9 +124,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: "What's new?",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+
               ),
             ),
           ),

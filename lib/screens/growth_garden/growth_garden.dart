@@ -33,12 +33,12 @@ class GrowthGardenScreen extends StatelessWidget {
               // Section 1: Gratitude Journaling
               GratitudeJournalWidget(),
 
-              const SizedBox(height: 5),
+              const SizedBox(height: 0),
 
 
               // Section 3: Grid View of Wellness Tools
               QuickWellnessTools(),
-              const SizedBox(height: 5),
+              const SizedBox(height: 0),
 
               // Section 2: Insight Quest Button
               InsightQuestButton(),
