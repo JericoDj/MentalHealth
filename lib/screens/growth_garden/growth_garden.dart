@@ -10,32 +10,51 @@ class GrowthGardenScreen extends StatelessWidget {
     return Scaffold(
 
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0,),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
 
-              // Section 1: Gratitude Journaling
-              GratitudeJournalingContainer(),
+
+
+
+
+
+              const SizedBox(height: 25),
+
+              ThriveGuide(),
+
+
+
 
               const SizedBox(height: 20),
+
+              // Section 1: Gratitude Journaling
+              GratitudeJournalWidget(),
+
+              const SizedBox(height: 5),
+
+
               // Section 3: Grid View of Wellness Tools
               QuickWellnessTools(),
-
-
-              const SizedBox(height: 20),
-              // Section 4: Thrive Guide / Customized Plans
-
-              CustomizedPlansContainer(),
-
-              const SizedBox(height: 20),
-
-
+              const SizedBox(height: 5),
 
               // Section 2: Insight Quest Button
               InsightQuestButton(),
-              const SizedBox(height: 20),
+
+
+
+
+
+              const SizedBox(height: 25),
+              // Section 4: Thrive Guide / Customized Plans
+
+
+
+
+
+
 
 
               const SizedBox(height: 30),

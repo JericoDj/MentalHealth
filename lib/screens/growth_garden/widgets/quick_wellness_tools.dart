@@ -6,15 +6,11 @@ class QuickWellnessTools extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 30.0,),
+      padding: const EdgeInsets.symmetric(vertical: 15.0,),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Quick Wellness Tools",
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 15),
+
           Wrap(
             spacing: 10,
             runSpacing: 10,
@@ -167,12 +163,12 @@ class FeatureCard extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, size: 50, color: Colors.grey[800]),
+                Icon(icon, size: 36, color: Colors.grey[800]),
                 const SizedBox(height: 10),
                 Text(
                   title,
                   style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Text(
