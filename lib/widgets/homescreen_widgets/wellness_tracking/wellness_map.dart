@@ -74,7 +74,7 @@ class ProgressDashboardCard extends StatelessWidget {
   Widget _buildMoodSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: MyColors.color2.withOpacity(0.3),
+
 
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(8),

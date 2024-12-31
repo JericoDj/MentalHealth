@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
-class CustomizedPlansContainer extends StatefulWidget {
+import '../../../utils/constants/colors.dart';
+
+class ThriveGuide extends StatefulWidget {
   @override
-  _CustomizedPlansContainerState createState() => _CustomizedPlansContainerState();
+  _ThriveGuideState createState() => _ThriveGuideState();
 }
 
-class _CustomizedPlansContainerState extends State<CustomizedPlansContainer> {
+class _ThriveGuideState extends State<ThriveGuide> {
   String selectedPlan = 'No plan selected';
   String planDescription = 'Choose a plan to start your journey.';
 
@@ -13,36 +15,75 @@ class _CustomizedPlansContainerState extends State<CustomizedPlansContainer> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
+      child: Container(
+        width: MediaQuery.of(context).size.width,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'Thrive Guide',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: MyColors.color1,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+              ),
+              child: const Text(
+                textAlign: TextAlign.center,
+                'Thrive Guide',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    ),
+              ),
             ),
             const SizedBox(height: 10),
             Text(
               selectedPlan,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.lightGreenAccent),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
             ),
             const SizedBox(height: 10),
             Text(
               planDescription,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.edit),
-              label: const Text('Choose Plan'),
-              onPressed: () => _showPlanSelectionDialog(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 15),
+            GestureDetector(
+              onTap: () => _showPlanSelectionDialog(context),  // Handle tap event
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,  // Background color
+                  borderRadius: BorderRadius.circular(12),  // Rounded corners
+                  border: Border.all(
+                    color: MyColors.color1,  // Border color
+                    width: 1,  // Border width
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.edit,
+                      size: 20,
+                      color: MyColors.color1,
+                    ),
+                    SizedBox(width: 8),  // Space between icon and text
+                    Text(
+                      'Manage Plan',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: MyColors.color1,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+            const SizedBox(height: 10),
           ],
         ),
       ),

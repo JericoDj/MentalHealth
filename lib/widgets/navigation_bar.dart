@@ -17,9 +17,10 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
 
   final List<Widget> _pages = [
     HomeScreen(),
+    MindHubScreen(),
     GrowthGardenScreen(),
     SafeTalksScreen(),
-    MindHubScreen(),
+
     AccountScreen(),
  ];
 
@@ -62,17 +63,18 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book),
+            label: 'MindHub',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.spa),
             label: 'Growth\nGarden', // Two-line label
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.group),
-            label: 'Safe\nTalks', // Two-line label
+            label: 'Safe Talks', // Two-line label
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book),
-            label: 'MindHub',
-          ),
+
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Account',
