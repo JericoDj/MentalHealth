@@ -41,72 +41,75 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: DefaultTabController(
-        length: 2,
-        child: Column(
-          children: [
-            SizedBox(height: 10,),
-            AnimatedContainer(
-              duration: Duration(milliseconds: 300),
-              height: _showSearch ? 60 : 0,
-              child: ClipRect(  // Clipping to ensure smooth hiding
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  heightFactor: _showSearch ? 1.0 : 0.0,  // Smoothly hide content
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search...',
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: DefaultTabController(
+          length: 2,
+          child: Column(
+            children: [
+              SizedBox(height: 10,),
+              AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                height: _showSearch ? 60 : 0,
+                child: ClipRect(  // Clipping to ensure smooth hiding
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    heightFactor: _showSearch ? 1.0 : 0.0,  // Smoothly hide content
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search...',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          contentPadding: EdgeInsets.symmetric(vertical: 0),
                         ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(vertical: 0),
                       ),
                     ),
                   ),
                 ),
-              ),
-            )
-      ,
-            TabBar(
-              labelColor: MyColors.color1,
-              indicatorColor: MyColors.color1,
-              tabs: [
-                Tab(text: 'For You',),
-                Tab(text: 'Following'),
-              ],
-            ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  NestedScrollView(
-                    controller: _scrollControllerForYou,
-                    headerSliverBuilder: (context, innerBoxIsScrolled) {
-                      return [
-                        SliverToBoxAdapter(child: _buildPostInput()),
-                      ];
-                    },
-                    body: _buildPostList(),
-                  ),
-                  NestedScrollView(
-                    controller: _scrollControllerFollowing,
-                    headerSliverBuilder: (context, innerBoxIsScrolled) {
-                      return [
-                        SliverToBoxAdapter(child: _buildPostInput()),
-                      ];
-                    },
-                    body: _buildPostList(),
-                  ),
+              )
+        ,
+              TabBar(
+                labelColor: MyColors.color1,
+                indicatorColor: MyColors.color1,
+                tabs: [
+                  Tab(text: 'For You',),
+                  Tab(text: 'Following'),
                 ],
               ),
-            ),
-          ],
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    NestedScrollView(
+                      controller: _scrollControllerForYou,
+                      headerSliverBuilder: (context, innerBoxIsScrolled) {
+                        return [
+                          SliverToBoxAdapter(child: _buildPostInput()),
+                        ];
+                      },
+                      body: _buildPostList(),
+                    ),
+                    NestedScrollView(
+                      controller: _scrollControllerFollowing,
+                      headerSliverBuilder: (context, innerBoxIsScrolled) {
+                        return [
+                          SliverToBoxAdapter(child: _buildPostInput()),
+                        ];
+                      },
+                      body: _buildPostList(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

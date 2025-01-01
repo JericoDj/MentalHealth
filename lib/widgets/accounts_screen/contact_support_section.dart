@@ -41,7 +41,7 @@ class ContactSupportSection extends StatelessWidget {
               const Icon(Icons.phone, color: Colors.green),
               const SizedBox(width: 10),
               Text(
-                '+1 234 567 8900',
+                '+63 976 014 3260',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.green.shade700,
@@ -57,7 +57,7 @@ class ContactSupportSection extends StatelessWidget {
               const Icon(Icons.email, color: Colors.green),
               const SizedBox(width: 10),
               Text(
-                'support@example.com',
+                'support@llps.com',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.green.shade700,

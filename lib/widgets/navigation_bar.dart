@@ -21,7 +21,15 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
     GrowthGardenScreen(),
     SafeTalksScreen(),
     AccountScreen(),
- ];
+  ];
+
+  final List<Color> _backgroundColors = [
+    Colors.green.shade50,
+    Colors.green.shade50,
+    Colors.green.shade50,
+    Colors.green.shade50,
+    Colors.green.shade50,
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -32,28 +40,19 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text(
-      //     "Uplift",
-      //     style: TextStyle(
-      //       color: Colors.white,
-      //       fontWeight: FontWeight.bold,
-      //       fontSize: 24,
-      //     ),
-      //   ),
-      //   centerTitle: true,
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: MyColors.color1.withOpacity(1),
-      //   elevation: 10,
-      //   shadowColor: Colors.black.withOpacity(1),
-      // ),
-      body: _pages[_selectedIndex],
+      body: Container(
+        decoration: BoxDecoration(
+          color: _backgroundColors[_selectedIndex], // Background color changes based on the selected tab
+        ),
+        child: _pages[_selectedIndex], // Display the selected page
+      ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.green.shade50,
         type: BottomNavigationBarType.fixed, // Fixed for consistent spacing
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         selectedItemColor: MyColors.color1, // Highlight selected tab
-        unselectedItemColor: Colors.grey, // Grey for unselected items
+        unselectedItemColor: Colors.grey.shade600, // Grey for unselected items
         selectedFontSize: 12, // Adjust selected font size
         unselectedFontSize: 10, // Adjust unselected font size
         items: const [
@@ -73,7 +72,6 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
             icon: Icon(Icons.group),
             label: 'Safe Talks', // Two-line label
           ),
-
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Account',
@@ -83,7 +81,3 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
     );
   }
 }
-
-
-
-
