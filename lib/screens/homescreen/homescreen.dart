@@ -21,7 +21,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 10),
+              // const SizedBox(height: 10),
               // Daily Moods Section
 
               // Progress Dashboard

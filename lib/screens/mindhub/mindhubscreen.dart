@@ -6,21 +6,21 @@ class MindHubScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
                 'Welcome to MindHub',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-            ),
-            _buildSection('Articles', Icons.article, context),
-            _buildSection('Videos', Icons.video_library, context),
-            _buildSection('eBooks', Icons.book, context),
-          ],
+              _buildSection('Articles', Icons.article, context),
+              _buildSection('Videos', Icons.video_library, context),
+              _buildSection('eBooks', Icons.book, context),
+            ],
+          ),
         ),
       ),
     );

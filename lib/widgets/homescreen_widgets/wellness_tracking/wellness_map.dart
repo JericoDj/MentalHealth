@@ -100,7 +100,9 @@ class ProgressDashboardCard extends StatelessWidget {
           icon: Icons.speed,
           label: 'Progress',
           value: '95%',
-          color: MyColors.color1,
+          buttonColor: MyColors.color2.withOpacity(0.1),
+          iconColor: MyColors.color2,
+          borderColor: MyColors.color2,
           displayMode: 'progress',
         ),
         _buildCircularIconWithLabel(
@@ -108,7 +110,9 @@ class ProgressDashboardCard extends StatelessWidget {
           icon: Icons.emoji_events,
           label: 'Achievement',
           value: 'Top',
-          color: MyColors.color1,
+          buttonColor: MyColors.color2.withOpacity(0.1),
+          borderColor: MyColors.color2,
+          iconColor: MyColors.color2,
           displayMode: 'achievement',
         ),
         _buildCircularIconWithLabel(
@@ -116,7 +120,9 @@ class ProgressDashboardCard extends StatelessWidget {
           icon: Icons.mood,
           label: 'Mood Trends',
           value: '😊',
-          color: MyColors.color1,
+          buttonColor: Colors.green.shade600.withOpacity(0.1),
+          borderColor: MyColors.color1,
+          iconColor: Colors.green.shade600,
           displayMode: 'mood_trends',
         ),
         _buildCircularIconWithLabel(
@@ -124,7 +130,9 @@ class ProgressDashboardCard extends StatelessWidget {
           icon: Icons.local_fire_department,
           label: 'Stress Level',
           value: 'Moderate',
-          color: Colors.redAccent,
+          buttonColor: Colors.redAccent.withOpacity(0.1),
+          borderColor: Colors.redAccent.shade100,
+          iconColor: Colors.redAccent,
           displayMode: 'stress_level',
         ),
 
@@ -136,7 +144,9 @@ class ProgressDashboardCard extends StatelessWidget {
     required IconData icon,
     required String label,
     required String value,
-    required Color color,
+    required Color borderColor,
+    required Color iconColor,
+    required Color buttonColor,
     required String displayMode,
   }) {
     return GestureDetector(
@@ -148,12 +158,13 @@ class ProgressDashboardCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color,
+              border: Border.all(color: borderColor, width: 1.5),  // Border color
+              color: buttonColor,  // Background color of the circle
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              color: Colors.white,
+              color: iconColor,  // Icon color
               size: 26,
             ),
           ),
@@ -165,6 +176,8 @@ class ProgressDashboardCard extends StatelessWidget {
     );
   }
 
+
+
   Widget _buildMoodDay(String day, String emoji, BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -172,7 +185,7 @@ class ProgressDashboardCard extends StatelessWidget {
       },
       child: Column(
         children: [
-          Text(day, style: TextStyle(color: MyColors.color1)),
+          Text(day, style: TextStyle(color: Colors.green.shade600)),
           const SizedBox(height: 5),
           Text(emoji, style: const TextStyle(fontSize: 24)),
         ],

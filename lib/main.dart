@@ -8,15 +8,22 @@ import 'package:llps_mental_app/screens/loginscreen.dart';
 import 'firebase_options.dart';
 import 'App.dart';
 
+// Helper function to catch invalid icons
+Icon validateIcon(IconData iconData) {
+  if (iconData.codePoint == 0) {
+    debugPrint("⚠️ Invalid IconData detected: ${iconData.toString()}");
+    return const Icon(Icons.error);  // Fallback to a default error icon
+  }
+  return Icon(iconData);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Conditional Web Setup
   if (kIsWeb) {
     Get.testMode = true;
     runApp(WebApp());
   } else {
-    // Mobile/Non-Web Setup
     final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
@@ -28,10 +35,12 @@ Future<void> main() async {
   }
 }
 
-// Web Application Class
 class WebApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Example: Validate an icon during web app build
+    validateIcon(IconData(0, fontFamily: 'MaterialIcons'));  // This triggers the warning
+
     return Center(
       child: Container(
         width: 600,
@@ -43,8 +52,6 @@ class WebApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: 'llps_mental_app',
           theme: ThemeData(primarySwatch: Colors.blue),
-
-          // Show LoginScreen at start
           home: const LoginScreen(),
         ),
       ),

@@ -20,7 +20,6 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
     MindHubScreen(),
     GrowthGardenScreen(),
     SafeTalksScreen(),
-
     AccountScreen(),
  ];
 
@@ -33,21 +32,21 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Uplift",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
-        ),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        backgroundColor: MyColors.color1.withOpacity(1),
-        elevation: 10,
-        shadowColor: Colors.black.withOpacity(1),
-      ),
+      // appBar: AppBar(
+      //   title: const Text(
+      //     "Uplift",
+      //     style: TextStyle(
+      //       color: Colors.white,
+      //       fontWeight: FontWeight.bold,
+      //       fontSize: 24,
+      //     ),
+      //   ),
+      //   centerTitle: true,
+      //   automaticallyImplyLeading: false,
+      //   backgroundColor: MyColors.color1.withOpacity(1),
+      //   elevation: 10,
+      //   shadowColor: Colors.black.withOpacity(1),
+      // ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // Fixed for consistent spacing

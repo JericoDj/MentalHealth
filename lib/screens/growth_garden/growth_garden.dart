@@ -9,46 +9,13 @@ class GrowthGardenScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0,),
+      body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-
-
-
-
-
-
-              const SizedBox(height: 25),
-
-              ThriveGuide(),
-
-
-
-
-              const SizedBox(height: 20),
-
-              // Section 1: Gratitude Journaling
-              GratitudeJournalWidget(),
-
-              const SizedBox(height: 0),
-
-
-              // Section 3: Grid View of Wellness Tools
-              QuickWellnessTools(),
-              const SizedBox(height: 0),
-
-              // Section 2: Insight Quest Button
-              InsightQuestButton(),
-
-
-
-
-
-              const SizedBox(height: 25),
-              // Section 4: Thrive Guide / Customized Plans
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
 
 
 
@@ -56,12 +23,46 @@ class GrowthGardenScreen extends StatelessWidget {
 
 
 
-
-              const SizedBox(height: 30),
-
+                ThriveGuide(),
 
 
-            ],
+
+
+                const SizedBox(height: 20),
+
+                // Section 1: Gratitude Journaling
+                GratitudeJournalWidget(),
+
+                const SizedBox(height: 0),
+
+
+                // Section 3: Grid View of Wellness Tools
+                QuickWellnessTools(),
+                const SizedBox(height: 0),
+
+                // Section 2: Insight Quest Button
+                InsightQuestButton(),
+
+
+
+
+
+                const SizedBox(height: 25),
+                // Section 4: Thrive Guide / Customized Plans
+
+
+
+
+
+
+
+
+                const SizedBox(height: 30),
+
+
+
+              ],
+            ),
           ),
         ),
       ),

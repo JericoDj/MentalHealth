@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/constants/colors.dart';
+
 class ConsultationStatusWidget extends StatefulWidget {
   @override
   _ConsultationStatusWidgetState createState() =>
@@ -22,8 +24,8 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.greenAccent.withOpacity(0.5),
-            Colors.blueAccent.withOpacity(0.3),
+            Colors.green.shade200.withOpacity(0.9),
+            Colors.orange.shade200.withOpacity(0.9),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -44,6 +46,7 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildStatusIcon(
+
                 icon: Icons.request_page,
                 label: "Requests",
                 onTap: () {
@@ -129,7 +132,7 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
             child: Icon(
               icon,
               size: 30,
-              color: Colors.blueAccent,
+              color: MyColors.color1,
             ),
           ),
           const SizedBox(height: 8),
@@ -138,7 +141,7 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: Colors.black,
             ),
           ),
         ],
