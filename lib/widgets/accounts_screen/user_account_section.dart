@@ -12,7 +12,7 @@ class UserAccountSection extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
-            radius: 30,
+            radius: 36,
             backgroundImage:
             NetworkImage('https://via.placeholder.com/150'),
           ),
@@ -25,15 +25,15 @@ class UserAccountSection extends StatelessWidget {
                   Text(
                     'John Doe',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(width: 10),
+                  SizedBox(width: 14),
                   Text(
                     'Company Name',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 18,
                       color: Colors.grey,
                     ),
                   ),
@@ -50,7 +50,7 @@ class UserAccountSection extends StatelessWidget {
                       Text(
                         '500',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -58,7 +58,7 @@ class UserAccountSection extends StatelessWidget {
                         width: 10,
                       ),
                       Text('Followers',style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                       ),),
                     ],
                   ),
@@ -68,14 +68,14 @@ class UserAccountSection extends StatelessWidget {
                       Text(
                         '200',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       SizedBox(
                         width: 10,
                       ),
-                      Text('Following',style: TextStyle(fontSize: 10),),
+                      Text('Following',style: TextStyle(fontSize: 14),),
                     ],
                   ),
                 ],
