@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../screens/account_screen/accounts_privacy/accounts_privacy_page.dart';
 import '../../screens/account_screen/app_settings/app_settings_screen.dart';
-import '../../screens/account_screen/notification_settings/notification_settings_page.dart';
 
 import '../../../utils/constants/colors.dart';
 
@@ -23,19 +22,7 @@ class AccountSettingsButtons extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 10),
 
-        _buildButton(
-          text: 'Notification Settings',
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const NotificationSettingsPage(),
-              ),
-            );
-          },
-        ),
         const SizedBox(height: 10),
 
         _buildButton(

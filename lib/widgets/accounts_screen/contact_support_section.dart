@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
+import 'TIcket_Popup_widget.dart';
 
 class ContactSupportSection extends StatelessWidget {
   const ContactSupportSection({
@@ -41,7 +45,7 @@ class ContactSupportSection extends StatelessWidget {
               const Icon(Icons.phone, color: Colors.green),
               const SizedBox(width: 10),
               Text(
-                '+63 976 014 3260',
+                '+63 917 854 2236',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.green.shade700,
@@ -81,6 +85,10 @@ class ContactSupportSection extends StatelessWidget {
                 ),
                 onPressed: () {
                   // Handle ticket submission
+                  Get.to(
+                    () => SupportTicketsPage(
+                    ),
+                  );
                 },
                 child: const Text(
                   'Submit a Ticket',
