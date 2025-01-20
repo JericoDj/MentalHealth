@@ -36,40 +36,76 @@ class HomeScreen extends StatelessWidget {
                 items: [
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: MyColors.color1, width: 2), // Border color and width
                       borderRadius: BorderRadius.circular(8), // Rounded corners
+                      border: Border.all(width: 2, color: Colors.transparent), // Transparent border to avoid overflow issues
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFFFFD700), Color(0xFFFFA500)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(8), // Match border radius
-                      child: Image.asset(
-                        "assets/images/HomeSlider (1).jpg",
-                        fit: BoxFit.cover,
+                      child: Container(
+                        padding: EdgeInsets.all(2), // Ensures the gradient appears as a border
+                        decoration: BoxDecoration(
+                          color: Colors.white, // White background inside
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Image.asset(
+                          "assets/images/HomeSlider (1).jpg",
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: MyColors.color1, width: 2), // Border color and width
-                      borderRadius: BorderRadius.circular(8), // Rounded corners
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(width: 2, color: Colors.transparent),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFFFFD700), Color(0xFFFFA500)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8), // Match border radius
-                      child: Image.asset(
-                        "assets/images/HomeSlider (2).jpg",
-                        fit: BoxFit.cover,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Image.asset(
+                          "assets/images/HomeSlider (2).jpg",
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                   ),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: MyColors.color1, width: 2), // Border color and width
-                      borderRadius: BorderRadius.circular(8), // Rounded corners
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(width: 2, color: Colors.transparent),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFFFFD700), Color(0xFFFFA500)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8), // Match border radius
-                      child: Image.asset(
-                        "assets/images/HomeSlider (3).jpg",
-                        fit: BoxFit.cover,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Image.asset(
+                          "assets/images/HomeSlider (3).jpg",
+                          fit: BoxFit.fill,
+                        ),
                       ),
                     ),
                   ),

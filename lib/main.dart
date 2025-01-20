@@ -44,7 +44,7 @@ class WebApp extends StatelessWidget {
     return Center(
       child: Container(
         width: 600,
-        height: 750,
+        height: 800,
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black, width: 2),
         ),

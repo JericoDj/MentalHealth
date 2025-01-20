@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/achievements_popup.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/daily_mood_popup.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/mood_trends_popup.dart';
@@ -28,18 +29,32 @@ class ProgressDashboardCard extends StatelessWidget {
     return Column(
       children: [
         Container(
+          padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            border: Border.all(color: MyColors.color1),
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFfcbc1d),
+                Color(0xFFfd9c33),
+                Color(0xFF59b34d),
+                Color(0xFF359d4e),
+              ],
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+            ),
             borderRadius: BorderRadius.circular(15),
-            color: Colors.transparent,
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildHeader(),
-              _buildMoodSection(context),
-
-            ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(),
+                _buildMoodSection(context),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 10),
@@ -51,19 +66,27 @@ class ProgressDashboardCard extends StatelessWidget {
   Widget _buildHeader() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(5.0),
       decoration: BoxDecoration(
-        color: MyColors.color1,
-        borderRadius: const BorderRadius.only(
+        gradient: LinearGradient(
+          colors: [
+
+            Color(0xFF59b34d),
+            Color(0xFF359d4e),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(8),
           topRight: Radius.circular(8),
         ),
       ),
-      child: const Text(
+      child: Text(
         "Wellness Map",
         textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 16,
+        style: GoogleFonts.archivo(
+          fontSize: 18,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
@@ -71,14 +94,27 @@ class ProgressDashboardCard extends StatelessWidget {
     );
   }
 
+  Widget _buildMoodDay(String day, String emoji, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _showPopup(context, 'daily_mood', selectedDay: day, mood: emoji);
+      },
+      child: Column(
+        children: [
+          Text(day, style: GoogleFonts.archivo(color: Colors.green.shade600, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 5),
+          Text(emoji, style: const TextStyle(fontSize: 24)),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMoodSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-
-
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(8),
-          bottomRight: Radius.circular(8),
+          bottomLeft: Radius.circular(10),
+          bottomRight: Radius.circular(10),
         ),
       ),
       padding: const EdgeInsets.all(10),
@@ -122,7 +158,7 @@ class ProgressDashboardCard extends StatelessWidget {
           value: '😊',
           buttonColor: Colors.green.shade600.withOpacity(0.1),
           borderColor: MyColors.color1,
-          iconColor: Colors.green.shade600,
+          iconColor: MyColors.color1,
           displayMode: 'mood_trends',
         ),
         _buildCircularIconWithLabel(
@@ -135,109 +171,91 @@ class ProgressDashboardCard extends StatelessWidget {
           iconColor: Colors.redAccent,
           displayMode: 'stress_level',
         ),
-
       ],
     );
   }
-
-  Widget _buildCircularIconWithLabel(BuildContext context, {
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color borderColor,
-    required Color iconColor,
-    required Color buttonColor,
-    required String displayMode,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        _showPopup(context, displayMode);
-      },
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              border: Border.all(color: borderColor, width: 1.5),  // Border color
-              color: buttonColor,  // Background color of the circle
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: iconColor,  // Icon color
-              size: 26,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(value),
-          Text(label),
-        ],
-      ),
-    );
-  }
-
-
-
-  Widget _buildMoodDay(String day, String emoji, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _showPopup(context, 'daily_mood', selectedDay: day, mood: emoji);
-      },
-      child: Column(
-        children: [
-          Text(day, style: TextStyle(color: Colors.green.shade600)),
-          const SizedBox(height: 5),
-          Text(emoji, style: const TextStyle(fontSize: 24)),
-        ],
-      ),
-    );
-  }
-
-  // Trigger the Appropriate Pop-up
-  void _showPopup(BuildContext context, String mode,
-      {String selectedDay = "", String mood = "😊"}) {
-    switch (mode) {
-      case 'progress':
-        showDialog(
-          context: context,
-          builder: (context) => const ProgressPopup(),
-        );
-        break;
-      case 'mood_trends':
-      // Navigate to Mood Trends Section and Highlight Day
-        Navigator.of(context).pop(); // Close existing popup
-        _scrollToMoodSection(context, selectedDay);
-        break;
-      case 'stress_level':
-        showDialog(
-          context: context,
-          builder: (context) => const StressLevelPopup(),
-        );
-        break;
-      case 'achievement':
-        showDialog(
-          context: context,
-          builder: (context) => const AchievementsPopup(),
-        );
-        break;
-      case 'daily_mood':
-        showDialog(
-          context: context,
-          builder: (context) =>
-              DailyMoodPopup(
-                mood: mood,
-                selectedDay: selectedDay,
-              ),
-        );
-        break;
-      default:
-        break;
-    }
-  }
-
-  void _scrollToMoodSection(BuildContext context, String selectedDay) {
-    // Navigate to ProgressMapScreen and Scroll to Mood Section
-    Get.to(() => ProgressMapScreen(scrollToIndex: 2, selectedDay: selectedDay));
-  }
-
 }
+
+Widget _buildCircularIconWithLabel(BuildContext context, {
+  required IconData icon,
+  required String label,
+  required String value,
+  required Color borderColor,
+  required Color iconColor,
+  required Color buttonColor,
+  required String displayMode,
+}) {
+  return GestureDetector(
+    onTap: () {
+      _showPopup(context, displayMode);
+    },
+    child: Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: borderColor, width: 1.5),  // Border color
+            color: buttonColor,  // Background color of the circle
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: iconColor,  // Icon color
+            size: 26,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(value),
+        Text(label),
+      ],
+    ),
+  );
+}
+
+// Trigger the Appropriate Pop-up
+void _showPopup(BuildContext context, String mode,
+    {String selectedDay = "", String mood = "😊"}) {
+  switch (mode) {
+    case 'progress':
+      showDialog(
+        context: context,
+        builder: (context) => const ProgressPopup(),
+      );
+      break;
+    case 'mood_trends':
+    // Navigate to Mood Trends Section and Highlight Day
+      Navigator.of(context).pop(); // Close existing popup
+      _scrollToMoodSection(context, selectedDay);
+      break;
+    case 'stress_level':
+      showDialog(
+        context: context,
+        builder: (context) => const StressLevelPopup(),
+      );
+      break;
+    case 'achievement':
+      showDialog(
+        context: context,
+        builder: (context) => const AchievementsPopup(),
+      );
+      break;
+    case 'daily_mood':
+      showDialog(
+        context: context,
+        builder: (context) =>
+            DailyMoodPopup(
+              mood: mood,
+              selectedDay: selectedDay,
+            ),
+      );
+      break;
+    default:
+      break;
+  }
+}
+
+void _scrollToMoodSection(BuildContext context, String selectedDay) {
+  // Navigate to ProgressMapScreen and Scroll to Mood Section
+  Get.to(() => ProgressMapScreen(scrollToIndex: 2, selectedDay: selectedDay));
+}
+

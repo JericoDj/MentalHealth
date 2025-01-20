@@ -46,6 +46,9 @@ dependencies:
   go_router: ^14.6.2
   table_calendar: ^3.1.3
   fl_chart: ^0.69.0
+  google_fonts: ^6.2.1
+
+
 
 
   #this will determine if the user open the app first time
@@ -60,6 +63,7 @@ dependencies:
 
   firebase_analytics: ^11.3.6
   firebase_storage: ^12.3.7
+
 
 
 dev_dependencies:
@@ -90,6 +94,7 @@ flutter:
     - assets/images/HomeSlider (1).jpg
     - assets/images/HomeSlider (2).jpg
     - assets/images/HomeSlider (3).jpg
+    - assets/images/logo/Logo_No_Background.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

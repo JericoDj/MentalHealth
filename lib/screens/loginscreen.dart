@@ -122,25 +122,58 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Sign-In Button
                 SizedBox(
+                  height: 100,
                   width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
+                  child: InkWell(
+                    onTap: () => Get.to(() => NavigationBarMenu()),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFFFFA726), // Orange shade from the image
+                            Color(0xFFFFC107), // Yellow accent
+                            Color(0xFF8BC34A), // Green (Yellow-Green)
+                            Color(0xFF4CAF50), // Deeper green
+                          ],
+                          stops: [0.0, 0.33, 0.67, 1.0],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                        ),
                       ),
-                    ),
-                    onPressed: () => Get.to(() => NavigationBarMenu()),
-                    child: const Text(
-                      "Sign In",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
+                      padding: const EdgeInsets.all(2), // Creates a border effect
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black, // Inside button background color
+                          borderRadius: BorderRadius.circular(8), // Slightly smaller than border
+                        ),
+                        alignment: Alignment.center,
+                        child: ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: [
+                              Color(0xFFFFA726), // Orange from the image
+                              Color(0xFFFFC107), // Yellow from the image
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ).createShader(bounds),
+                          child: Text(
+                            "Sign In",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white, // This is replaced by the gradient shader
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
+
+
+
               ],
             ),
           ),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class MyColors {
   // Primary Colors
-  static const Color color1 = Color(0xFF42A159); // Green from Image 1
-  static const Color color2 = Color(0xFFFD9D35); // Orange from Image 2
+  static const Color color1 = Color(0xFF059646); // Green from Image 1
+  static const Color color2 = Color(0xFFfd9c33); // Orange from Image 2
   static const Color color3 = Color(0xFFFAA92B); // Light Orange from Image 3
   static const Color color4 = Color(0xFF359D4E); // Green from Image 4
   static const Color color5 = Color(0xFF57B14D); // Bright Green from Image 5

@@ -49,28 +49,6 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
   }
 
   // Show Specialist Picker
-  void _showSpecialistPicker() async {
-    final service = await showModalBottomSheet<String>(
-      context: context,
-      builder: (context) => ListView(
-        children: _specialists.entries.map((entry) {
-          return ListTile(
-            title: Text(entry.key),
-            subtitle: Text(entry.value, maxLines: 2, overflow: TextOverflow.ellipsis),
-            trailing: const Icon(Icons.info_outline, color: Colors.blue),
-            onTap: () {
-              Navigator.of(context).pop(entry.key);
-            },
-          );
-        }).toList(),
-      ),
-    );
-    if (service != null) {
-      setState(() {
-        _selectedService = service;
-      });
-    }
-  }
 
   // Service Options
   final Map<String, String> _specialists = {

@@ -182,7 +182,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
               'This is an example of a social post caption. #MentalHealth',
             ),
             SizedBox(height: 10),
-            Image.network('https://via.placeholder.com/600x400'),
+            //Image.network('https://via.placeholder.com/600x400'),
             SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
