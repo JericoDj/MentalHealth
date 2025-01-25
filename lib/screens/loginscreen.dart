@@ -26,8 +26,8 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Logo
-                Image.network(
-                  "https://via.placeholder.com/150",
+                Image.asset(
+                  "assets/images/logo/Logo_Square.png",
                   width: 150,
                   height: 150,
                 ),
@@ -35,7 +35,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // App Name
                 const Text(
-                  "Mental Health App",
+                  textAlign: TextAlign.center,
+                  "Light Level",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const Text(
+                  textAlign: TextAlign.center,
+                  "Psychological Solutions",
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,

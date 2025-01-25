@@ -11,8 +11,8 @@ class WelcomeMessageSection extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFF359d4e), // Light Orange
-            Color(0xFF57b24b),
+            MyColors.color1, // Light Orange
+            MyColors.color1,
 
             Color(0xFFfcbc1d),
             Color(0xFFfd9c33),

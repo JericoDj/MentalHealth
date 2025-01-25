@@ -13,7 +13,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -21,9 +20,6 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // const SizedBox(height: 10),
-              // Daily Moods Section
-
               // Progress Dashboard
               ProgressDashboardCard(),
               const SizedBox(height: 20),
@@ -31,84 +27,11 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Carousel Slider Section
-
               CarouselSlider(
                 items: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8), // Rounded corners
-                      border: Border.all(width: 2, color: Colors.transparent), // Transparent border to avoid overflow issues
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFFFFD700), Color(0xFFFFA500)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8), // Match border radius
-                      child: Container(
-                        padding: EdgeInsets.all(2), // Ensures the gradient appears as a border
-                        decoration: BoxDecoration(
-                          color: Colors.white, // White background inside
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Image.asset(
-                          "assets/images/HomeSlider (1).jpg",
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(width: 2, color: Colors.transparent),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFFFFD700), Color(0xFFFFA500)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Image.asset(
-                          "assets/images/HomeSlider (2).jpg",
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(width: 2, color: Colors.transparent),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFFFFD700), Color(0xFFFFA500)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Image.asset(
-                          "assets/images/HomeSlider (3).jpg",
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildCarouselItem("assets/images/HomeSlider (1).jpg"),
+                  _buildCarouselItem("assets/images/HomeSlider (2).jpg"),
+                  _buildCarouselItem("assets/images/HomeSlider (3).jpg"),
                 ],
                 options: CarouselOptions(
                   height: 200.0,
@@ -121,6 +44,13 @@ class HomeScreen extends StatelessWidget {
                   viewportFraction: 0.8,
                 ),
               ),
+
+
+
+              const SizedBox(height: 30),
+
+              // 🔥 New: Row of Buttons for Articles, Videos, eBooks
+              _buildResourceButtons(context),
 
               const SizedBox(height: 20),
 
@@ -137,29 +67,104 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper Method for Daily Moods
-  Widget _buildMoodDay(String day, String emoji) {
+  // Helper Method for Carousel Items
+  Widget _buildCarouselItem(String imagePath) {
     return Container(
-      child: Column(
-        children: [
-          Text(
-            day,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: MyColors.color1,
-            ),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(width: 2, color: Colors.transparent),
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFfcbc1d),
+            Color(0xFFfd9c33),
+            Color(0xFFFFD700),
+            Color(0xFFFFA500)
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: EdgeInsets.all(2),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(6),
           ),
-          const SizedBox(height: 5),
-          Text(
-            emoji,
-            style: const TextStyle(
-              fontSize: 24,
-            ),
+          child: Image.asset(
+            imagePath,
+            fit: BoxFit.fill,
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  // 🆕 Helper Method for Resource Buttons (Articles, Videos, eBooks)
+  // 🆕 Updated Resource Buttons (No Blue Background)
+  Widget _buildResourceButtons(BuildContext context) {
+    return Row(spacing: 10,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        _buildResourceButton(
+          icon: Icons.article,
+          label: "Articles",
+          onPressed: () {
+            // TODO: Navigate to Articles Section
+          },
+        ),
+        _buildResourceButton(
+          icon: Icons.video_library,
+          label: "Videos",
+          onPressed: () {
+            // TODO: Navigate to Videos Section
+          },
+        ),
+        _buildResourceButton(
+          icon: Icons.menu_book,
+          label: "eBooks",
+          onPressed: () {
+            // TODO: Navigate to eBooks Section
+          },
+        ),
+      ],
+    );
+  }
+
+// 🆕 Updated Button with Transparent Background
+  Widget _buildResourceButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return Expanded(
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          side: BorderSide(color: MyColors.color1, width: 2), // Outline border
+          backgroundColor: Colors.transparent, // Transparent background
+        ),
+        onPressed: onPressed,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 24, color: MyColors.color1), // Custom icon color
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: MyColors.color1, // Custom text color
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-

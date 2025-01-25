@@ -2,7 +2,8 @@
   import 'package:google_fonts/google_fonts.dart';
   
   import '../screens/account_screen/account.dart';
-  import '../screens/growth_garden/growth_garden.dart';
+  import '../screens/book_now/booknowscreen.dart';
+import '../screens/growth_garden/growth_garden.dart';
   import '../screens/homescreen/homescreen.dart';
   import '../screens/mindhub/mindhubscreen.dart';
   import '../screens/safe_talks/safe_talks.dart';
@@ -12,7 +13,6 @@
     @override
     _NavigationBarMenuState createState() => _NavigationBarMenuState();
   }
-  
   class _NavigationBarMenuState extends State<NavigationBarMenu> {
     int _selectedIndex = 0;
   
@@ -20,6 +20,7 @@
       HomeScreen(),
       MindHubScreen(),
       GrowthGardenScreen(),
+      BookNowScreen(),
       SafeTalksScreen(),
       AccountScreen(),
     ];
@@ -44,6 +45,13 @@
           colors: [Color(0xFFF8F8F8), Color(0xFFF1F1F1)], // Light blue sky feel
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
+        ),
+      ),
+      BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFFAF3E0), Color(0xFFFFE3B3)], // Soft red-pink gradient
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
       ),
       BoxDecoration(
@@ -144,72 +152,84 @@
                   ),
                 ),
               ),
-              title: Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Logo
-                    Container(
-                      width: 180, // Adjusted width for better scaling
-                      child: Image.asset(
-                        'assets/images/logo/Logo_No_Background.png',
-                        fit: BoxFit.contain,
-                      ),
+              title: Stack(
+                children: [
+                  // Centered Logo
+                  Align(
+                    alignment: Alignment.center,
+                    child: Image.asset(
+                      'assets/images/logo/Logo_Square.png',
+                      height: 50,
+                      fit: BoxFit.contain,
                     ),
-
-                    // Customer Support Icon (with red border, white box, gradient icon)
-                    Container(
-                      height: 42, // Increased to accommodate border
-                      width: 42,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Outer Gradient Border
-                          Container(
-                            height: 42,
-                            width: 42,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [
-                                  Color(0xFF2E8440),
-                                  Color(0xFF59b34b),], // Red gradient
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // First Image (Left-aligned) - Removed Padding
+                        Image.asset(
+                          'assets/images/logo/appbar_title.png',
+                          height: 40,
+                          fit: BoxFit.contain,
+                        ),
+                        // Customer Support Icon (Right-aligned)
+                        Container(
+                          height: 42, // Increased to accommodate border
+                          width: 42,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Outer Gradient Border
+                              Container(
+                                height: 42,
+                                width: 42,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      MyColors.color2,
+                                      MyColors.color2,
+                                    ], // Green gradient
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-
-                          // Inner White Circle (To create the effect of a bordered button)
-                          Container(
-                            height: 38, // Slightly smaller to create border effect
-                            width: 38,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9), // White background
-                              shape: BoxShape.circle,
-                            ),
-                            child: ShaderMask(
-                              shaderCallback: (Rect bounds) {
-                                return const LinearGradient(
-                                  colors: [Color(0xFF2E8440), Color(0xFF59b34b)], // Gradient for the icon
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ).createShader(bounds);
-                              },
-                              child: const Icon(
-                                Icons.support_agent,
-                                size: 26,
-                                color: Colors.white, // Overridden by ShaderMask
+                              // Inner White Circle
+                              Container(
+                                height: 38, // Slightly smaller to create border effect
+                                width: 38,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.9), // White background
+                                  shape: BoxShape.circle,
+                                ),
+                                child: ShaderMask(
+                                  shaderCallback: (Rect bounds) {
+                                    return LinearGradient(
+                                      colors: [
+                                        MyColors.color2,
+                                        MyColors.color2,
+                                      ], // Gradient for the icon
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ).createShader(bounds);
+                                  },
+                                  child: const Icon(
+                                    Icons.support_agent,
+                                    size: 26,
+                                    color: Colors.white, // Overridden by ShaderMask
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-
-                  ],
-                ),
+                  ),
+                ],
               ),
               automaticallyImplyLeading: false,
             ),
@@ -247,6 +267,11 @@
                   icon: Icon(Icons.spa),
                   label: 'Growth\nGarden', // Two-line label
                 ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.menu_book),
+                  label: 'Book Now',
+                ),
+
                 BottomNavigationBarItem(
                   icon: Icon(Icons.group),
                   label: 'Safe Talks', // Two-line label

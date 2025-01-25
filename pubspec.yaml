@@ -95,6 +95,8 @@ flutter:
     - assets/images/HomeSlider (2).jpg
     - assets/images/HomeSlider (3).jpg
     - assets/images/logo/Logo_No_Background.png
+    - assets/images/logo/Logo_Square.png
+    - assets/images/logo/appbar_title.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
