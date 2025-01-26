@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class QuickWellnessTools extends StatelessWidget {
   const QuickWellnessTools({super.key});
@@ -20,7 +21,7 @@ class QuickWellnessTools extends StatelessWidget {
                 title: 'Mindful Breathing',
                 icon: Icons.air,
                 description: 'Guided breathing exercises to calm the mind.',
-                color: Colors.cyan[100],
+
                 onTap: () => _showBreathingDialog(context),
                 width: MediaQuery.of(context).size.width / 2 - 25,
               ),
@@ -28,7 +29,7 @@ class QuickWellnessTools extends StatelessWidget {
                 title: 'Quick Meditation',
                 icon: Icons.self_improvement,
                 description: 'A 5-minute mindfulness session.',
-                color: Colors.purple[100],
+
                 onTap: () => _showMeditationDialog(context),
                 width: MediaQuery.of(context).size.width / 2 - 25,
               ),
@@ -152,33 +153,33 @@ class FeatureCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(15)),
+        border: Border.all(color: MyColors.color1, width: 1.5 )
+      ),
       width: width,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        color: color ?? Colors.white,
-        child: InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 36, color: Colors.grey[800]),
-                const SizedBox(height: 10),
-                Text(
-                  title,
-                  style:
-                  const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12, color: Colors.black54),
-                ),
-              ],
-            ),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 36, color: Colors.grey[800]),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style:
+                const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+            ],
           ),
         ),
       ),

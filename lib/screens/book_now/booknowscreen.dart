@@ -1,10 +1,159 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
+import '../../../widgets/homescreen_widgets/consultation_screen_widgets/consultation_form.dart';
+import '../../../widgets/homescreen_widgets/consultation_screen_widgets/bottom_buttons.dart';
+import '../../../widgets/homescreen_widgets/call_customer_support_widget.dart';
 
-class BookNowScreen extends StatelessWidget {
-  const BookNowScreen({super.key});
+import '../homescreen/booking_review_screen.dart';
+
+class BookNowScreen extends StatefulWidget {
+  const BookNowScreen({Key? key}) : super(key: key);
+
+  @override
+  State<BookNowScreen> createState() => _ConsultationScreenState();
+}
+
+class _ConsultationScreenState extends State<BookNowScreen> {
+  String _selectedConsultationType = "Online";  // Default to Online
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+  String? _selectedService;
+  int availableCredits = 5;
+
+  // Pick Date
+  void _pickDate() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (date != null) {
+      setState(() {
+        _selectedDate = date;
+      });
+    }
+  }
+
+  // Pick Time
+  void _pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (time != null) {
+      setState(() {
+        _selectedTime = time;
+      });
+    }
+  }
+
+  // Show Specialist Picker
+
+  // Service Options
+  final Map<String, String> _specialists = {
+    "Psychological Assessment":
+    "Comprehensive assessment through interviews and tests.",
+    "Consultation":
+    "General consultation to address mental health concerns.",
+    "Couple Therapy/Counseling":
+    "Help couples resolve conflicts and improve relationships.",
+    "Counseling and Psychotherapy":
+    "Therapy sessions aimed at healing and mental well-being.",
+  };
+
+  // Customer Support Popup
+  void _showCustomerSupportPopup() {
+    showDialog(
+      context: context,
+      builder: (context) => CallCustomerSupportPopup(),
+    );
+  }
+
+  // Book Session
+  void _bookSession() {
+    if (_selectedDate != null && _selectedTime != null && _selectedService != null) {
+      Get.to(() => BookingReviewScreen(
+        consultationType: _selectedConsultationType,
+        selectedDate: DateFormat('EEE., MMM. d').format(_selectedDate!),
+        selectedTime: _selectedTime!.format(context),
+        service: _selectedService!,
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    bool isFormComplete = _selectedDate != null &&
+        _selectedTime != null &&
+        _selectedService != null;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Book Now"),
+        backgroundColor: Colors.greenAccent,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: 10,
+              children: [
+                Container(
+                    color: Colors.grey,
+                    height: 100,
+                    child: Text("Consultation Touchpoint"),
+
+                ),
+                Container(
+                  color: Colors.grey,
+                  height: 100,
+                  
+                  child: Text("24/7 Safe Space"),
+
+
+                ),
+              ],
+            ),
+
+
+
+
+            ConsultationForm(
+              selectedConsultationType: _selectedConsultationType,
+              selectedDate: _selectedDate,
+              selectedTime: _selectedTime,
+              selectedService: _selectedService,
+              onPickDate: _pickDate,
+              onPickTime: _pickTime,
+              onSelectService: (String service) {
+                setState(() {
+                  _selectedService = service;
+                });
+              },
+              onToggleType: (type) {
+                setState(() {
+                  _selectedConsultationType = type;
+                });
+              },
+            ),
+            const SizedBox(height: 30),
+
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomButtons(
+        availableCredits: availableCredits,
+        isFormComplete: isFormComplete,
+        onBookSession: _bookSession,
+        onCallSupport: _showCustomerSupportPopup,
+      ),
+    );
   }
 }

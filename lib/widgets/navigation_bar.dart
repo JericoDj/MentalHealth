@@ -1,289 +1,266 @@
-  import 'package:flutter/material.dart';
-  import 'package:google_fonts/google_fonts.dart';
-  
-  import '../screens/account_screen/account.dart';
-  import '../screens/book_now/booknowscreen.dart';
+import 'package:flutter/material.dart';
+import '../screens/account_screen/account.dart';
+import '../screens/book_now/booknowscreen.dart';
 import '../screens/growth_garden/growth_garden.dart';
-  import '../screens/homescreen/homescreen.dart';
-  import '../screens/mindhub/mindhubscreen.dart';
-  import '../screens/safe_talks/safe_talks.dart';
-  import '../utils/constants/colors.dart';
-  
-  class NavigationBarMenu extends StatefulWidget {
-    @override
-    _NavigationBarMenuState createState() => _NavigationBarMenuState();
+import '../screens/homescreen/homescreen.dart';
+import '../screens/safe_talks/safe_talks.dart';
+import '../utils/constants/colors.dart';
+
+class NavigationBarMenu extends StatefulWidget {
+  @override
+  _NavigationBarMenuState createState() => _NavigationBarMenuState();
+}
+
+class _NavigationBarMenuState extends State<NavigationBarMenu> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    HomeScreen(),
+    GrowthGardenScreen(),
+    BookNowScreen(), // Now works correctly
+    SafeTalksScreen(),
+    AccountScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
   }
-  class _NavigationBarMenuState extends State<NavigationBarMenu> {
-    int _selectedIndex = 0;
-  
-    final List<Widget> _pages = [
-      HomeScreen(),
-      MindHubScreen(),
-      GrowthGardenScreen(),
-      BookNowScreen(),
-      SafeTalksScreen(),
-      AccountScreen(),
-    ];
 
-    final List<BoxDecoration> _backgroundGradients = [
-      BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFF8F8F8), Color(0xFFF1F1F1)], // Soft grey gradient
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFF8F8F8), Color(0xFFF1F1F1)], // Warm beige tones
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFF8F8F8), Color(0xFFF1F1F1)], // Light blue sky feel
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFFAF3E0), Color(0xFFFFE3B3)], // Soft red-pink gradient
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFFAF3E0), Color(0xFFFFE3B3)], // Soft red-pink gradient
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFFAF3E0), Color(0xFFFFE3B3)], // Green pastel
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-    ];
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          toolbarHeight: 65,
+          elevation: 4, // Adds shadow effect
+          shadowColor: Colors.black.withOpacity(0.2),
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFF8F8F8), // Soft off-white
+                  Color(0xFFF1F1F1), // Light grey
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          title: Stack(
+            children: [
 
-    void _onItemTapped(int index) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    }
-  
-    Future<bool?> _showExitConfirmationDialog() async {
-      return showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Exit App"),
-            content: Text("Are you sure you want to exit?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text("Exit"),
-              ),
-            ],
-          );
-        },
-      );
-    }
-  
-  
-  
-    @override
-    Widget build(BuildContext context) {
-      return PopScope(
-        canPop: _selectedIndex == 0, // Allow popping only when on home screen
-        onPopInvoked: (didPop) async {
-          if (!didPop) {
-            if (_selectedIndex != 0) {
-              setState(() {
-                _selectedIndex = 0; // Reset to Home tab instead of exiting
-              });
-            } else {
-              bool? shouldExit = await _showExitConfirmationDialog();
-              if (shouldExit ?? false) {
-                Navigator.of(context).pop(); // Exit the app
-              }
-            }
-          }
-        },
-        child: SafeArea(
-          child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              toolbarHeight: 65,
-              elevation: 4, // Adds slight shadow effect
-              shadowColor: Colors.black.withOpacity(0.2), // Subtle shadow
-              flexibleSpace: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFF8F8F8), // Soft off-white
-                      Color(0xFFF1F1F1), // Light grey for contrast
-                    ],
-                    stops: [0.0, 1.0],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26, // Subtle shadow color
-                      blurRadius: 6, // Blur effect
-                      spreadRadius: 2, // Spreading the shadow
-                      offset: Offset(0, 3), // Move shadow downward
-                    ),
-                  ],
-                  border: Border(
-                    bottom: BorderSide(
-                      color: Color(0xFFE0E0E0), // Softer grey for divider
-                      width: 1,
-                    ),
-                  ),
-                ),
-              ),
-              title: Stack(
-                children: [
-                  // Centered Logo
-                  Align(
-                    alignment: Alignment.center,
-                    child: Image.asset(
-                      'assets/images/logo/Logo_Square.png',
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image.asset(
+                      'assets/images/logo/appbar_title.png',
                       height: 50,
                       fit: BoxFit.contain,
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // First Image (Left-aligned) - Removed Padding
-                        Image.asset(
-                          'assets/images/logo/appbar_title.png',
-                          height: 40,
-                          fit: BoxFit.contain,
-                        ),
-                        // Customer Support Icon (Right-aligned)
-                        Container(
-                          height: 42, // Increased to accommodate border
-                          width: 42,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Outer Gradient Border
-                              Container(
-                                height: 42,
-                                width: 42,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      MyColors.color2,
-                                      MyColors.color2,
-                                    ], // Green gradient
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
+                    Container(
+                      height: 42,
+                      width: 42,
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            height: 42,
+                            width: 42,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [MyColors.color2, MyColors.color2],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              // Inner White Circle
-                              Container(
-                                height: 38, // Slightly smaller to create border effect
-                                width: 38,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9), // White background
-                                  shape: BoxShape.circle,
-                                ),
-                                child: ShaderMask(
-                                  shaderCallback: (Rect bounds) {
-                                    return LinearGradient(
-                                      colors: [
-                                        MyColors.color2,
-                                        MyColors.color2,
-                                      ], // Gradient for the icon
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(bounds);
-                                  },
-                                  child: const Icon(
-                                    Icons.support_agent,
-                                    size: 26,
-                                    color: Colors.white, // Overridden by ShaderMask
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                          Container(
+                            height: 38,
+                            width: 38,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9),
+                              shape: BoxShape.circle,
+                            ),
+                            child: ShaderMask(
+                              shaderCallback: (Rect bounds) {
+                                return LinearGradient(
+                                  colors: [MyColors.color2, MyColors.color2],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ).createShader(bounds);
+                              },
+                              child: const Icon(
+                                Icons.support_agent,
+                                size: 26,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          automaticallyImplyLeading: false,
+        ),
+
+        body: _pages[_selectedIndex], // Display selected page
+
+        bottomNavigationBar: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            ClipPath(
+              clipper: CurvedNavBarClipper(),
+              child: Container(
+                height: 65,
+                decoration: BoxDecoration(
+                  color: Colors.white, // Solid white background
+                  border: Border(
+                    top: BorderSide(
+                      color: MyColors.color1, // Border color at the top
+                      width: 4.0, // Thickness of the border
                     ),
                   ),
-                ],
-              ),
-              automaticallyImplyLeading: false,
-            ),
-
-
-            body: SafeArea(
-              child: Container(
-                height: MediaQuery.of(context).size.height - kBottomNavigationBarHeight,
-                decoration: _backgroundGradients[_selectedIndex], // Dynamically applied gradient
-                child: _pages[_selectedIndex],
+                ),
               ),
             ),
-          
-          
-          
-            bottomNavigationBar: BottomNavigationBar(
-              backgroundColor: Colors.white,
-              type: BottomNavigationBarType.fixed, // Fixed for consistent spacing
-              currentIndex: _selectedIndex,
-              onTap: _onItemTapped,
-              selectedItemColor: MyColors.color1, // Highlight selected tab
-              unselectedItemColor: Colors.grey.shade600, // Grey for unselected items
-              selectedFontSize: 12, // Adjust selected font size
-              unselectedFontSize: 10, // Adjust unselected font size
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.menu_book),
-                  label: 'MindHub',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.spa),
-                  label: 'Growth\nGarden', // Two-line label
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.menu_book),
-                  label: 'Book Now',
-                ),
 
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.group),
-                  label: 'Safe Talks', // Two-line label
+            // Floating Center Button (Now Clickable & Positioned Correctly)
+            Positioned(
+              bottom: 10, // Adjusted to lift button slightly higher
+              left: MediaQuery.of(context).size.width / 2 - (MediaQuery.of(context).size.width / 18),
+              child: GestureDetector(
+                onTap: () => _onItemTapped(2), // Book Now screen navigation
+                child: Column(
+                  children: [
+                    Container(
+                      width: 56, // Same as default FloatingActionButton size
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.topRight,
+                          stops: [0.0, 1.0], // 3 stops for gradient transition
+                          colors: [
+                            Colors.orange,         // Top-left gradient start (Green)
+                            MyColors.color2,      // Transition to MyColors.color1 at top-center
+                               // Transition to Orange at top-right
+                          ],
+                        ),
+                        border: Border.all(color: Colors.white, width: 2), // Outer white border
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(3), // Inner padding to show gradient border
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white, // Inner circle white background
+                          child: Image.asset(
+                            'assets/images/logo/Logo_Square.png',  // Your logo file
+                            width: 30, // Adjust size as needed
+                            height: 30,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 2), // Spacing between FAB & text
+                    Text(
+                      "Book Now",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
                 ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
-                  label: 'Account',
+              ),
+            ),
+
+            // Navigation Bar Items
+            Padding(
+              padding: EdgeInsets.fromLTRB(30, 5, 30, 5),
+              child: Positioned(
+                bottom: 0,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: 65,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(flex: 2, child: _buildNavItem(Icons.home, "Home", 0)),  // Wider
+                      Flexible(flex: 3, child: _buildNavItem(Icons.spa, "Growth Garden", 1)), // Equal width
+                      Flexible(flex: 2, child: SizedBox(width: 50,)), // Space for Floating Button
+
+                      Flexible(flex: 2, child: _buildNavItem(Icons.group, "Safe Talks", 3)), // Equal width
+                      Flexible(flex: 2, child: _buildNavItem(Icons.person, "Account", 4)),  // Wider
+                    ],
+                  ),
                 ),
-              ],
+              ),
+            ),
+          ],
+        ),
+
+
+
+
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label, int index) {
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: _selectedIndex == index ? MyColors.color1 : Colors.grey.shade600,
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: _selectedIndex == index ? MyColors.color1 : Colors.grey.shade600,
             ),
           ),
-        ),
-      );
-    }
+        ],
+      ),
+    );
   }
+}
+
+// Custom Curved Navigation Bar Shape
+class CurvedNavBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    double width = size.width;
+    double height = size.height;
+
+    Path path = Path()
+      ..moveTo(0, height) // Start from bottom-left
+      ..lineTo(width * 0.4, height) // Left part
+      ..quadraticBezierTo(width * 0.5, height - 35, width * 0.6, height) // Curved notch
+      ..lineTo(width, height) // Right part
+      ..lineTo(width, 0) // Top right
+      ..lineTo(0, 0) // Top left
+      ..close(); // Close path
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}

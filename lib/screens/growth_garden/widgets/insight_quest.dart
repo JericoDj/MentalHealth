@@ -9,7 +9,7 @@ class InsightQuestButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: double.infinity,
+        width: MediaQuery.of(context).size.width/2.2,
 
         child: FeatureCard(
           title: 'Insight Quest',
