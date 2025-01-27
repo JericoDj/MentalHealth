@@ -74,15 +74,6 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                     ),
                   ),
                 ),
-              )
-        ,
-              TabBar(
-                labelColor: MyColors.color1,
-                indicatorColor: MyColors.color1,
-                tabs: [
-                  Tab(text: 'For You',),
-                  Tab(text: 'Following'),
-                ],
               ),
               Expanded(
                 child: TabBarView(
@@ -141,22 +132,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
               ),
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.photo),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.camera_alt),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.gif),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(Icons.mic),
-            onPressed: () {},
-          ),
+
         ],
       ),
     );
@@ -185,7 +161,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
             //Image.network('https://via.placeholder.com/600x400'),
             SizedBox(height: 10),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -194,6 +170,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                     Text('120'),
                   ],
                 ),
+                SizedBox(width: 20,),
                 Row(
                   children: [
                     Icon(Icons.comment),
@@ -201,13 +178,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                     Text('34'),
                   ],
                 ),
-                Row(
-                  children: [
-                    Icon(Icons.send),
-                    SizedBox(width: 5),
-                    Text('Share'),
-                  ],
-                ),
+
               ],
             ),
           ],

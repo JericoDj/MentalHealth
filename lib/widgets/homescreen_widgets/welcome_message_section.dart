@@ -34,14 +34,14 @@ class WelcomeMessageSection extends StatelessWidget {
         child: Column(
           children: const [
             Text(
-              'Hi there! Welcome to Your Well-Being Zone',
+              'Hi! Welcome to Your Well-Being Zone',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: MyColors.color1),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 10),
             Text(
               'Let\'s focus on your mental health journey together. We\'re here to support you every step of the way!',
-              style: TextStyle(fontSize: 14, color: MyColors.color1),
+              style: TextStyle(fontSize: 14, color: MyColors.color1,),
               textAlign: TextAlign.center,
             ),
           ],

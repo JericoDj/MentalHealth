@@ -131,8 +131,12 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomButtons(
-        availableCredits: availableCredits,
+      bottomNavigationBar:
+
+
+      BottomButtons(
+
+
         isFormComplete: isFormComplete,
         onBookSession: _bookSession,
         onCallSupport: _showCustomerSupportPopup,

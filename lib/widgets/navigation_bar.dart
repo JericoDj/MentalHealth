@@ -17,7 +17,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
   final List<Widget> _pages = [
     HomeScreen(),
     GrowthGardenScreen(),
-    BookNowScreen(), // Now works correctly
+    BookNowScreen(),
     SafeTalksScreen(),
     AccountScreen(),
   ];
@@ -35,186 +35,115 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           toolbarHeight: 65,
-          elevation: 4, // Adds shadow effect
+          elevation: 4,
           shadowColor: Colors.black.withOpacity(0.2),
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFFF8F8F8), // Soft off-white
-                  Color(0xFFF1F1F1), // Light grey
+                  Color(0xFFF8F8F8),
+                  Color(0xFFF1F1F1),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
             ),
           ),
-          title: Stack(
-            children: [
-
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Image.asset(
-                      'assets/images/logo/appbar_title.png',
-                      height: 50,
-                      fit: BoxFit.contain,
-                    ),
-                    Container(
-                      height: 42,
-                      width: 42,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            height: 42,
-                            width: 42,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [MyColors.color2, MyColors.color2],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            height: 38,
-                            width: 38,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.9),
-                              shape: BoxShape.circle,
-                            ),
-                            child: ShaderMask(
-                              shaderCallback: (Rect bounds) {
-                                return LinearGradient(
-                                  colors: [MyColors.color2, MyColors.color2],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ).createShader(bounds);
-                              },
-                              child: const Icon(
-                                Icons.support_agent,
-                                size: 26,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+          title: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(
+                  'assets/images/logo/appbar_title.png',
+                  height: MediaQuery.of(context).size.height * 0.06,
+                  fit: BoxFit.contain,
                 ),
-              ),
-            ],
+                Container(
+                  height: 42,
+                  width: 42,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.9),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: Icon(Icons.support_agent, size: 26, color: MyColors.color2),
+                ),
+              ],
+            ),
           ),
           automaticallyImplyLeading: false,
         ),
 
-        body: _pages[_selectedIndex], // Display selected page
+        body: _pages[_selectedIndex],
 
         bottomNavigationBar: Stack(
           clipBehavior: Clip.none,
           children: [
-            ClipPath(
-              clipper: CurvedNavBarClipper(),
-              child: Container(
-                height: 65,
-                decoration: BoxDecoration(
-                  color: Colors.white, // Solid white background
-                  border: Border(
-                    top: BorderSide(
-                      color: MyColors.color1, // Border color at the top
-                      width: 4.0, // Thickness of the border
-                    ),
-                  ),
+            Container(
+              height: 65,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: MyColors.color1, width: 4.0),
                 ),
               ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildNavItem(Icons.home, "Home", 0),
+                  _buildNavItem(Icons.spa, "Growth Garden", 1),
+                  SizedBox(width: 50),
+                  _buildNavItem(Icons.group, "Safe Talks", 3),
+                  _buildNavItem(Icons.person, "Account", 4),
+                ],
+              ),
             ),
-
-            // Floating Center Button (Now Clickable & Positioned Correctly)
             Positioned(
-              bottom: 10, // Adjusted to lift button slightly higher
-              left: MediaQuery.of(context).size.width / 2 - (MediaQuery.of(context).size.width / 18),
-              child: GestureDetector(
-                onTap: () => _onItemTapped(2), // Book Now screen navigation
-                child: Column(
-                  children: [
-                    Container(
-                      width: 56, // Same as default FloatingActionButton size
-                      height: 56,
+              bottom: 10,
+              left: MediaQuery.of(context).size.width / 2 - 35,
+              child: Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => _onItemTapped(2),
+                    child: Container(
+                      width: 70,
+                      height: 70,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.topRight,
-                          stops: [0.0, 1.0], // 3 stops for gradient transition
-                          colors: [
-                            Colors.orange,         // Top-left gradient start (Green)
-                            MyColors.color2,      // Transition to MyColors.color1 at top-center
-                               // Transition to Orange at top-right
-                          ],
-                        ),
-                        border: Border.all(color: Colors.white, width: 2), // Outer white border
+                        color: Colors.white,
+                        border: Border.all(color: MyColors.color1, width: 4),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(3), // Inner padding to show gradient border
+                        padding: const EdgeInsets.all(3),
                         child: CircleAvatar(
-                          backgroundColor: Colors.white, // Inner circle white background
+                          backgroundColor: Colors.white,
                           child: Image.asset(
-                            'assets/images/logo/Logo_Square.png',  // Your logo file
-                            width: 30, // Adjust size as needed
-                            height: 30,
+                            'assets/images/logo/Logo_Square.png',
+                            width: 40,
+                            height: 40,
                             fit: BoxFit.contain,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 2), // Spacing between FAB & text
-                    Text(
+                  ),
+                  GestureDetector(
+                    onTap: () => _onItemTapped(2),
+                    child: Text(
                       "Book Now",
-                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade700,
+                        color: MyColors.color1,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Navigation Bar Items
-            Padding(
-              padding: EdgeInsets.fromLTRB(30, 5, 30, 5),
-              child: Positioned(
-                bottom: 0,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: 65,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(flex: 2, child: _buildNavItem(Icons.home, "Home", 0)),  // Wider
-                      Flexible(flex: 3, child: _buildNavItem(Icons.spa, "Growth Garden", 1)), // Equal width
-                      Flexible(flex: 2, child: SizedBox(width: 50,)), // Space for Floating Button
-
-                      Flexible(flex: 2, child: _buildNavItem(Icons.group, "Safe Talks", 3)), // Equal width
-                      Flexible(flex: 2, child: _buildNavItem(Icons.person, "Account", 4)),  // Wider
-                    ],
                   ),
-                ),
+                ],
               ),
             ),
           ],
         ),
-
-
-
-
       ),
     );
   }
@@ -226,12 +155,15 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
+
             icon,
             color: _selectedIndex == index ? MyColors.color1 : Colors.grey.shade600,
           ),
           Text(
+
             label,
             style: TextStyle(
+              letterSpacing: -0.05,
               fontSize: 12,
               color: _selectedIndex == index ? MyColors.color1 : Colors.grey.shade600,
             ),
@@ -240,27 +172,4 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
       ),
     );
   }
-}
-
-// Custom Curved Navigation Bar Shape
-class CurvedNavBarClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    double width = size.width;
-    double height = size.height;
-
-    Path path = Path()
-      ..moveTo(0, height) // Start from bottom-left
-      ..lineTo(width * 0.4, height) // Left part
-      ..quadraticBezierTo(width * 0.5, height - 35, width * 0.6, height) // Curved notch
-      ..lineTo(width, height) // Right part
-      ..lineTo(width, 0) // Top right
-      ..lineTo(0, 0) // Top left
-      ..close(); // Close path
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

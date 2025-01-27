@@ -34,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                   _buildCarouselItem("assets/images/HomeSlider (3).jpg"),
                 ],
                 options: CarouselOptions(
-                  height: 200.0,
+                  height: 220.0,
                   enlargeCenterPage: true,
                   autoPlay: true,
                   aspectRatio: 16 / 9,
@@ -45,21 +45,19 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
 
-
-
-              const SizedBox(height: 30),
-
-              // 🔥 New: Row of Buttons for Articles, Videos, eBooks
-              _buildResourceButtons(context),
-
               const SizedBox(height: 20),
 
-              // Consultation Hub
-              const ConsultationTouchpointCard(),
-              const SizedBox(height: 20),
-
-              // 24/7 Helpline
-              const SafeSpaceCard(),
+              // // 🔥 New: Row of Buttons for Articles, Videos, eBooks
+              // _buildResourceButtons(context),
+              //
+              // const SizedBox(height: 20),
+              //
+              // // Consultation Hub
+              // const ConsultationTouchpointCard(),
+              // const SizedBox(height: 20),
+              //
+              // // 24/7 Helpline
+              // const SafeSpaceCard(),
             ],
           ),
         ),
@@ -70,6 +68,7 @@ class HomeScreen extends StatelessWidget {
   // Helper Method for Carousel Items
   Widget _buildCarouselItem(String imagePath) {
     return Container(
+
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(width: 2, color: Colors.transparent),

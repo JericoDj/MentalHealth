@@ -149,7 +149,6 @@ class _ConsultationScreenState extends State<BookNowScreen> {
         ),
       ),
       bottomNavigationBar: BottomButtons(
-        availableCredits: availableCredits,
         isFormComplete: isFormComplete,
         onBookSession: _bookSession,
         onCallSupport: _showCustomerSupportPopup,

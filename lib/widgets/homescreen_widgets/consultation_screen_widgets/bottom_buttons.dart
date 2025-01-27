@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class BottomButtons extends StatelessWidget {
-  final int availableCredits;
+
   final bool isFormComplete;
   final Function() onBookSession;
   final Function() onCallSupport;
 
   const BottomButtons({
     Key? key,
-    required this.availableCredits,
+
     required this.isFormComplete,
     required this.onBookSession,
     required this.onCallSupport,
@@ -16,7 +16,7 @@ class BottomButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isButtonEnabled = isFormComplete && availableCredits > 0;
+    bool isButtonEnabled = isFormComplete;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -49,6 +49,7 @@ class BottomButtons extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(height: 25),
         ],
       ),
     );
