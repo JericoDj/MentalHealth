@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:llps_mental_app/repositories/authentication_repository.dart';
 import 'package:llps_mental_app/screens/loginscreen.dart';
+import 'controllers/session_controller.dart';
 import 'firebase_options.dart';
 import 'App.dart';
 
@@ -18,6 +19,8 @@ Icon validateIcon(IconData iconData) {
 }
 
 Future<void> main() async {
+
+  Get.put(SessionController()); // Ensure that SessionController is registered at the start
   WidgetsFlutterBinding.ensureInitialized();
 
   if (kIsWeb) {

@@ -13,37 +13,58 @@ class SpecialistSelection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: ElevatedButton(
-        onPressed: () async {
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      child: GestureDetector(
+        onTap: () async {
           final service = await _showServicePicker(context);
           if (service != null) {
-            onSelectService(service);  // Pass the selected service
+            onSelectService(service);
           }
         },
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              selectedService ?? "Select Service",
-            ),
-            if (selectedService != null) ...[
-              const SizedBox(width: 5),
-              GestureDetector(
-                onTap: () {
-                  _showServiceDetails(
-                    context,
-                    selectedService!,
-                    _getServiceDescription(selectedService!),
-                  );
-                },
-                child: Tooltip(
-                  message: "Show details",
-                  child: const Icon(Icons.info_outline, color: Colors.blue, size: 18),
-                ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.blue.shade100,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.blue, width: 2),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 4,
+                offset: Offset(0, 2),
               ),
             ],
-          ],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              Text(
+                selectedService ?? "Select Service",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade800,
+                ),
+              ),
+              if (selectedService != null) ...[
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: () {
+                    _showServiceDetails(
+                      context,
+                      selectedService!,
+                      _getServiceDescription(selectedService!),
+                    );
+                  },
+                  child: Tooltip(
+                    message: "Show details",
+                    child: const Icon(Icons.info_outline, color: Colors.blue, size: 18),
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -59,14 +80,29 @@ class SpecialistSelection extends StatelessWidget {
 
     return showModalBottomSheet<String>(
       context: context,
-      builder: (context) => ListView.builder(
-        itemCount: _specialists.length,
-        itemBuilder: (context, index) => ListTile(
-          title: Row(
-            children: [
-              Text(_specialists[index]),
-              const SizedBox(width: 5),
-              GestureDetector(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: ListView.builder(
+          itemCount: _specialists.length,
+          itemBuilder: (context, index) => Card(
+            elevation: 2,
+            margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              title: Text(
+                _specialists[index],
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              trailing: GestureDetector(
                 onTap: () {
                   _showServiceDetails(
                     context,
@@ -79,9 +115,9 @@ class SpecialistSelection extends StatelessWidget {
                   child: const Icon(Icons.info_outline, color: Colors.blue, size: 18),
                 ),
               ),
-            ],
+              onTap: () => Navigator.of(context).pop(_specialists[index]),
+            ),
           ),
-          onTap: () => Navigator.of(context).pop(_specialists[index]),
         ),
       ),
     );
@@ -112,12 +148,18 @@ class SpecialistSelection extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(service),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        title: Text(
+          service,
+          style: TextStyle(color: Colors.blue.shade800, fontWeight: FontWeight.bold),
+        ),
         content: Text(description),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Close"),
+            child: Text("Close", style: TextStyle(color: Colors.blue.shade800)),
           ),
         ],
       ),

@@ -15,52 +15,38 @@ class ConsultationScreen extends StatefulWidget {
 
 class _ConsultationScreenState extends State<ConsultationScreen> {
   String _selectedConsultationType = "Online";  // Default to Online
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
+  DateTime? _selectedDateTime;
   String? _selectedService;
   int availableCredits = 5;
 
-  // Pick Date
-  void _pickDate() async {
-    final date = await showDatePicker(
+  // Pick Date and Time Together
+  Future<void> _pickDateTime() async {
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDateTime ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
-    if (date != null) {
-      setState(() {
-        _selectedDate = date;
-      });
+
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null) {
+        setState(() {
+          _selectedDateTime = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
     }
   }
-
-  // Pick Time
-  void _pickTime() async {
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (time != null) {
-      setState(() {
-        _selectedTime = time;
-      });
-    }
-  }
-
-  // Show Specialist Picker
-
-  // Service Options
-  final Map<String, String> _specialists = {
-    "Psychological Assessment":
-    "Comprehensive assessment through interviews and tests.",
-    "Consultation":
-    "General consultation to address mental health concerns.",
-    "Couple Therapy/Counseling":
-    "Help couples resolve conflicts and improve relationships.",
-    "Counseling and Psychotherapy":
-    "Therapy sessions aimed at healing and mental well-being.",
-  };
 
   // Customer Support Popup
   void _showCustomerSupportPopup() {
@@ -72,11 +58,11 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
 
   // Book Session
   void _bookSession() {
-    if (_selectedDate != null && _selectedTime != null && _selectedService != null) {
+    if (_selectedDateTime != null && _selectedService != null) {
       Get.to(() => BookingReviewScreen(
         consultationType: _selectedConsultationType,
-        selectedDate: DateFormat('EEE., MMM. d').format(_selectedDate!),
-        selectedTime: _selectedTime!.format(context),
+        selectedDate: DateFormat('EEE., MMM. d').format(_selectedDateTime!),
+        selectedTime: DateFormat('h:mm a').format(_selectedDateTime!),
         service: _selectedService!,
       ));
     }
@@ -84,9 +70,7 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isFormComplete = _selectedDate != null &&
-        _selectedTime != null &&
-        _selectedService != null;
+    bool isFormComplete = _selectedDateTime != null && _selectedService != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -100,11 +84,11 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
           children: [
             ConsultationForm(
               selectedConsultationType: _selectedConsultationType,
-              selectedDate: _selectedDate,
-              selectedTime: _selectedTime,
+              selectedDate: _selectedDateTime,
+              selectedTime: null,
               selectedService: _selectedService,
-              onPickDate: _pickDate,
-              onPickTime: _pickTime,
+              onPickDate: _pickDateTime, // Now picks date & time together
+              onPickTime: (time) {},
               onSelectService: (String service) {
                 setState(() {
                   _selectedService = service;
@@ -131,12 +115,7 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
           ],
         ),
       ),
-      bottomNavigationBar:
-
-
-      BottomButtons(
-
-
+      bottomNavigationBar: BottomButtons(
         isFormComplete: isFormComplete,
         onBookSession: _bookSession,
         onCallSupport: _showCustomerSupportPopup,

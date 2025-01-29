@@ -26,7 +26,7 @@ class BottomButtons extends StatelessWidget {
           GestureDetector(
             onTap: onCallSupport,
             child: const Text(
-              "Call Customer Support",
+              "Connect with customer support",
               style: TextStyle(fontSize: 14, color: Colors.redAccent),
               textAlign: TextAlign.center,
             ),

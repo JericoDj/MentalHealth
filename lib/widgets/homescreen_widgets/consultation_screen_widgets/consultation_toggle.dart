@@ -14,13 +14,19 @@ class ConsultationToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.5))),
+
       ),
       padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Row(
+      child: Column(
         children: [
-          _buildToggleButton("Online"),
-          _buildToggleButton("Face-to-Face"),
+          Container(child: Text('Service Type', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),),
+          SizedBox(height: 10,),
+          Row(
+            children: [
+              _buildToggleButton("Online"),
+              _buildToggleButton("Face-to-Face"),
+            ],
+          ),
         ],
       ),
     );

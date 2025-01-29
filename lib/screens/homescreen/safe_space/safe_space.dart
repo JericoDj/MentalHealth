@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:llps_mental_app/screens/homescreen/safe_space/queue_screen.dart';
-
+import '../../../controllers/session_controller.dart';
 import '../../../widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
 import 'chat_screen.dart';
 
-class SafeSpaceScreen extends StatefulWidget {
-  const SafeSpaceScreen({Key? key}) : super(key: key);
+class SafeSpaceBody extends StatefulWidget {
+  const SafeSpaceBody({Key? key}) : super(key: key);
 
   @override
-  State<SafeSpaceScreen> createState() => _SafeSpaceScreenState();
+  State<SafeSpaceBody> createState() => _SafeSpaceBodyState();
 }
 
-class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
+class _SafeSpaceBodyState extends State<SafeSpaceBody> {
   int availableCredits = 5;
   String? _selectedSessionType;
   String? _selectedAction;
@@ -30,10 +30,14 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     "Couple Therapy/Counseling",
     "Counseling and Psychotherapy"
   ];
-
   void _navigateToChatScreen() {
+    // Update the controller with selected session type and action
+    final sessionController = Get.find<SessionController>();
+    sessionController.selectedSessionType?.value = _selectedSessionType!;
+    sessionController.selectedAction?.value = _selectedAction!;
+
     if (_selectedSessionType != null && _selectedAction != null) {
-      Get.to(() =>  QueueScreen(sessionType: _selectedSessionType!));
+      Get.to(() => QueueScreen(sessionType: _selectedSessionType!));
     } else {
       Get.snackbar(
         'Incomplete',
@@ -61,23 +65,39 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     );
   }
 
+  void _showSessionSelectionPopup() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _sessionTypes.map((type) {
+              return ListTile(
+                title: Text(type, style: const TextStyle(fontSize: 14)),
+                trailing: const Icon(Icons.info_outline, color: Colors.blue),
+                onTap: () {
+                  setState(() {
+                    _selectedSessionType = type;
+                  });
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("24/7 Safe Space"),
-        backgroundColor: Colors.orangeAccent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Get.back();
-          },
-        ),
-      ),
-      body: Padding(
+    return SingleChildScrollView(
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: const EdgeInsets.all(16),
@@ -90,62 +110,61 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
-            const SizedBox(height: 30),
+
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: DropdownButtonFormField<String>(
-                value: _selectedSessionType,
-                hint: const Text("Select Type of Session"),
-                items: _sessionTypes.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Row(
-
-                      children: [
-                        Text(type),
-                        SizedBox(width: 5,),
-                        GestureDetector(
-                          onTap: () => _showServiceDetails(type),
-                          child: const Icon(Icons.info_outline, color: Colors.blue),
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedSessionType = value;
-                  });
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              child: GestureDetector(
+                onTap: _showSessionSelectionPopup,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _selectedSessionType ?? "Select Type of Session",
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      const Icon(Icons.arrow_drop_down, color: Colors.transparent),
+                    ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+
+
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+               spacing: 20,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 GestureDetector(
-                  onTap: _selectedSessionType != null ? () {
+                  onTap: _selectedSessionType != null
+                      ? () {
                     setState(() {
                       _selectedAction = 'chat';
                     });
-                  } : null,
+                  }
+                      : null,
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: _selectedAction == 'chat' ? Colors.greenAccent : (_selectedSessionType == null ? Colors.grey : Colors.white),
+                      color: _selectedAction == 'chat'
+                          ? Colors.greenAccent
+                          : (_selectedSessionType == null ? Colors.grey : Colors.white),
                       border: Border.all(
                         color: _selectedAction == 'chat' ? Colors.white : Colors.grey,
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      "Chat with Specialist",
+                      textAlign: TextAlign.center,
+                      "Chat with\nSpecialist",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: _selectedAction == 'chat' ? Colors.white : Colors.black,
                       ),
@@ -153,24 +172,29 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: _selectedSessionType != null ? () {
+                  onTap: _selectedSessionType != null
+                      ? () {
                     setState(() {
                       _selectedAction = 'call';
                     });
-                  } : null,
+                  }
+                      : null,
                   child: Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: _selectedAction == 'call' ? Colors.greenAccent : (_selectedSessionType == null ? Colors.grey : Colors.white),
+                      color: _selectedAction == 'call'
+                          ? Colors.greenAccent
+                          : (_selectedSessionType == null ? Colors.grey : Colors.white),
                       border: Border.all(
                         color: _selectedAction == 'call' ? Colors.white : Colors.grey,
                       ),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      "Talk to Specialist",
+                      textAlign: TextAlign.center,
+                      "Talk to\nSpecialist",
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: _selectedAction == 'call' ? Colors.white : Colors.black,
                       ),
@@ -179,25 +203,12 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.greenAccent.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Text(
-                "Available Credits: $availableCredits",
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
+            const SizedBox(height: 20),
+
+
           ],
         ),
-      ),
-      bottomNavigationBar: SafeSpaceBottomButtons(
-        onConfirm: _navigateToChatScreen,
       ),
     );
   }
 }
-

@@ -12,7 +12,7 @@ class SafeSpaceCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         // Navigate to a new screen when clicked
-        Get.to(() => const SafeSpaceScreen());
+        Get.to(() => const SafeSpaceBody());
       },
       child: Container(
         width: MediaQuery.of(context).size.width * 0.4, // Adjust width here

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
-import '../../../widgets/homescreen_widgets/consultation_screen_widgets/consultation_form.dart';
-import '../../../widgets/homescreen_widgets/consultation_screen_widgets/bottom_buttons.dart';
-import '../../../widgets/homescreen_widgets/call_customer_support_widget.dart';
-import '../homescreen/booking_review_screen.dart';
 
+import '../../controllers/session_controller.dart';
+import '../../widgets/homescreen_widgets/call_customer_support_widget.dart';
+import '../../widgets/homescreen_widgets/consultation_screen_widgets/bottom_buttons.dart';
+import '../../widgets/homescreen_widgets/consultation_screen_widgets/consultation_form.dart';
+import '../../widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
+import '../homescreen/booking_review_screen.dart';
+import '../homescreen/safe_space/queue_screen.dart';
+import '../homescreen/safe_space/safe_space.dart';
 class BookNowScreen extends StatefulWidget {
   const BookNowScreen({Key? key}) : super(key: key);
 
@@ -20,6 +23,15 @@ class _BookNowScreenState extends State<BookNowScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String? _selectedService;
+
+  // Access SessionController to get session data
+  late SessionController sessionController;
+
+  @override
+  void initState() {
+    super.initState();
+    sessionController = Get.find<SessionController>(); // Initialize the controller
+  }
 
   // Pick Date
   void _pickDate() async {
@@ -37,16 +49,10 @@ class _BookNowScreenState extends State<BookNowScreen> {
   }
 
   // Pick Time
-  void _pickTime() async {
-    final time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (time != null) {
-      setState(() {
-        _selectedTime = time;
-      });
-    }
+  void _pickTime(TimeOfDay time) {
+    setState(() {
+      _selectedTime = time;
+    });
   }
 
   // Book Session
@@ -66,7 +72,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
     bool isFormComplete = _selectedDate != null && _selectedTime != null && _selectedService != null;
 
     return Scaffold(
-
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -80,12 +86,13 @@ class _BookNowScreenState extends State<BookNowScreen> {
                   child: GestureDetector(
                     onTap: () => setState(() => _selectedCategory = "Consultation Touchpoint"),
                     child: Container(
+                      height: 80,
                       padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: _selectedCategory == "Consultation Touchpoint" ? Colors.blueAccent : Colors.grey,
+                        color: _selectedCategory == "Consultation Touchpoint" ? Color(0xFF2E7D32) : Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Center(child: Text("Consultation Touchpoint", style: TextStyle(color: Colors.white))),
+                      child: Center(child: Text("Consultation Touchpoint", textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),
                     ),
                   ),
                 ),
@@ -94,9 +101,10 @@ class _BookNowScreenState extends State<BookNowScreen> {
                   child: GestureDetector(
                     onTap: () => setState(() => _selectedCategory = "24/7 Safe Space"),
                     child: Container(
+                      height: 80,
                       padding: EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: _selectedCategory == "24/7 Safe Space" ? Colors.blueAccent : Colors.grey,
+                        color: _selectedCategory == "24/7 Safe Space" ? Color(0xFF2E7D32) : Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Center(child: Text("24/7 Safe Space", style: TextStyle(color: Colors.white))),
@@ -127,24 +135,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
                 });
               },
             )
-                : Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.purpleAccent,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Welcome to 24/7 Safe Space!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                  SizedBox(height: 10),
-                  Text(
-                    "Our 24/7 Safe Space provides immediate support and mental wellness resources whenever you need them. No need to book—just connect!",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
+                : SafeSpaceBody(),
           ],
         ),
       ),
@@ -157,7 +148,24 @@ class _BookNowScreenState extends State<BookNowScreen> {
           builder: (context) => CallCustomerSupportPopup(),
         ),
       )
-          : null, // No booking buttons for 24/7 Safe Space
+          : SafeSpaceBottomButtons(onConfirm: _navigateToChatScreen),
     );
+  }
+
+  // Navigate to chat screen for 24/7 Safe Space
+  void _navigateToChatScreen() {
+    // Get session type and action from the controller
+    String? selectedSessionType = sessionController.selectedSessionType?.value;
+    String? selectedAction = sessionController.selectedAction?.value;
+
+    if (selectedSessionType != null && selectedAction != null) {
+      Get.to(() => QueueScreen(sessionType: selectedSessionType));
+    } else {
+      Get.snackbar(
+        'Incomplete',
+        'Please select a session type and action.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 }

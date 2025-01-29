@@ -17,29 +17,17 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-            'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for iOS - '
-              'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macOS - '
-              'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for Windows - '
-              'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for Linux - '
@@ -59,4 +47,43 @@ class DefaultFirebaseOptions {
     projectId: 'llps-mentalapp',
     storageBucket: 'llps-mentalapp.firebasestorage.app',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCt33qQ8VI3nTjiiKUhWmDiMbp8OVdLvpk',
+    appId: '1:120005958239:web:3ae400d348320fc39e99ea',
+    messagingSenderId: '120005958239',
+    projectId: 'llps-mentalapp',
+    authDomain: 'llps-mentalapp.firebaseapp.com',
+    storageBucket: 'llps-mentalapp.firebasestorage.app',
+    measurementId: 'G-ZRJ2GS2PK4',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyBTBa8OM6jbKUD46s9LVT4ur4Xd4ykWzF0',
+    appId: '1:120005958239:ios:c111857485353ed59e99ea',
+    messagingSenderId: '120005958239',
+    projectId: 'llps-mentalapp',
+    storageBucket: 'llps-mentalapp.firebasestorage.app',
+    iosBundleId: 'com.llps.mentalhealth.llpsMentalApp',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyBTBa8OM6jbKUD46s9LVT4ur4Xd4ykWzF0',
+    appId: '1:120005958239:ios:c111857485353ed59e99ea',
+    messagingSenderId: '120005958239',
+    projectId: 'llps-mentalapp',
+    storageBucket: 'llps-mentalapp.firebasestorage.app',
+    iosBundleId: 'com.llps.mentalhealth.llpsMentalApp',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCt33qQ8VI3nTjiiKUhWmDiMbp8OVdLvpk',
+    appId: '1:120005958239:web:1d2dbe71560e8a2c9e99ea',
+    messagingSenderId: '120005958239',
+    projectId: 'llps-mentalapp',
+    authDomain: 'llps-mentalapp.firebaseapp.com',
+    storageBucket: 'llps-mentalapp.firebasestorage.app',
+    measurementId: 'G-Q7FJE80LXK',
+  );
+
 }
