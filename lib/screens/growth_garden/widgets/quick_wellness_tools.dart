@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
+import '../../../utils/constants/colors.dart';
 
 class QuickWellnessTools extends StatelessWidget {
   const QuickWellnessTools({super.key});
@@ -7,138 +7,43 @@ class QuickWellnessTools extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 15.0,),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
 
-          Wrap(
-
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              FeatureCard(
-                title: 'Mindful Breathing',
-                icon: Icons.air,
-                description: 'Guided breathing exercises to calm the mind.',
-
-                onTap: () => _showBreathingDialog(context),
-                width: MediaQuery.of(context).size.width / 2 - 25,
-              ),
-              FeatureCard(
-                title: 'Quick Meditation',
-                icon: Icons.self_improvement,
-                description: 'A 5-minute mindfulness session.',
-
-                onTap: () => _showMeditationDialog(context),
-                width: MediaQuery.of(context).size.width / 2 - 25,
-              ),
-            ],
-          ),
-        ],
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal, // Ensures horizontal scrolling if needed
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center, // Centers content
+          children: [
+            FeatureCard(
+              title: 'Mindful Breathing',
+              icon: Icons.air,
+              description: 'Guided breathing exercises to calm the mind.',
+              onTap: () {},
+              width: MediaQuery.of(context).size.width < 510
+                  ? MediaQuery.of(context).size.width / 2 - 30
+                  : 500 / 2 - 30,
+            ),
+            const SizedBox(width: 15), // Spacing between cards
+            FeatureCard(
+              title: 'Quick Meditation',
+              icon: Icons.self_improvement,
+              description: 'A 5-minute mindfulness session.',
+              onTap: () {},
+              width: MediaQuery.of(context).size.width < 510
+                  ? MediaQuery.of(context).size.width / 2 - 30
+                  : 500 / 2 - 30,
+            ),
+          ],
+        ),
       ),
-    );
-  }
-
-  void _showBreathingDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Mindful Breathing'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Choose a breathing technique to begin.'),
-              const SizedBox(height: 20),
-              ListTile(
-                leading: const Icon(Icons.timer),
-                title: const Text('4-7-8 Breathing'),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(Icons.square),
-                title: const Text('Box Breathing'),
-                onTap: () {},
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MindfulBreathingPage(),
-                  ),
-                );
-              },
-              child: const Text('Start'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showMeditationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Quick Meditation'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Select a meditation theme to proceed.'),
-              const SizedBox(height: 20),
-              ListTile(
-                leading: const Icon(Icons.nightlight),
-                title: const Text('Stress Relief'),
-                onTap: () {},
-              ),
-              ListTile(
-                leading: const Icon(Icons.light),
-                title: const Text('Gratitude Practice'),
-                onTap: () {},
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const QuickMeditationPage(),
-                  ),
-                );
-              },
-              child: const Text('Start'),
-            ),
-          ],
-        );
-      },
     );
   }
 }
 
-// Grid Feature Card
+// 🌟 **Feature Card with a Single Container Gradient Border**
 class FeatureCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final String description;
-  final Color? color;
   final VoidCallback onTap;
   final double width;
 
@@ -146,7 +51,6 @@ class FeatureCard extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.description,
-    this.color,
     required this.onTap,
     required this.width,
   });
@@ -154,15 +58,31 @@ class FeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: width -15,
+      height: width -15,
+      padding: const EdgeInsets.all(3), // Border thickness
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(15)),
-        border: Border.all(color: MyColors.color1, width: 1.5 )
+        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+          colors: [
+            Colors.green,
+            MyColors.color1,
+            Colors.orange,
+            MyColors.color2,
+          ],
+          stops: [0.0, 0.5, 0.51, 1.0], // Ensures exact half-split
+        ),
       ),
-      width: width,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: InkWell(
+          onTap: onTap,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -170,8 +90,7 @@ class FeatureCard extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 title,
-                style:
-                const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               Text(
@@ -183,30 +102,6 @@ class FeatureCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class MindfulBreathingPage extends StatelessWidget {
-  const MindfulBreathingPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mindful Breathing')),
-      body: const Center(child: Text('Breathing Exercise Session')),
-    );
-  }
-}
-
-class QuickMeditationPage extends StatelessWidget {
-  const QuickMeditationPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Quick Meditation')),
-      body: const Center(child: Text('Meditation Session Begins Here')),
     );
   }
 }

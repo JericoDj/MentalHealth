@@ -5,22 +5,21 @@ import 'package:llps_mental_app/utils/constants/colors.dart';
 import '../../../widgets/homescreen_widgets/consultation_screen_widgets/consultation_form.dart';
 import '../../../widgets/homescreen_widgets/consultation_screen_widgets/bottom_buttons.dart';
 import '../../../widgets/homescreen_widgets/call_customer_support_widget.dart';
-
 import '../homescreen/booking_review_screen.dart';
 
 class BookNowScreen extends StatefulWidget {
   const BookNowScreen({Key? key}) : super(key: key);
 
   @override
-  State<BookNowScreen> createState() => _ConsultationScreenState();
+  State<BookNowScreen> createState() => _BookNowScreenState();
 }
 
-class _ConsultationScreenState extends State<BookNowScreen> {
-  String _selectedConsultationType = "Online";  // Default to Online
+class _BookNowScreenState extends State<BookNowScreen> {
+  String _selectedCategory = "Consultation Touchpoint"; // Default selection
+  String _selectedConsultationType = "Online"; // Default to Online
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String? _selectedService;
-  int availableCredits = 5;
 
   // Pick Date
   void _pickDate() async {
@@ -50,28 +49,6 @@ class _ConsultationScreenState extends State<BookNowScreen> {
     }
   }
 
-  // Show Specialist Picker
-
-  // Service Options
-  final Map<String, String> _specialists = {
-    "Psychological Assessment":
-    "Comprehensive assessment through interviews and tests.",
-    "Consultation":
-    "General consultation to address mental health concerns.",
-    "Couple Therapy/Counseling":
-    "Help couples resolve conflicts and improve relationships.",
-    "Counseling and Psychotherapy":
-    "Therapy sessions aimed at healing and mental well-being.",
-  };
-
-  // Customer Support Popup
-  void _showCustomerSupportPopup() {
-    showDialog(
-      context: context,
-      builder: (context) => CallCustomerSupportPopup(),
-    );
-  }
-
   // Book Session
   void _bookSession() {
     if (_selectedDate != null && _selectedTime != null && _selectedService != null) {
@@ -86,46 +63,53 @@ class _ConsultationScreenState extends State<BookNowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool isFormComplete = _selectedDate != null &&
-        _selectedTime != null &&
-        _selectedService != null;
+    bool isFormComplete = _selectedDate != null && _selectedTime != null && _selectedService != null;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Book Now"),
-        backgroundColor: Colors.greenAccent,
-        elevation: 0,
-      ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
+            // Category Selector
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 10,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                    color: Colors.grey,
-                    height: 100,
-                    child: Text("Consultation Touchpoint"),
-
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedCategory = "Consultation Touchpoint"),
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _selectedCategory == "Consultation Touchpoint" ? Colors.blueAccent : Colors.grey,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(child: Text("Consultation Touchpoint", style: TextStyle(color: Colors.white))),
+                    ),
+                  ),
                 ),
-                Container(
-                  color: Colors.grey,
-                  height: 100,
-                  
-                  child: Text("24/7 Safe Space"),
-
-
+                SizedBox(width: 10),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedCategory = "24/7 Safe Space"),
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: _selectedCategory == "24/7 Safe Space" ? Colors.blueAccent : Colors.grey,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(child: Text("24/7 Safe Space", style: TextStyle(color: Colors.white))),
+                    ),
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: 20),
 
-
-
-
-            ConsultationForm(
+            // Dynamic Content
+            _selectedCategory == "Consultation Touchpoint"
+                ? ConsultationForm(
               selectedConsultationType: _selectedConsultationType,
               selectedDate: _selectedDate,
               selectedTime: _selectedTime,
@@ -142,17 +126,38 @@ class _ConsultationScreenState extends State<BookNowScreen> {
                   _selectedConsultationType = type;
                 });
               },
+            )
+                : Container(
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.purpleAccent,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Welcome to 24/7 Safe Space!", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  SizedBox(height: 10),
+                  Text(
+                    "Our 24/7 Safe Space provides immediate support and mental wellness resources whenever you need them. No need to book—just connect!",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 30),
-
           ],
         ),
       ),
-      bottomNavigationBar: BottomButtons(
+      bottomNavigationBar: _selectedCategory == "Consultation Touchpoint"
+          ? BottomButtons(
         isFormComplete: isFormComplete,
         onBookSession: _bookSession,
-        onCallSupport: _showCustomerSupportPopup,
-      ),
+        onCallSupport: () => showDialog(
+          context: context,
+          builder: (context) => CallCustomerSupportPopup(),
+        ),
+      )
+          : null, // No booking buttons for 24/7 Safe Space
     );
   }
 }

@@ -35,26 +35,42 @@ Future<void> main() async {
   }
 }
 
+
 class WebApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Example: Validate an icon during web app build
-    validateIcon(IconData(0, fontFamily: 'MaterialIcons'));  // This triggers the warning
+    validateIcon(Icons.error);
 
-    return Center(
-      child: Container(
-        width: 600,
-        height: 800,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black, width: 2),
-        ),
-        child: GetMaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'llps_mental_app',
-          theme: ThemeData(primarySwatch: Colors.blue),
-          home: const LoginScreen(),
-        ),
-      ),
-    );
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'llps_mental_app',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: Scaffold(
+        body: Center(
+          child: Container(
+            width: 510,
+            height: 800,
+
+            child: GetMaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: 'llps_mental_app',
+    theme: ThemeData(primarySwatch: Colors.blue),
+    home: Scaffold(
+    backgroundColor: Colors.white, // Match background color
+    body: Center(
+    child: Container(
+    width: 510, // Fixed width
+    constraints: BoxConstraints(
+    maxWidth: 500, // Ensure width doesn't exceed 500px
+    ),
+    height: double.infinity, // Take full height
+    decoration: BoxDecoration(
+    border: Border.all(color: Colors.black, width: 2), // Optional border
+    ),
+    child: LoginScreen(), // Your screen content
+    ),
+    ),
+    ))))));
+
   }
 }

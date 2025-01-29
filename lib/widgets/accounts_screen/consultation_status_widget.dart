@@ -109,7 +109,7 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
             padding: const EdgeInsets.all(10),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(30)),
-              color: Colors.blue,
+              color: Colors.black45,
             ),
             height: 350,
             width: double.infinity,

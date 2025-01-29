@@ -16,18 +16,18 @@ class GrowthGardenScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
 
                 ThriveGuide(),
 
-                const SizedBox(height: 0),
+                const SizedBox(height: 15),
 
                 // Section 3: Grid View of Wellness Tools
                 QuickWellnessTools(),
 
 
-                const SizedBox(height: 0),
+                const SizedBox(height: 10),
 
 
                 // Section 1: Gratitude Journaling
@@ -40,6 +40,7 @@ class GrowthGardenScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InsightQuestButton(),
+                    SizedBox(width: 15,),
                     MindHubButton(),
                   ],
                 ),

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
+import '../../screens/loginscreen.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
@@ -29,7 +33,10 @@ class LogoutButton extends StatelessWidget {
     );
   }
 
+
   void _performLogout(BuildContext context) {
+
+    Get.offAll(() => LoginScreen());
     // Add your logout logic here
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

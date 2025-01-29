@@ -34,7 +34,7 @@ class HomeScreen extends StatelessWidget {
                   _buildCarouselItem("assets/images/HomeSlider (3).jpg"),
                 ],
                 options: CarouselOptions(
-                  height: 220.0,
+                  height: 200.0,
                   enlargeCenterPage: true,
                   autoPlay: true,
                   aspectRatio: 16 / 9,

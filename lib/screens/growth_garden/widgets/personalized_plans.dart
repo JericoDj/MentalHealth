@@ -16,20 +16,28 @@ class _ThriveGuideState extends State<ThriveGuide> {
     return Card(
       elevation: 5,
       child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFfcbc1d),
+              Color(0xFFfd9c33),
+              Color(0xFF59b34d),
+              Color(0xFF359d4e),
+            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          ),
+        ),
         width: MediaQuery.of(context).size.width,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
+            
               width: double.infinity,
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: MyColors.color1,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
-                ),
-              ),
+              padding: EdgeInsets.all(10),
+
               child: const Text(
                 textAlign: TextAlign.center,
                 'Thrive Guide',
@@ -40,50 +48,68 @@ class _ThriveGuideState extends State<ThriveGuide> {
                     ),
               ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              selectedPlan,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              planDescription,
-              style: const TextStyle(fontSize: 12, color: Colors.black54),
-            ),
-            const SizedBox(height: 15),
-            GestureDetector(
-              onTap: () => _showPlanSelectionDialog(context),  // Handle tap event
+            Padding(
+              padding: const EdgeInsets.only(left: 3, right: 3, bottom: 3),
               child: Container(
-                padding: EdgeInsets.all(10),
+                
+                width: double.infinity,
                 decoration: BoxDecoration(
-                  color: Colors.white,  // Background color
-                  borderRadius: BorderRadius.circular(12),  // Rounded corners
-                  border: Border.all(
-                    color: MyColors.color1,  // Border color
-                    width: 1,  // Border width
-                  ),
+                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(10), bottomRight: Radius.circular(10)),
+
+                  color: Colors.white
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Column(
                   children: [
-                    Icon(
-                      Icons.edit,
-                      size: 20,
-                      color: MyColors.color1,
-                    ),
-                    SizedBox(width: 8),  // Space between icon and text
+                    const SizedBox(height: 10),
+
                     Text(
-                      'Manage Plan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: MyColors.color1,
+                      selectedPlan,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      planDescription,
+                      style: const TextStyle(fontSize: 12, color: Colors.black54),
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () => _showPlanSelectionDialog(context),  // Handle tap event
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,  // Background color
+                          borderRadius: BorderRadius.circular(12),  // Rounded corners
+                          border: Border.all(
+                            color: MyColors.color1,  // Border color
+                            width: 1,  // Border width
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.edit,
+                              size: 20,
+                              color: MyColors.color1,
+                            ),
+                            SizedBox(width: 8),  // Space between icon and text
+                            Text(
+                              'Manage Plan',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: MyColors.color1,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 10),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+
           ],
         ),
       ),

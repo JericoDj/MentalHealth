@@ -19,17 +19,19 @@ class UserAccountSection extends StatelessWidget {
           SizedBox(width: 16),
           Column(
             children: [
-              Row(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(width: 10),
+
                   Text(
                     'John Doe',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(width: 14),
+                  SizedBox(width: 12),
                   Text(
                     'Company Name',
                     style: TextStyle(
@@ -39,47 +41,7 @@ class UserAccountSection extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        '500',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text('Followers',style: TextStyle(
-                        fontSize: 14,
-                      ),),
-                    ],
-                  ),
-                  SizedBox(width: 20),
-                  Row(
-                    children: [
-                      Text(
-                        '200',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Text('Following',style: TextStyle(fontSize: 14),),
-                    ],
-                  ),
-                ],
-              ),
+
             ],
           ),
         ],

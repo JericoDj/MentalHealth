@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MindHubScreen extends StatefulWidget {
-  final String category; // ✅ Ensure category is correctly declared in constructor
-
+  final String category;
   const MindHubScreen({Key? key, required this.category}) : super(key: key);
 
   @override
@@ -10,12 +9,12 @@ class MindHubScreen extends StatefulWidget {
 }
 
 class _MindHubScreenState extends State<MindHubScreen> {
-  late String selectedCategory; // ✅ Use late to initialize in initState
+  String selectedCategory = '';
 
   @override
   void initState() {
     super.initState();
-    selectedCategory = widget.category; // ✅ Assign value from constructor
+    selectedCategory = widget.category;
   }
 
   void _changeCategory(String category) {

@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
+import 'package:llps_mental_app/screens/mindhub/mindhubscreen.dart';
+import '../../../utils/constants/colors.dart';
+
 
 class MindHubButton extends StatelessWidget {
   const MindHubButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: MediaQuery.of(context).size.width / 2.2,
-        child: FeatureCard(
-          title: 'Mind Hub',
-          icon: Icons.lightbulb,
-          description: 'A central hub for mental well-being resources.',
-          color: Colors.white,
-          onTap: () {
-            _showMindHubDialog(context);
-          },
-          width: double.infinity,
+    return Container(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal, // Ensures horizontal scrolling if needed
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FeatureCard(
+              title: 'Mind Hub',
+              icon: Icons.lightbulb,
+              description: 'A central hub for mental well-being resources.',
+              onTap: () {
+                _showMindHubDialog(context);
+              },
+              width: MediaQuery.of(context).size.width < 510
+                  ? MediaQuery.of(context).size.width / 2 - 30
+                  : 510 / 2 - 30,
+            ),
+          ],
         ),
       ),
     );
@@ -29,48 +37,33 @@ class MindHubButton extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Choose a Category',textAlign: TextAlign.center,),
+          title: const Text('Choose a Category', textAlign: TextAlign.center),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Get.to(() => const MindHubScreen(category: 'Articles')),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.article, color: Colors.blue, size: 40),
-                          const SizedBox(height: 5),
-                          const Text('Articles'),
-                        ],
-                      ),
-                    ),
+                  _categoryItem(
+                    context,
+                    icon: Icons.article,
+                    label: 'Articles',
+                    color: Colors.blue,
+                    onTap: () => Get.to(() => const MindHubScreen(category: 'Articles')),
                   ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Get.to(() => const MindHubScreen(category: 'Videos')),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.video_collection, color: Colors.red, size: 40),
-                          const SizedBox(height: 5),
-                          const Text('Videos'),
-                        ],
-                      ),
-                    ),
+                  _categoryItem(
+                    context,
+                    icon: Icons.video_collection,
+                    label: 'Videos',
+                    color: Colors.red,
+                    onTap: () => Get.to(() => const MindHubScreen(category: 'Videos')),
                   ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => Get.to(() => const MindHubScreen(category: 'Ebooks')),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.book, color: Colors.green, size: 40),
-                          const SizedBox(height: 5),
-                          const Text('Ebooks'),
-                        ],
-                      ),
-                    ),
+                  _categoryItem(
+                    context,
+                    icon: Icons.book,
+                    label: 'Ebooks',
+                    color: Colors.green,
+                    onTap: () => Get.to(() => const MindHubScreen(category: 'Ebooks')),
                   ),
                 ],
               ),
@@ -80,13 +73,28 @@ class MindHubButton extends StatelessWidget {
       },
     );
   }
+
+  Widget _categoryItem(BuildContext context, {required IconData icon, required String label, required Color color, required VoidCallback onTap}) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 40),
+            const SizedBox(height: 5),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
+// 🌟 **Feature Card with a Single Container Gradient Border**
 class FeatureCard extends StatelessWidget {
   final String title;
   final IconData icon;
   final String description;
-  final Color? color;
   final VoidCallback onTap;
   final double width;
 
@@ -94,121 +102,57 @@ class FeatureCard extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.description,
-    this.color,
     required this.onTap,
     required this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      child: Card(
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-            side: BorderSide(width: 1, color: MyColors.color1)),
-        color: color ?? Colors.white,
+    return Container(
+      width: width - 15,
+      height: width - 15,
+      padding: const EdgeInsets.all(3), // Border thickness
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        gradient: const LinearGradient(
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+          colors: [
+            Colors.green,
+            MyColors.color1,
+            Colors.orange,
+            MyColors.color2,
+          ],
+          stops: [0.0, 0.5, 0.51, 1.0], // Ensures exact half-split
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
         child: InkWell(
           onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 48, color: MyColors.color1.withOpacity(0.95)),
-                const SizedBox(height: 5),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: MyColors.color1,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: MyColors.color1,
-                  ),
-                ),
-              ],
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 36, color: Colors.grey[800]),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                description,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+            ],
           ),
         ),
       ),
     );
-  }
-}
-
-class MindHubScreen extends StatefulWidget {
-  final String category;
-  const MindHubScreen({Key? key, required this.category}) : super(key: key);
-
-  @override
-  _MindHubScreenState createState() => _MindHubScreenState();
-}
-
-class _MindHubScreenState extends State<MindHubScreen> {
-  String selectedCategory = '';
-
-  @override
-  void initState() {
-    super.initState();
-    selectedCategory = widget.category;
-  }
-
-  void _changeCategory(String category) {
-    setState(() {
-      selectedCategory = category;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Mind Hub')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _changeCategory('Articles'),
-                  child: const Text('Articles'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _changeCategory('Videos'),
-                  child: const Text('Videos'),
-                ),
-                ElevatedButton(
-                  onPressed: () => _changeCategory('Ebooks'),
-                  child: const Text('Ebooks'),
-                ),
-              ],
-            ),
-          ),
-          Expanded(child: _buildContent()),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    switch (selectedCategory) {
-      case 'Articles':
-        return const Center(child: Text('Displaying Articles...'));
-      case 'Videos':
-        return const Center(child: Text('Displaying Videos...'));
-      case 'Ebooks':
-        return const Center(child: Text('Displaying Ebooks...'));
-      default:
-        return const Center(child: Text('Select a category.'));
-    }
   }
 }

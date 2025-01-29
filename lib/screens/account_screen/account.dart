@@ -14,11 +14,10 @@ class AccountScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(left: 16.0, right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                SizedBox(height: 20),
                 UserAccountSection(),
                 SizedBox(height: 20),
       
@@ -37,6 +36,7 @@ class AccountScreen extends StatelessWidget {
       
                 // Logout Button
                 LogoutButton(),
+                SizedBox(height: 50,),
               ],
             ),
           ),

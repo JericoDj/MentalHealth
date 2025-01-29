@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:llps_mental_app/widgets/navigation_bar.dart';
 
+import '../utils/constants/colors.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -122,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: const Text(
                         "Forgot Password?",
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: MyColors.color2,
                         ),
                       ),
                     ),
@@ -132,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Sign-In Button
                 SizedBox(
-                  height: 100,
+                  height: 60,
                   width: double.infinity,
                   child: InkWell(
                     onTap: () => Get.to(() => NavigationBarMenu()),
@@ -155,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       padding: const EdgeInsets.all(2), // Creates a border effect
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.black, // Inside button background color
+                          color: Colors.white, // Inside button background color
                           borderRadius: BorderRadius.circular(8), // Slightly smaller than border
                         ),
                         alignment: Alignment.center,
