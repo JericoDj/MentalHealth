@@ -90,7 +90,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedCategory = "Consultation Touchpoint"),
                       child: Container(
-                        height: 80,
+                        height: 86,
                         padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -102,7 +102,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
                         child: Center(child: Text(
           
                             "Consultation Touchpoint", textAlign: TextAlign.center, style: TextStyle(
-                          fontSize: _selectedCategory == "Consultation Touchpoint" ? 14 : 13,
+                          fontSize: _selectedCategory == "Consultation Touchpoint" ? 16 : 14,
                             fontWeight: FontWeight.bold,
                             color:  _selectedCategory == "Consultation Touchpoint" ? Colors.white: Colors.black54))),
                       ),
@@ -113,7 +113,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedCategory = "24/7 Safe Space"),
                       child: Container(
-                        height: 80,
+                        height: 86,
                         padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -126,7 +126,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
           
                             "24/7 Safe Space", style: TextStyle(
           
-                            fontSize: _selectedCategory == "24/7 Safe Space" ? 15 : 13,
+                            fontSize: _selectedCategory == "24/7 Safe Space" ? 16 : 14,
                             fontWeight: FontWeight.bold,
                             color: _selectedCategory == "24/7 Safe Space" ? Colors.white : Colors.black54))),
                       ),
@@ -170,7 +170,12 @@ class _BookNowScreenState extends State<BookNowScreen> {
           builder: (context) => CallCustomerSupportPopup(),
         ),
       )
-          : SafeSpaceBottomButtons(onConfirm: _navigateToChatScreen),
+          : SafeSpaceBottomButtons(onConfirm: _navigateToChatScreen, onCallSupport: () => showDialog(
+        context: context,
+        builder: (context) => CallCustomerSupportPopup(),
+      ),
+
+      ),
     );
   }
 

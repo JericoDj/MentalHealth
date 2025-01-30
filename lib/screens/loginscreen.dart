@@ -133,11 +133,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 30),
 
                 // Sign-In Button
+                // Sign-In Button
                 SizedBox(
                   height: 60,
                   width: double.infinity,
                   child: InkWell(
-                    onTap: () => Get.to(() => NavigationBarMenu()),
+                    onTap: () {
+                      Get.to(() => NavigationBarMenu(dailyCheckIn: true)); // Pass firstLogin flag
+                    },
                     borderRadius: BorderRadius.circular(10),
                     child: Container(
                       decoration: BoxDecoration(
@@ -154,18 +157,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           end: Alignment.centerRight,
                         ),
                       ),
-                      padding: const EdgeInsets.all(2), // Creates a border effect
+                      padding: const EdgeInsets.all(2),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.white, // Inside button background color
-                          borderRadius: BorderRadius.circular(8), // Slightly smaller than border
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         alignment: Alignment.center,
                         child: ShaderMask(
                           shaderCallback: (bounds) => LinearGradient(
                             colors: [
-                              Color(0xFFFFA726), // Orange from the image
-                              Color(0xFFFFC107), // Yellow from the image
+                              Color(0xFFFFA726),
+                              Color(0xFFFFC107),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -175,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white, // This is replaced by the gradient shader
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -183,7 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-
 
 
               ],

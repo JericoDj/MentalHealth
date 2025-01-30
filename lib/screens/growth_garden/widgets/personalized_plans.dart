@@ -42,7 +42,7 @@ class _ThriveGuideState extends State<ThriveGuide> {
                 textAlign: TextAlign.center,
                 'Thrive Guide',
                 style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     ),
@@ -64,7 +64,7 @@ class _ThriveGuideState extends State<ThriveGuide> {
 
                     Text(
                       selectedPlan,
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -182,7 +182,7 @@ class _ThriveGuideState extends State<ThriveGuide> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 5),
                   Text(

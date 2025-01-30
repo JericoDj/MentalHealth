@@ -37,7 +37,7 @@ class ConsultationForm extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
-                color: MyColors.color2.withOpacity(0.5),
+                color: MyColors.color2.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Text(
@@ -94,7 +94,7 @@ class ConsultationForm extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 0),
+                const SizedBox(height: 5),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: SpecialistSelection(
@@ -108,71 +108,97 @@ class ConsultationForm extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // Date Picker Button with Gradient Border
                       GestureDetector(
                         onTap: onPickDate,
                         child: Container(
-                          height: 50,
-                          width: 140,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
                           decoration: BoxDecoration(
-                            border: Border.all(
-                              color: selectedDate == null ? Colors.grey : MyColors.color2,
-                              width: 2,
+                            gradient: LinearGradient(
+                              colors: selectedDate == null
+                                  ? [Colors.black45, Colors.black54] // Black gradient if no date is selected
+                                  : [MyColors.color1, MyColors.color2], // Custom gradient if date is selected
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                            color: selectedDate == null ? Colors.white : MyColors.white,
                             borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
-                          child: Center(
-                            child: Text(
-                              selectedDate != null
-                                  ? "${selectedDate!.toLocal().toString().split(' ')[0]}"
-                                  : "Select Date",
-                              style: TextStyle(
-                                color: selectedDate == null ? Colors.black87.withAlpha(180) : MyColors.color2,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                          padding: const EdgeInsets.all(2), // Creates the gradient border effect
+                          child: Container(
+                            height: 50,
+                            width: 140,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                selectedDate != null
+                                    ? "${selectedDate!.toLocal().toString().split(' ')[0]}"
+                                    : "Select Date",
+                                style: TextStyle(
+                                  color: selectedDate == null
+                                      ? Colors.black87.withAlpha(180) // Faded text if not selected
+                                      : MyColors.black, // Highlighted if selected
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
+
                       const SizedBox(width: 15),
+
+                      // Time Picker Button with Gradient Border
                       GestureDetector(
                         onTap: () => _showTimePicker(context),
                         child: Container(
-                          height: 50,
-                          width: 140,
                           decoration: BoxDecoration(
-                            border: Border.all(
-                              color: selectedTime == null ? Colors.grey : MyColors.color2,
-                              width: 2,
+                            gradient: LinearGradient(
+                              colors: selectedTime == null
+                                  ? [Colors.black45, Colors.black54] // Black gradient if no time is selected
+                                  : [MyColors.color1, MyColors.color2], // Custom gradient if time is selected
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
                             ),
-                            color: selectedTime == null ? Colors.white : Colors.white,
                             borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
-                          child: Center(
-                            child: Text(
-                              selectedTime != null
-                                  ? "${selectedTime!.format(context)}"
-                                  : "Select Time",
-                              style: TextStyle(
-                                color: selectedTime == null ? Colors.black87.withAlpha(180) : MyColors.color2,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                          padding: const EdgeInsets.all(2), // Creates the gradient border effect
+                          child: Container(
+                            height: 50,
+                            width: 140,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Text(
+                                selectedTime != null
+                                    ? selectedTime!.format(context)
+                                    : "Select Time",
+                                style: TextStyle(
+                                  color: selectedTime == null
+                                      ? Colors.black87.withAlpha(180) // Faded text if not selected
+                                      : MyColors.black, // Highlighted if selected
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -181,6 +207,7 @@ class ConsultationForm extends StatelessWidget {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 20),
               ],
             ),

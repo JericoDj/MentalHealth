@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../../utils/constants/colors.dart';
 
 class SpecialistSelection extends StatelessWidget {
@@ -24,43 +23,54 @@ class SpecialistSelection extends StatelessWidget {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: selectedService == null ? Colors.black87 : MyColors.color2,  // Conditional border color
-              width: selectedService == null ? 1 : 2,  // Conditional border width
+            gradient: LinearGradient(
+              colors: selectedService == null
+                  ? [Colors.black45, Colors.black54] // Black gradient when no service is selected
+                  : [MyColors.color1, MyColors.color2], // Custom gradient when service is selected
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                selectedService ?? "Select Service",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: selectedService == null ? Colors.black87.withAlpha(180) : MyColors.color2
-                ),
-              ),
-              if (selectedService != null) ...[
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    _showServiceDetails(
-                      context,
-                      selectedService!,
-                      _getServiceDescription(selectedService!),
-                    );
-                  },
-                  child: Tooltip(
-                    message: "Show details",
-                    child: const Icon(Icons.info_outline, color: Colors.orange, size: 18),
+          padding: const EdgeInsets.all(2), // Creates the gradient border effect
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  selectedService ?? "Select Service",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: selectedService == null
+                        ? Colors.black45.withAlpha(180) // Faded text when not selected
+                        : Colors.black87,
                   ),
                 ),
+                if (selectedService != null) ...[
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      _showServiceDetails(
+                        context,
+                        selectedService!,
+                        _getServiceDescription(selectedService!),
+                      );
+                    },
+                    child: Tooltip(
+                      message: "Show details",
+                      child: const Icon(Icons.info_outline, color: MyColors.color1, size: 22),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -109,7 +119,7 @@ class SpecialistSelection extends StatelessWidget {
                 },
                 child: Tooltip(
                   message: "Show details",
-                  child: const Icon(Icons.info_outline, color: Colors.blue, size: 18),
+                  child: const Icon(Icons.info_outline, color: MyColors.color1, size: 18),
                 ),
               ),
               onTap: () => Navigator.of(context).pop(_specialists[index]),
@@ -147,13 +157,13 @@ class SpecialistSelection extends StatelessWidget {
         ),
         title: Text(
           service,
-          style: TextStyle(color: Colors.blue.shade800, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         content: Text(description),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Close", style: TextStyle(color: Colors.blue.shade800)),
+            child: Text("Close", style: TextStyle(color: Colors.blue)),
           ),
         ],
       ),

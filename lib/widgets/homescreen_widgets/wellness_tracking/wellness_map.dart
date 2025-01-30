@@ -223,9 +223,13 @@ void _showPopup(BuildContext context, String mode,
       );
       break;
     case 'mood_trends':
-    // Navigate to Mood Trends Section and Highlight Day
-      Navigator.of(context).pop(); // Close existing popup
-      _scrollToMoodSection(context, selectedDay);
+      showDialog(
+        context: context,
+        builder: (context) => const MoodTrendsPopup(title: 'Your Average Mood', moodSummary: ' Your mood looks good', recommendation: 'Keep going on',),
+      );
+    // // Navigate to Mood Trends Section and Highlight Da
+    //   Navigator.of(context).pop(); // Close existing popup
+    //   _scrollToMoodSection(context, selectedDay);
       break;
     case 'stress_level':
       showDialog(

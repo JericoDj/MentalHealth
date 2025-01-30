@@ -14,35 +14,38 @@ class ConsultationToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-
       padding: const EdgeInsets.symmetric(vertical: 0),
       child: Column(
         children: [
-
+          // Header Container
           Container(
-
-
             width: double.infinity,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-              color: MyColors.color1
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+              color: MyColors.color1,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
+            child: const Padding(
+              padding: EdgeInsets.all(10.0),
               child: Text(
-
+                'Service Details',
                 textAlign: TextAlign.center,
-                'Service Type', style: TextStyle(
-
-
-
+                style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,fontWeight: FontWeight.bold),),
-            ),),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
 
+          const SizedBox(height: 5),
 
-          SizedBox(height: 5,),
+          // Toggle Buttons
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildToggleButton("Online"),
               _buildToggleButton("Face-to-Face"),
@@ -55,18 +58,35 @@ class ConsultationToggle extends StatelessWidget {
 
   Widget _buildToggleButton(String type) {
     final bool isSelected = selectedType == type;
-    return Expanded(
-      child: TextButton(
-        onPressed: () => onToggle(type),
-        child: Text(
-          type,
-          style: TextStyle(
-            fontSize: isSelected? 18: 16,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.green : Colors.grey,
 
+    return Expanded(
+      child: Column(
+        children: [
+          TextButton(
+            onPressed: () => onToggle(type),
+            child: Text(
+              type,
+              style: TextStyle(
+                fontSize: isSelected ? 18 : 16,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.green : Colors.grey,
+
+                decorationThickness: 2, // Thickness of underline
+              ),
+            ),
           ),
-        ),
+
+          // Animated Underline Below the Selected Button
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 3, // Thickness of the underline
+            width: isSelected ? 80 : 0, // Width of underline when selected
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.green : Colors.transparent, // Green underline if selected
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -86,12 +86,12 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
                 },
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 15),
             const Text(
               'Submit a Support Ticket',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 15),
             TextField(
               controller: _ticketTitleController,
               decoration: const InputDecoration(hintText: 'Ticket Title'),
@@ -111,10 +111,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
                   onPressed: _submitTicket,
                   child: const Text('Submit'),
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
+
               ],
             ),
           ],

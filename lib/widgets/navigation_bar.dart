@@ -1,14 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/account_screen/account.dart';
 import '../screens/book_now/booknowscreen.dart';
 import '../screens/growth_garden/growth_garden.dart';
 import '../screens/homescreen/homescreen.dart';
 import '../screens/safe_talks/safe_talks.dart';
 import '../utils/constants/colors.dart';
+import 'accounts_screen/TIcket_Popup_widget.dart';
 import 'curved clipper.dart';
 
 class NavigationBarMenu extends StatefulWidget {
+  final bool dailyCheckIn; // Flag to check if the user just logged in
+
+
+  const NavigationBarMenu({Key? key, required this.dailyCheckIn}) : super(key: key);
   @override
   _NavigationBarMenuState createState() => _NavigationBarMenuState();
 }
@@ -24,9 +32,21 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
     AccountScreen(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.dailyCheckIn) {
+        _showMoodDialog(); // Show mood dialog only on first login
+      }
+    });
+  }
+
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+
     });
   }
 
@@ -78,27 +98,32 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
             ],
 
           ),
-          title: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.asset(
-                  'assets/images/logo/appbar_title.png',
-                  height: MediaQuery.of(context).size.height * 0.06,
-                  fit: BoxFit.contain,
-                ),
-                Container(
-                  height: 42,
-                  width: 42,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.7),
-                    border: Border.all(color: MyColors.color2, width: 2),
+          title: GestureDetector(
+            onTap: () {
+              Get.to(() => SupportTicketsPage()); // Correct usage of Get.to()
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Image.asset(
+                    'assets/images/logo/appbar_title.png',
+                    height: MediaQuery.of(context).size.height * 0.06,
+                    fit: BoxFit.contain,
                   ),
-                  child: Icon(Icons.support_agent, size: 26, color: MyColors.color2),
-                ),
-              ],
+                  Container(
+                    height: 42,
+                    width: 42,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(0.7),
+                      border: Border.all(color: MyColors.color2, width: 2),
+                    ),
+                    child: Icon(Icons.support_agent, size: 26, color: MyColors.color2),
+                  ),
+                ],
+              ),
             ),
           ),
           automaticallyImplyLeading: false,
@@ -247,4 +272,103 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
       ),
     );
   }
+
+
+
+/// Check if the mood dialog has been shown before
+Future<void> _showMoodDialogIfNeeded() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool hasSeenMoodDialog = prefs.getBool('hasSeenMoodDialog') ?? false;
+
+  if (!hasSeenMoodDialog) {
+    Future.delayed(Duration(milliseconds: 500), () {
+      _showMoodDialog();
+    });
+    await prefs.setBool('hasSeenMoodDialog', true);
+  }
 }
+
+
+/// Show Mood Selection Dialog
+  /// Show Mood Selection Dialog
+  void _showMoodDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Allow user to close the dialog
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Title with Exit Icon
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "How are you feeling today?",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.red, size: 24),
+                      onPressed: () => Navigator.pop(context), // Close dialog
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15),
+
+                // Mood Emojis
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildMoodEmoji("😃", "Happy"),
+                    const SizedBox(width: 20),
+                    _buildMoodEmoji("😐", "Neutral"),
+                    const SizedBox(width: 20),
+                    _buildMoodEmoji("😔", "Sad"),
+                    const SizedBox(width: 20),
+                    _buildMoodEmoji("😡", "Angry"),
+                    const SizedBox(width: 20),
+                    _buildMoodEmoji("😰", "Anxious"),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+  /// Build a Mood Emoji Button
+Widget _buildMoodEmoji(String emoji, String mood) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.pop(context); // Close the dialog on selection
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("You selected: $mood"),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    },
+    child: Column(
+      children: [
+        Text(
+          emoji,
+          style: const TextStyle(fontSize: 30),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          mood,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+        ),
+      ],
+    ),
+  );
+}}

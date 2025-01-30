@@ -46,6 +46,6 @@ class LogoutButton extends StatelessWidget {
         backgroundColor: Colors.redAccent,
       ),
     );
-    Navigator.of(context).pushReplacementNamed('/login');
+
   }
 }
