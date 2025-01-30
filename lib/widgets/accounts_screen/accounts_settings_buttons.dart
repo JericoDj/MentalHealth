@@ -41,28 +41,27 @@ class AccountSettingsButtons extends StatelessWidget {
   }
 
   Widget _buildButton({required String text, required VoidCallback onPressed}) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: MyColors.color1,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+    return GestureDetector(
+      onTap: onPressed,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white, // Background color of the button
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: MyColors.color2, width: 2), // Border color
         ),
-        onPressed: onPressed,
         child: Center(
           child: Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: MyColors.color2, // Text color
               fontSize: 16,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold
             ),
           ),
         ),
       ),
     );
+
   }
 }

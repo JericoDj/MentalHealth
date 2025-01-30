@@ -116,72 +116,78 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
   }
 
   Widget _buildPostInput() {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage('https://via.placeholder.com/150'),
-          ),
-          SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "What's new?",
+    return Container(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: AssetImage('assets/avatars/Avatar5.jpeg'),
+            ),
+            SizedBox(width: 10),
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "What's new?",
 
+                ),
               ),
             ),
-          ),
 
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildPostItem() {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage('https://via.placeholder.com/150'),
+elevation: 10,
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      child: Container(
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(10,))),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: AssetImage('assets/avatars/Avatar1.jpeg'),
+                ),
+                title: Text('User Name'),
+                subtitle: Text('2 hrs ago'),
+                trailing: Icon(Icons.more_horiz),
               ),
-              title: Text('User Name'),
-              subtitle: Text('2 hrs ago'),
-              trailing: Icon(Icons.more_horiz),
-            ),
-            Text(
-              'This is an example of a social post caption. #MentalHealth',
-            ),
-            SizedBox(height: 10),
-            //Image.network('https://via.placeholder.com/600x400'),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.favorite_border),
-                    SizedBox(width: 5),
-                    Text('120'),
-                  ],
-                ),
-                SizedBox(width: 20,),
-                Row(
-                  children: [
-                    Icon(Icons.comment),
-                    SizedBox(width: 5),
-                    Text('34'),
-                  ],
-                ),
+              Text(
+                'This is an example of a social post caption. #MentalHealth',
+              ),
+              SizedBox(height: 10),
+              //Image.network('https://via.placeholder.com/600x400'),
+              SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.favorite_border),
+                      SizedBox(width: 5),
+                      Text('120'),
+                    ],
+                  ),
+                  SizedBox(width: 20,),
+                  Row(
+                    children: [
+                      Icon(Icons.comment),
+                      SizedBox(width: 5),
+                      Text('34'),
+                    ],
+                  ),
 
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

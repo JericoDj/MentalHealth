@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 import '../../controllers/consultation_controller.dart';
 import '../../data/consultation data.dart';
 import '../../models/consultation_models.dart';
@@ -56,149 +57,155 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.green.shade200.withOpacity(0.9),
-            Colors.orange.shade200.withOpacity(0.9),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: const BorderRadius.all(Radius.circular(25)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 30,
-            runSpacing: 10,
-            children: [
-              _buildStatusIcon(
-                icon: Icons.request_page,
-                label: "Requests",
-                onTap: () => updateDisplay(0),
-                count: consultationController.calculatePendingCount.obs,  // Directly listening here
-              ),
-              _buildStatusIcon(
-                icon: Icons.schedule,
-                label: "Scheduled",
-                onTap: () => updateDisplay(1),
-                count: consultationController.calculateScheduledCount.obs,
-              ),
-              _buildStatusIcon(
-                icon: Icons.check_circle,
-                label: "Finished",
-                onTap: () => updateDisplay(2),
-                count: consultationController.calculateFinishedCount.obs,
-              ),
-
+    return Card(
+      elevation: 10,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.white30,
+              Colors.white24
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          const SizedBox(height: 20),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(30)),
-              color: Colors.black45,
+          borderRadius: const BorderRadius.all(Radius.circular(25)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
-            height: 350,
-            width: double.infinity,
-            child: Column(
+          ],
+        ),
+        child: Column(
+          children: [
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 30,
+              runSpacing: 10,
               children: [
-                Expanded(
-                  child: itemList.isEmpty
-                      ? Center(
-                    child: Text(
-                      displayText.contains("Requests")
-                          ? "No ongoing requests."
-                          : displayText.contains("Scheduled")
-                          ? "No scheduled consultations."
-                          : "No finished consultations.",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  )
-                      : ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: itemList.length,
-                    itemBuilder: (context, index) {
-                      final item = itemList[index];
-                      return GestureDetector(
-                        onTap: () =>
-                            navigateToDetailPage(context, item),
-                        child: Container(
-                          margin:
-                          const EdgeInsets.symmetric(vertical: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                item.serviceType,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Text(item.bookedDate),
-                                  const Spacer(),
-                                  Text(item.bookedTime),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                _buildStatusIcon(
+                  icon: Icons.request_page,
+                  label: "Requests",
+                  onTap: () => updateDisplay(0),
+                  count: consultationController.calculatePendingCount.obs,  // Directly listening here
                 ),
-                Container(
-                  padding: const EdgeInsets.all(0),
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.green,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => FullListPage(
-                            title: displayText,
-                            fullList: itemList,
-                          ),
-                        ),
-                      );
-                    },
-                    child: const Text("View All",style: TextStyle(color: Colors.white,fontSize: 16, fontWeight: FontWeight.bold ),),
-                  ),
+                _buildStatusIcon(
+                  icon: Icons.schedule,
+                  label: "Scheduled",
+                  onTap: () => updateDisplay(1),
+                  count: consultationController.calculateScheduledCount.obs,
                 ),
+                _buildStatusIcon(
+                  icon: Icons.check_circle,
+                  label: "Finished",
+                  onTap: () => updateDisplay(2),
+                  count: consultationController.calculateFinishedCount.obs,
+                ),
+
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                color: Colors.black38,
+              ),
+              height: 350,
+              width: double.infinity,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: itemList.isEmpty
+                        ? Center(
+                      child: Text(
+                        displayText.contains("Requests")
+                            ? "No ongoing requests."
+                            : displayText.contains("Scheduled")
+                            ? "No scheduled consultations."
+                            : "No finished consultations.",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    )
+                        : ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: itemList.length,
+                      itemBuilder: (context, index) {
+                        final item = itemList[index];
+                        return GestureDetector(
+                          onTap: () =>
+                              navigateToDetailPage(context, item),
+                          child: Container(
+                            margin:
+                            const EdgeInsets.symmetric(vertical: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade50,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.serviceType,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Text(item.bookedDate),
+                                    const Spacer(),
+                                    Text(item.bookedTime),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Container(
+                      padding: const EdgeInsets.all(0),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: MyColors.color2,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => FullListPage(
+                                title: displayText,
+                                fullList: itemList,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Text("View All",style: TextStyle(color: Colors.white,fontSize: 16, fontWeight: FontWeight.bold ),),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -233,7 +240,7 @@ Widget _buildStatusIcon({
               child: Icon(
                 icon,
                 size: 30,
-                color: Colors.blueAccent,
+                color: MyColors.color1,
               ),
             ),
             const SizedBox(height: 8),
@@ -254,7 +261,7 @@ Widget _buildStatusIcon({
             child: Container(
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: MyColors.color2,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),

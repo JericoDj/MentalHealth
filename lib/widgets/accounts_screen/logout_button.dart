@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../../screens/loginscreen.dart';
+import '../../utils/constants/colors.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
@@ -12,10 +13,10 @@ class LogoutButton extends StatelessWidget {
     return Center(
       child: OutlinedButton(
         style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Colors.redAccent, width: 2), // Red border
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+          side: const BorderSide(color: MyColors.color2, width: 2.5), // Red border
+          padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
           ),
           backgroundColor: Colors.white, // White button background
         ),
@@ -25,8 +26,9 @@ class LogoutButton extends StatelessWidget {
         child: const Text(
           'Log Out',
           style: TextStyle(
-            color: Colors.redAccent,  // Red text
+            color: MyColors.color2,  // Red text
             fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),

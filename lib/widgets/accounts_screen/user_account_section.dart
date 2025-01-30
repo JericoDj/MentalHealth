@@ -14,7 +14,7 @@ class UserAccountSection extends StatelessWidget {
           CircleAvatar(
             radius: 36,
             backgroundImage:
-            NetworkImage('https://via.placeholder.com/150'),
+            AssetImage('assets/avatars/Avatar5.jpeg'),
           ),
           SizedBox(width: 16),
           Column(

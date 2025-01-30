@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class ConsultationToggle extends StatelessWidget {
   final String selectedType;
@@ -13,14 +14,34 @@ class ConsultationToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
 
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 0),
       child: Column(
         children: [
-          Container(child: Text('Service Type', style: TextStyle(fontSize: 15,fontWeight: FontWeight.w600),),),
-          SizedBox(height: 10,),
+
+          Container(
+
+
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+              color: MyColors.color1
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+
+                textAlign: TextAlign.center,
+                'Service Type', style: TextStyle(
+
+
+
+                  color: Colors.white,
+                  fontSize: 18,fontWeight: FontWeight.bold),),
+            ),),
+
+
+          SizedBox(height: 5,),
           Row(
             children: [
               _buildToggleButton("Online"),
@@ -40,8 +61,10 @@ class ConsultationToggle extends StatelessWidget {
         child: Text(
           type,
           style: TextStyle(
+            fontSize: isSelected? 18: 16,
             fontWeight: FontWeight.bold,
             color: isSelected ? Colors.green : Colors.grey,
+
           ),
         ),
       ),

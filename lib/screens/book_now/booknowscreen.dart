@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 import '../../controllers/session_controller.dart';
 import '../../widgets/homescreen_widgets/call_customer_support_widget.dart';
@@ -74,69 +75,90 @@ class _BookNowScreenState extends State<BookNowScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Category Selector
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = "Consultation Touchpoint"),
-                    child: Container(
-                      height: 80,
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: _selectedCategory == "Consultation Touchpoint" ? Color(0xFF2E7D32) : Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(8),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+          
+              SizedBox(height: 20,),
+              // Category Selector
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedCategory = "Consultation Touchpoint"),
+                      child: Container(
+                        height: 80,
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _selectedCategory == "Consultation Touchpoint" ? MyColors.color2.withValues(alpha: 0.9): Colors.black54,
+                          ),
+                          color: _selectedCategory == "Consultation Touchpoint" ? MyColors.color2.withValues(alpha: 0.9) : Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(child: Text(
+          
+                            "Consultation Touchpoint", textAlign: TextAlign.center, style: TextStyle(
+                          fontSize: _selectedCategory == "Consultation Touchpoint" ? 14 : 13,
+                            fontWeight: FontWeight.bold,
+                            color:  _selectedCategory == "Consultation Touchpoint" ? Colors.white: Colors.black54))),
                       ),
-                      child: Center(child: Text("Consultation Touchpoint", textAlign: TextAlign.center, style: TextStyle(color: Colors.white))),
                     ),
                   ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _selectedCategory = "24/7 Safe Space"),
-                    child: Container(
-                      height: 80,
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: _selectedCategory == "24/7 Safe Space" ? Color(0xFF2E7D32) : Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(8),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedCategory = "24/7 Safe Space"),
+                      child: Container(
+                        height: 80,
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _selectedCategory == "24/7 Safe Space" ? MyColors.color2.withValues(alpha: 0.9): Colors.black54,
+                          ),
+                          color: _selectedCategory == "24/7 Safe Space" ? MyColors.color2.withValues(alpha: 0.9): Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(child: Text(
+          
+                            "24/7 Safe Space", style: TextStyle(
+          
+                            fontSize: _selectedCategory == "24/7 Safe Space" ? 15 : 13,
+                            fontWeight: FontWeight.bold,
+                            color: _selectedCategory == "24/7 Safe Space" ? Colors.white : Colors.black54))),
                       ),
-                      child: Center(child: Text("24/7 Safe Space", style: TextStyle(color: Colors.white))),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Dynamic Content
-            _selectedCategory == "Consultation Touchpoint"
-                ? ConsultationForm(
-              selectedConsultationType: _selectedConsultationType,
-              selectedDate: _selectedDate,
-              selectedTime: _selectedTime,
-              selectedService: _selectedService,
-              onPickDate: _pickDate,
-              onPickTime: _pickTime,
-              onSelectService: (String service) {
-                setState(() {
-                  _selectedService = service;
-                });
-              },
-              onToggleType: (type) {
-                setState(() {
-                  _selectedConsultationType = type;
-                });
-              },
-            )
-                : SafeSpaceBody(),
-          ],
+                ],
+              ),
+              const SizedBox(height: 20),
+          
+              // Dynamic Content
+              _selectedCategory == "Consultation Touchpoint"
+                  ? ConsultationForm(
+                selectedConsultationType: _selectedConsultationType,
+                selectedDate: _selectedDate,
+                selectedTime: _selectedTime,
+                selectedService: _selectedService,
+                onPickDate: _pickDate,
+                onPickTime: _pickTime,
+                onSelectService: (String service) {
+                  setState(() {
+                    _selectedService = service;
+                  });
+                },
+                onToggleType: (type) {
+                  setState(() {
+                    _selectedConsultationType = type;
+                  });
+                },
+              )
+                  : SafeSpaceBody(),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: _selectedCategory == "Consultation Touchpoint"

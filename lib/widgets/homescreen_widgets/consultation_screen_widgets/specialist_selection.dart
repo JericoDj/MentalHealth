@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../utils/constants/colors.dart';
+
 class SpecialistSelection extends StatelessWidget {
   final String? selectedService;
   final Function(String) onSelectService;
@@ -22,29 +24,24 @@ class SpecialistSelection extends StatelessWidget {
           }
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.blue.shade100,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.blue, width: 2),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              ),
-            ],
+            border: Border.all(
+              color: selectedService == null ? Colors.black87 : MyColors.color2,  // Conditional border color
+              width: selectedService == null ? 1 : 2,  // Conditional border width
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               Text(
                 selectedService ?? "Select Service",
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade800,
+                  color: selectedService == null ? Colors.black87.withAlpha(180) : MyColors.color2
                 ),
               ),
               if (selectedService != null) ...[
@@ -59,7 +56,7 @@ class SpecialistSelection extends StatelessWidget {
                   },
                   child: Tooltip(
                     message: "Show details",
-                    child: const Icon(Icons.info_outline, color: Colors.blue, size: 18),
+                    child: const Icon(Icons.info_outline, color: Colors.orange, size: 18),
                   ),
                 ),
               ],
@@ -127,16 +124,13 @@ class SpecialistSelection extends StatelessWidget {
     const Map<String, String> _serviceDetails = {
       "Psychological Assessment":
       "Comprehensive tools like tests, interviews, and observations to understand mental health for school, work, legal, or personal purposes.",
-
       "Consultation":
       "Discuss mental health concerns with a psychologist or psychiatrist. Get guidance and therapeutic goals.\n\n"
           "A. Psychiatric Consultation – With a psychiatrist.\n"
           "B. Adult Psychological Consultation – For adults.\n"
           "C. Child and Adolescent Consultation – For children and teens.",
-
       "Couple Therapy/Counseling":
       "Helps couples build healthy relationships and resolve conflicts that hinder satisfaction.",
-
       "Counseling and Psychotherapy":
       "Therapy for emotional healing, trauma, and mental health challenges with a psychologist.",
     };
