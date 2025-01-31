@@ -67,9 +67,9 @@ class ConsultationToggle extends StatelessWidget {
             child: Text(
               type,
               style: TextStyle(
-                fontSize: isSelected ? 18 : 16,
+                fontSize: isSelected ? 16 : 14,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.green : Colors.grey,
+                color: isSelected ? MyColors.color1: Colors.grey,
 
                 decorationThickness: 2, // Thickness of underline
               ),
@@ -82,7 +82,7 @@ class ConsultationToggle extends StatelessWidget {
             height: 3, // Thickness of the underline
             width: isSelected ? 80 : 0, // Width of underline when selected
             decoration: BoxDecoration(
-              color: isSelected ? Colors.green : Colors.transparent, // Green underline if selected
+              color: isSelected ? MyColors.color1: Colors.transparent, // Green underline if selected
               borderRadius: BorderRadius.circular(2),
             ),
           ),

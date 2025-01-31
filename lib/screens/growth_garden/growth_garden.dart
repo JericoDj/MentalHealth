@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:llps_mental_app/screens/growth_garden/widgets/gratitude_journaling_widget.dart';
 import 'package:llps_mental_app/screens/growth_garden/widgets/insight_quest.dart';
 import 'package:llps_mental_app/screens/growth_garden/widgets/mindhub.dart';
-import 'package:llps_mental_app/screens/growth_garden/widgets/personalized_plans.dart';
 import 'package:llps_mental_app/screens/growth_garden/widgets/quick_wellness_tools.dart';
+import 'package:llps_mental_app/screens/growth_garden/widgets/thrive_guide.dart';
 
 class GrowthGardenScreen extends StatelessWidget {
   @override
@@ -18,6 +18,7 @@ class GrowthGardenScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+
 
                 ThriveGuide(),
 
@@ -39,9 +40,9 @@ class GrowthGardenScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    InsightQuestButton(),
-                    SizedBox(width: 15,),
                     MindHubButton(),
+                    SizedBox(width: 15,),
+                    InsightQuestButton(),
                   ],
                 ),
 

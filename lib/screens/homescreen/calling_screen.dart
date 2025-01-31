@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class CallingScreen extends StatefulWidget {
   @override
@@ -12,7 +13,7 @@ class _CallingScreenState extends State<CallingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.greenAccent.withOpacity(0.9),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
         child: Column(
@@ -23,8 +24,8 @@ class _CallingScreenState extends State<CallingScreen> {
               children: [
                 const CircleAvatar(
                   radius: 60,
-                  backgroundImage: NetworkImage(
-                    "https://via.placeholder.com/150", // Placeholder for avatar
+                  backgroundImage: AssetImage(
+                    "assets/avatars/Avatar1.jpeg", // Placeholder for avatar
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -33,7 +34,7 @@ class _CallingScreenState extends State<CallingScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -42,7 +43,7 @@ class _CallingScreenState extends State<CallingScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
-                    color: Colors.white70,
+                    color: Colors.black54,
                   ),
                 ),
               ],
@@ -64,20 +65,27 @@ class _CallingScreenState extends State<CallingScreen> {
                       },
                       child: Column(
                         children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: Colors.white,
-                            child: Icon(
-                              isMicMuted ? Icons.mic_off : Icons.mic,
-                              color: Colors.greenAccent,
-                              size: 30,
+                          Container(
+                            padding: const EdgeInsets.all(4), // Padding inside border
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: MyColors.color2, width: 2), // Border
+                            ),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                isMicMuted ? Icons.mic_off : Icons.mic,
+                                color: MyColors.color2,
+                                size: 30,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             isMicMuted ? "Unmute" : "Mute",
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.black87,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -94,20 +102,27 @@ class _CallingScreenState extends State<CallingScreen> {
                       },
                       child: Column(
                         children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundColor: Colors.white,
-                            child: Icon(
-                              isSpeakerMuted ? Icons.volume_off : Icons.volume_up,
-                              color: Colors.greenAccent,
-                              size: 30,
+                          Container(
+                            padding: const EdgeInsets.all(4), // Padding inside border
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: MyColors.color2, width: 2), // Border
+                            ),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                isSpeakerMuted ? Icons.volume_off : Icons.volume_up,
+                                color: MyColors.color2,
+                                size: 30,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             isSpeakerMuted ? "Speaker Off" : "Speaker On",
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.black87,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -117,6 +132,7 @@ class _CallingScreenState extends State<CallingScreen> {
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 30),
 
                 // End Call Button
@@ -138,7 +154,7 @@ class _CallingScreenState extends State<CallingScreen> {
                 const Text(
                   "End Call",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Colors.black54,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

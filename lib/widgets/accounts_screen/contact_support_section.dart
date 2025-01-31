@@ -81,7 +81,7 @@ class ContactSupportSection extends StatelessWidget {
                     Opacity(
 
                         opacity: 0.7,
-                        child: const Icon(Icons.phone, color: MyColors.color1,size: 24,)),
+                        child: Icon(Icons.phone, color: MyColors.color1,size: 24,)),
                     const SizedBox(width: 10),
                     Text(
                       '+63 917 854 2236',
@@ -103,7 +103,7 @@ class ContactSupportSection extends StatelessWidget {
                     Opacity(
 
                         opacity: 0.7,
-                        child: const Icon(Icons.email, color: MyColors.color1,size: 24,)),
+                        child:  Icon(Icons.email, color: MyColors.color1,size: 24,)),
                     const SizedBox(width: 20),
                     Text(
                       'support@llps.com',

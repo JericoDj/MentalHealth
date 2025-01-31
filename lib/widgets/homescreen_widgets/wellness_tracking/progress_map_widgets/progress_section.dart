@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../utils/constants/colors.dart';
+
 class UserProgressSection extends StatelessWidget {
   const UserProgressSection({
     Key? key,
@@ -14,9 +16,8 @@ class UserProgressSection extends StatelessWidget {
     return Container(
       key: _sectionKeys[0],
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(3), // Padding for gradient border effect
       decoration: BoxDecoration(
-        color: Colors.greenAccent.shade100,
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
@@ -25,38 +26,56 @@ class UserProgressSection extends StatelessWidget {
             offset: const Offset(0, 5),
           ),
         ],
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFfcbc1d),
+            Color(0xFFfd9c33),
+            Color(0xFF59b34d),
+            Color(0xFF359d4e),
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Title Section
-          const Text(
-            "User Progress",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.green,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white, // Inner container background
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title Section
+            const Text(
+              "User Progress",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Progress Stats
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildStatCard(
-                icon: Icons.check_circle_outline,
-                value: "25",
-                label: "Check-ins",
-              ),
-              _buildStatCard(
-                icon: Icons.local_fire_department,
-                value: "10",
-                label: "Streak",
-              ),
-            ],
-          ),
-        ],
+            // Progress Stats
+            Row(
+              spacing: 20,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildStatCard(
+                  icon: Icons.check_circle_outline,
+                  value: "25",
+                  label: "Check-ins",
+                ),
+                _buildStatCard(
+                  icon: Icons.local_fire_department,
+                  value: "10",
+                  label: "Streak",
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -68,42 +87,47 @@ class UserProgressSection extends StatelessWidget {
     required String label,
   }) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      width: 130,
+      padding: const EdgeInsets.all(3), // Border padding
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(color: MyColors.color2, width: 2),
+        borderRadius: BorderRadius.circular(10),
+
+
       ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.green, size: 28),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white, // Inner content background
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Row(
+              spacing: 5,
+              children: [
+                Icon(icon, color: MyColors.color1, size: 28),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+
+              ],
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
               ),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

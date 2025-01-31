@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class AchievementsSection extends StatelessWidget {
- AchievementsSection({
+  AchievementsSection({
     Key? key,
     required List<GlobalKey<State<StatefulWidget>>> sectionKeys,
   }) : _sectionKeys = sectionKeys, super(key: key);
@@ -42,12 +43,11 @@ class AchievementsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Separate Unlocked Achievements
+    // Separate Unlocked & Locked Achievements
     List<Map<String, dynamic>> unlockedAchievements = _achievements
         .where((achievement) => achievement['unlocked'] == true)
         .toList();
 
-    // Separate Locked Achievements
     List<Map<String, dynamic>> lockedAchievements = _achievements
         .where((achievement) => achievement['unlocked'] == false)
         .toList();
@@ -55,10 +55,19 @@ class AchievementsSection extends StatelessWidget {
     return Container(
       key: _sectionKeys[1],
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(3), // Padding for border effect
       decoration: BoxDecoration(
-        color: Colors.blueAccent.shade100,
         borderRadius: BorderRadius.circular(15),
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFfcbc1d),
+            Color(0xFFfd9c33),
+            Color(0xFF59b34d),
+            Color(0xFF359d4e),
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -67,41 +76,49 @@ class AchievementsSection extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section Title
-          const Text(
-            "Achievements",
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white, // Inner Background
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section Title
+            const Text(
+              "Achievements",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Unlocked Achievements Row (Badge Style)
-          _buildUnlockedBadges(unlockedAchievements),
-          const SizedBox(height: 20),
+            // Unlocked Achievements Row (Badge Style)
+            _buildUnlockedBadges(unlockedAchievements),
+            const SizedBox(height: 20),
 
-          // Locked Achievements List (Progress Bar)
-          Column(
-            children: lockedAchievements.map((achievement) {
-              return _buildAchievementRow(
-                icon: achievement["icon"],
-                title: achievement["title"],
-                progress: achievement["progress"],
-                goal: achievement["goal"],
-              );
-            }).toList(),
-          ),
-        ],
+            // Locked Achievements List (Progress Bar)
+            Column(
+              children: lockedAchievements.map((achievement) {
+                return _buildAchievementRow(
+                  icon: achievement["icon"],
+                  title: achievement["title"],
+                  progress: achievement["progress"],
+                  goal: achievement["goal"],
+                );
+              }).toList(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Unlocked Achievements as Badges
+  // Unlocked Achievements as Badges with Gradient Border
   Widget _buildUnlockedBadges(List<Map<String, dynamic>> achievements) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -111,10 +128,18 @@ class AchievementsSection extends StatelessWidget {
           return Column(
             children: [
               Container(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(3), // Border thickness
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFfcbc1d),
+                      Color(0xFFfd9c33),
+
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.1),
@@ -123,10 +148,17 @@ class AchievementsSection extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: Icon(
-                  achievement["icon"],
-                  color: Colors.blueAccent,
-                  size: 32,
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    achievement["icon"],
+                    color: MyColors.color1,
+                    size: 32,
+                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -135,7 +167,7 @@ class AchievementsSection extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.white,
+                  color: Colors.black87,
                 ),
               ),
             ],
@@ -145,7 +177,7 @@ class AchievementsSection extends StatelessWidget {
     );
   }
 
-  // Locked Achievements with Progress Bar
+  // Locked Achievements with Progress Bar and Gradient Border
   Widget _buildAchievementRow({
     required IconData icon,
     required String title,
@@ -158,12 +190,20 @@ class AchievementsSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          // Achievement Icon
+          // Achievement Icon with Gradient Border
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: Colors.white,
               shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFfcbc1d),
+                  Color(0xFFfd9c33),
+
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -172,7 +212,14 @@ class AchievementsSection extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(icon, color: Colors.blueAccent, size: 28),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: MyColors.color1, size: 28),
+            ),
           ),
           const SizedBox(width: 16),
 
@@ -186,7 +233,7 @@ class AchievementsSection extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.black,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -196,7 +243,7 @@ class AchievementsSection extends StatelessWidget {
                     Container(
                       height: 10,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.black87.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -207,7 +254,16 @@ class AchievementsSection extends StatelessWidget {
                           height: 10,
                           width: constraints.maxWidth * progressPercentage,
                           decoration: BoxDecoration(
-                            color: Colors.lightBlueAccent,
+                            gradient: LinearGradient(
+                              colors: [
+                                Color(0xFFfcbc1d),
+                                Color(0xFFfd9c33),
+                                Color(0xFF59b34d),
+                                Color(0xFF359d4e),
+                              ],
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                            ),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         );
@@ -221,7 +277,7 @@ class AchievementsSection extends StatelessWidget {
                   "$progress / $goal",
                   style: const TextStyle(
                     fontSize: 14,
-                    color: Colors.white70,
+                    color: Colors.black87,
                   ),
                 ),
               ],

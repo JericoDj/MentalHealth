@@ -37,24 +37,18 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
           : "Finished: You have completed ${itemList.length} consultations.";
     });
   }
-
   void navigateToDetailPage(BuildContext context, Consultation consultation) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => DetailPage(
-          serviceType: consultation.serviceType,
-          serviceId: consultation.serviceId,
-          status: consultation.status,
-          bookedDate: consultation.bookedDate,
-          bookedTime: consultation.bookedTime,
-          createdDate: consultation.createdDate,
-          createdTime: consultation.createdTime,
-        ),
-      ),
+    showDetailDialog(
+      context: context, // Pass the context here
+      serviceType: consultation.serviceType,
+      serviceId: consultation.serviceId,
+      status: consultation.status,
+      bookedDate: consultation.bookedDate,
+      bookedTime: consultation.bookedTime,
+      createdDate: consultation.createdDate,
+      createdTime: consultation.createdTime,
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -140,8 +134,7 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
                       itemBuilder: (context, index) {
                         final item = itemList[index];
                         return GestureDetector(
-                          onTap: () =>
-                              navigateToDetailPage(context, item),
+                          onTap: () => navigateToDetailPage(context, item),
                           child: Container(
                             margin:
                             const EdgeInsets.symmetric(vertical: 8),
@@ -187,13 +180,10 @@ class _ConsultationStatusWidgetState extends State<ConsultationStatusWidget> {
                       ),
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => FullListPage(
-                                title: displayText,
-                                fullList: itemList,
-                              ),
+                          Get.to(
+                                () => FullListPage(
+                              title: displayText,
+                              fullList: itemList,
                             ),
                           );
                         },

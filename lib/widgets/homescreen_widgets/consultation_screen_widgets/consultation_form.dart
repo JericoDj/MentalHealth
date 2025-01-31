@@ -115,14 +115,19 @@ class ConsultationForm extends StatelessWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: selectedDate == null
-                                  ? [Colors.black45, Colors.black54] // Black gradient if no date is selected
-                                  : [MyColors.color1, MyColors.color2], // Custom gradient if date is selected
+                                  ? [
+                                Colors.black45,
+                                Colors.black54
+                              ] // Black gradient if no date is selected
+                                  : [MyColors.color1, MyColors.color2],
+                              // Custom gradient if date is selected
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: const EdgeInsets.all(2), // Creates the gradient border effect
+                          padding: const EdgeInsets.all(2),
+                          // Creates the gradient border effect
                           child: Container(
                             height: 50,
                             width: 140,
@@ -141,12 +146,16 @@ class ConsultationForm extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 selectedDate != null
-                                    ? "${selectedDate!.toLocal().toString().split(' ')[0]}"
+                                    ? "${selectedDate!.toLocal()
+                                    .toString()
+                                    .split(' ')[0]}"
                                     : "Select Date",
                                 style: TextStyle(
                                   color: selectedDate == null
-                                      ? Colors.black87.withAlpha(180) // Faded text if not selected
-                                      : MyColors.black, // Highlighted if selected
+                                      ? Colors.black87.withAlpha(
+                                      180) // Faded text if not selected
+                                      : MyColors.black,
+                                  // Highlighted if selected
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -165,14 +174,19 @@ class ConsultationForm extends StatelessWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: selectedTime == null
-                                  ? [Colors.black45, Colors.black54] // Black gradient if no time is selected
-                                  : [MyColors.color1, MyColors.color2], // Custom gradient if time is selected
+                                  ? [
+                                Colors.black45,
+                                Colors.black54
+                              ] // Black gradient if no time is selected
+                                  : [MyColors.color1, MyColors.color2],
+                              // Custom gradient if time is selected
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: const EdgeInsets.all(2), // Creates the gradient border effect
+                          padding: const EdgeInsets.all(2),
+                          // Creates the gradient border effect
                           child: Container(
                             height: 50,
                             width: 140,
@@ -194,8 +208,10 @@ class ConsultationForm extends StatelessWidget {
                                     : "Select Time",
                                 style: TextStyle(
                                   color: selectedTime == null
-                                      ? Colors.black87.withAlpha(180) // Faded text if not selected
-                                      : MyColors.black, // Highlighted if selected
+                                      ? Colors.black87.withAlpha(
+                                      180) // Faded text if not selected
+                                      : MyColors.black,
+                                  // Highlighted if selected
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -217,27 +233,110 @@ class ConsultationForm extends StatelessWidget {
     );
   }
 
+
   void _showTimePicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)), // Rounded top corners
+      ),
+      backgroundColor: Colors.white,
+      isScrollControlled: true, // **Allows full height usage**
       builder: (context) {
-        return Container(
-          height: 300,
-          child: ListView.builder(
-            itemCount: 10,
-            itemBuilder: (context, index) {
-              final time = TimeOfDay(hour: 8 + index, minute: 0);
-              return ListTile(
-                title: Text(time.format(context)),
-                onTap: () {
-                  onPickTime(time);
-                  Navigator.pop(context);
-                },
-              );
-            },
+        return FractionallySizedBox(
+          heightFactor: 0.6, // **Increase modal height (70% of screen)**
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Header Title
+                Text(
+                  "Select a Time Slot",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: MyColors.color1,
+                  ),
+                ),
+                const SizedBox(height: 30), // **Increased spacing after title**
+                Expanded(
+                  child: GridView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // **2 Columns for Better Display**
+                      crossAxisSpacing: 14,
+                      mainAxisSpacing: 14,
+                      childAspectRatio: 3, // **Wider Buttons**
+                    ),
+                    itemCount: 10,
+                    itemBuilder: (context, index) {
+                      final time = TimeOfDay(hour: 8 + index, minute: 0);
+                      return GestureDetector(
+                        onTap: () {
+                          onPickTime(time);
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: MyColors.color2, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 3,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: Text(
+                            time.format(context),
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87, // **Text Color**
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20), // **More space before "Cancel" button**
+                // Cancel Button (Moved Higher)
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.redAccent, width: 2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.redAccent, // **Text Color**
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         );
       },
     );
   }
+
 }

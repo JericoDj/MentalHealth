@@ -56,7 +56,7 @@ class AccountSettingsButtons extends StatelessWidget {
             style: TextStyle(
               color: MyColors.color2, // Text color
               fontSize: 16,
-              fontWeight: FontWeight.bold
+              fontWeight: FontWeight.w600
             ),
           ),
         ),

@@ -33,21 +33,55 @@ class _BookNowScreenState extends State<BookNowScreen> {
     super.initState();
     sessionController = Get.find<SessionController>(); // Initialize the controller
   }
-
-  // Pick Date
   void _pickDate() async {
-    final date = await showDatePicker(
+    final DateTime? selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            primaryColor: MyColors.color2, // Header background color
+            hintColor: MyColors.color2, // Hint text color
+            textTheme: TextTheme(
+              headlineMedium: TextStyle( // **Month & Year in the header**
+                fontSize: 20, // Bigger text
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+
+              bodyLarge: const TextStyle( // **Selected Date Text**
+                fontSize: 16, // Bigger for emphasis
+                fontWeight: FontWeight.bold,
+                color: Colors.black, // Black text for selected date
+              ),
+            ),
+            colorScheme: ColorScheme.light(
+              primary: MyColors.color2, // Selected date color
+              onPrimary: Colors.white70, // Selected date text (black)
+              onSurface: MyColors.color1, // Normal text color
+            ),
+            dialogBackgroundColor: Colors.white, // Background color
+            buttonTheme: ButtonThemeData(
+              textTheme: ButtonTextTheme.primary,
+              colorScheme: ColorScheme.light(primary: MyColors.color1),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
-    if (date != null) {
+
+    if (selectedDate != null) {
       setState(() {
-        _selectedDate = date;
+        _selectedDate = selectedDate;
       });
     }
   }
+
+
+
 
   // Pick Time
   void _pickTime(TimeOfDay time) {

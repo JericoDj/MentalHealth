@@ -14,7 +14,7 @@ class StressLevelSection extends StatefulWidget {
 }
 
 class _StressLevelSectionState extends State<StressLevelSection> {
-  String _selectedPeriod = "Daily"; // Default
+  String _selectedPeriod = "Daily"; // Default period
   final List<String> _periods = ["Daily", "Weekly", "Monthly", "Quarterly", "Semi-Annual", "Annual"];
 
   // Sample Stress Data (Example % Distribution)
@@ -29,52 +29,75 @@ class _StressLevelSectionState extends State<StressLevelSection> {
     return Container(
       key: widget._sectionKeys[3],
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: Colors.redAccent,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Section Title and Dropdown
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                "Stress Level Management",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              DropdownButton<String>(
-                value: _selectedPeriod,
-                dropdownColor: Colors.red,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                underline: Container(height: 1, color: Colors.white),
-                items: _periods.map((String period) {
-                  return DropdownMenuItem(
-                    value: period,
-                    child: Text(period),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedPeriod = value!;
-                    _updateStressData();  // Update data when period changes
-                  });
-                },
-              ),
-            ],
+        borderRadius: BorderRadius.circular(15),
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFFfcbc1d),
+            Color(0xFFfd9c33),
+            Color(0xFF59b34d),
+            Color(0xFF359d4e),
+          ],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
-          const SizedBox(height: 16),
-
-          // Pie Chart Display
-          _buildPieChart(),
-
-          const SizedBox(height: 20),
-
-          // Recommendation Section
-          _buildRecommendations(),
         ],
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section Title and Dropdown
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Stress Level Management",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                DropdownButton<String>(
+                  value: _selectedPeriod,
+                  dropdownColor: Colors.white,
+                  style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+                  underline: Container(height: 1, color: Colors.black38),
+                  items: _periods.map((String period) {
+                    return DropdownMenuItem(
+                      value: period,
+                      child: Text(period),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedPeriod = value!;
+                      _updateStressData(); // Update stress data dynamically
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Pie Chart Display
+            _buildPieChart(),
+
+            const SizedBox(height: 20),
+
+            // Recommendation Section
+            _buildRecommendations(),
+          ],
+        ),
       ),
     );
   }
@@ -86,8 +109,8 @@ class _StressLevelSectionState extends State<StressLevelSection> {
       child: PieChart(
         PieChartData(
           sections: _buildPieChartSections(),
-          centerSpaceRadius: 40,
-          sectionsSpace: 2,
+          centerSpaceRadius: 50,
+          sectionsSpace: 4,
         ),
       ),
     );
@@ -96,15 +119,15 @@ class _StressLevelSectionState extends State<StressLevelSection> {
   // Pie Chart Data (Color and Values)
   List<PieChartSectionData> _buildPieChartSections() {
     return _stressData.entries.map((entry) {
-      final isTouched = entry.value > 30;  // Highlight sections with high percentage
+      final isHighlighted = entry.value > 30; // Highlight sections with high percentage
       final color = _getSectionColor(entry.key);
 
       return PieChartSectionData(
         color: color,
         value: entry.value,
         title: '${entry.value.toInt()}%',
-        radius: isTouched ? 60 : 50,
-        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+        radius: isHighlighted ? 65 : 50,
+        titleStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
       );
     }).toList();
   }
@@ -128,25 +151,25 @@ class _StressLevelSectionState extends State<StressLevelSection> {
     String recommendation = "You're doing great! Keep practicing mindfulness.";
 
     if (_stressData["High"]! > 30) {
-      recommendation = "Your stress is high. Consider relaxation techniques or counseling.";
+      recommendation = "High stress detected. Try deep breathing, meditation, or a short walk.";
     } else if (_stressData["Moderate"]! > 40) {
-      recommendation = "Moderate stress detected. Try incorporating breaks and physical activity.";
+      recommendation = "Moderate stress level. Incorporate breaks, sleep well, and stay hydrated.";
     }
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.black12.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          const Icon(Icons.lightbulb, color: Colors.white),
+          const Icon(Icons.lightbulb, color: Colors.black87),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               recommendation,
-              style: const TextStyle(fontSize: 14, color: Colors.white70),
+              style: const TextStyle(fontSize: 14, color: Colors.black54),
             ),
           ),
         ],
@@ -163,6 +186,12 @@ class _StressLevelSectionState extends State<StressLevelSection> {
           break;
         case "Monthly":
           _stressData = {"Low": 35, "Moderate": 40, "High": 25};
+          break;
+        case "Quarterly":
+          _stressData = {"Low": 30, "Moderate": 45, "High": 25};
+          break;
+        case "Semi-Annual":
+          _stressData = {"Low": 40, "Moderate": 40, "High": 20};
           break;
         case "Annual":
           _stressData = {"Low": 60, "Moderate": 25, "High": 15};

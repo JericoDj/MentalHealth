@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:llps_mental_app/screens/createaccount.dart';
 import 'package:llps_mental_app/widgets/navigation_bar.dart';
 
 import '../utils/constants/colors.dart';
+import 'forgotpassword.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -13,7 +15,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isPasswordVisible = false; // To toggle password visibility
+  bool _isPasswordVisible = false;
+  bool _rememberMe = false; // Added remember me state
 
   @override
   Widget build(BuildContext context) {
@@ -111,20 +114,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       children: [
                         Checkbox(
-                          value: false,
-                          onChanged: (value) {},
+                           activeColor: MyColors.color2,
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            setState(() {
+                              _rememberMe = value ?? false;
+                            });
+                          },
                         ),
                         const Text("Remember me"),
                       ],
                     ),
-                    TextButton(
-                      onPressed: () {
-                        // Forgot Password Action
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => const ForgotPasswordScreen()); // Add your forgot password screen
                       },
                       child: const Text(
                         "Forgot Password?",
                         style: TextStyle(
                           color: MyColors.color2,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -133,24 +142,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 30),
 
                 // Sign-In Button
-                // Sign-In Button
                 SizedBox(
                   height: 60,
                   width: double.infinity,
                   child: InkWell(
                     onTap: () {
-                      Get.to(() => NavigationBarMenu(dailyCheckIn: true)); // Pass firstLogin flag
+                      Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
                     },
                     borderRadius: BorderRadius.circular(10),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [
-                            Color(0xFFFFA726), // Orange shade from the image
-                            Color(0xFFFFC107), // Yellow accent
-                            Color(0xFF8BC34A), // Green (Yellow-Green)
-                            Color(0xFF4CAF50), // Deeper green
+                            Color(0xFFFFA726),
+                            Color(0xFFFFC107),
+                            Color(0xFF8BC34A),
+                            Color(0xFF4CAF50),
                           ],
                           stops: [0.0, 0.33, 0.67, 1.0],
                           begin: Alignment.centerLeft,
@@ -164,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         alignment: Alignment.center,
-                        child: ShaderMask(
+                        child:  ShaderMask(
                           shaderCallback: (bounds) => LinearGradient(
                             colors: [
                               Color(0xFFFFA726),
@@ -187,7 +195,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-
+                // Create Account
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    GestureDetector(
+                      onTap: () {
+                        Get.to(() => const SignUpScreen()); // Add your registration screen
+                      },
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          color: MyColors.color2,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -196,3 +223,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+
