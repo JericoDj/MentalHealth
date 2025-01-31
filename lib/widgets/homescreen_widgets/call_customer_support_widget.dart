@@ -4,6 +4,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:llps_mental_app/screens/homescreen/calling_screen.dart';
 
 import '../../screens/homescreen/customer_support_screen.dart';
+import '../../utils/constants/colors.dart';
 
 
 class CallCustomerSupportPopup extends StatefulWidget {
@@ -31,7 +32,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
             onTap: () => Navigator.of(context).pop(),
             child: const Icon(
               Icons.close,
-              color: Colors.redAccent,
+              color: MyColors.color2,
             ),
           ),
         ],
@@ -41,25 +42,32 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
         children: [
           const Text(
             "To proceed with customer support, please agree to our data privacy policy.",
-            style: TextStyle(fontSize: 14),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               Checkbox(
                 value: _agreeToPrivacy,
+                activeColor: MyColors.color1, // Set checkbox color
                 onChanged: (value) {
                   setState(() => _agreeToPrivacy = value!);
                 },
               ),
-              const Expanded(
+              const SizedBox(width: 4), // Small space between checkbox and text
+              Expanded(
                 child: Text(
                   "I agree to the data privacy policy.",
-                  style: TextStyle(fontSize: 14),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: MyColors.black, // Change text color
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
           ),
+
           const SizedBox(height: 20),
           Stack(
             children: [
@@ -68,7 +76,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                 width: buttonWidth,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: _agreeToPrivacy ? Colors.greenAccent : Colors.grey,
+                  color: _agreeToPrivacy ? MyColors.color2: Colors.grey,
                   borderRadius: BorderRadius.circular(15),
                 ),
                 alignment: Alignment.center,
@@ -135,7 +143,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
       ),
       child: const Icon(
         Icons.arrow_forward,
-        color: Colors.greenAccent,
+        color: MyColors.color1,
       ),
     );
   }

@@ -1,8 +1,10 @@
-import 'dart:typed_data'; // Correct import for Uint8List
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:llps_mental_app/widgets/navigation_bar.dart';
 import 'package:signature/signature.dart';
-
 import '../../widgets/homescreen_widgets/eSignPopup.dart';
+import '../../utils/constants/colors.dart';
 
 class BookingReviewScreen extends StatefulWidget {
   final String consultationType;
@@ -24,6 +26,7 @@ class BookingReviewScreen extends StatefulWidget {
 
 class _BookingReviewScreenState extends State<BookingReviewScreen> {
   bool _isContractChecked = false;
+  bool _hasViewedContract = false; // Ensures users view contract before agreeing
   final SignatureController _signatureController = SignatureController(
     penStrokeWidth: 2,
     penColor: Colors.black,
@@ -37,7 +40,6 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       builder: (context) => ESignPopup(signatureController: _signatureController),
     );
 
-    // Capture the signature as an image after popup closes
     if (_signatureController.isNotEmpty) {
       final signature = await _signatureController.toPngBytes();
       setState(() {
@@ -54,13 +56,15 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("E-Contract"),
+              const Text("E-Contract", style: TextStyle(fontWeight: FontWeight.bold)),
               GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.redAccent,
-                ),
+                onTap: () {
+                  setState(() {
+                    _hasViewedContract = true; // Mark contract as viewed
+                  });
+                  Navigator.of(context).pop();
+                },
+                child: const Icon(Icons.close, color: Colors.redAccent),
               ),
             ],
           ),
@@ -71,21 +75,43 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
             ),
             child: SingleChildScrollView(
               child: const Text(
-                "This is the full e-contract content. It contains all the terms and conditions you need to read and agree to.\n\n"
-                    "Clause 1: Terms and Conditions\n"
-                    "Clause 2: Service Agreement\n"
-                    "Clause 3: Obligations of Both Parties\n"
-                    "Clause 4: Limitation of Liability\n"
-                    "Clause 5: Termination and Refund Policy\n"
-                    "Clause 6: Other Legal Details.\n\n"
-                    "Please scroll through and read all terms carefully.",
+                "This e-contract contains the full agreement terms for your consultation.\n\n"
+                    "**Clause 1: Terms and Conditions**\n"
+                    "All users must adhere to the rules outlined in this contract.\n\n"
+                    "**Clause 2: Service Agreement**\n"
+                    "This agreement details the services provided and the obligations of each party.\n\n"
+                    "**Clause 3: Obligations of Both Parties**\n"
+                    "You agree to provide accurate information. The service provider commits to delivering services as outlined.\n\n"
+                    "**Clause 4: Limitation of Liability**\n"
+                    "The service provider is not responsible for external factors affecting your consultation.\n\n"
+                    "**Clause 5: Termination and Refund Policy**\n"
+                    "Cancellations must be made within 24 hours. Refunds are subject to our policy.\n\n"
+                    "**Clause 6: Other Legal Details**\n"
+                    "This contract is legally binding. Any disputes must be resolved according to our stated policy.",
+                style: TextStyle(fontSize: 14),
               ),
             ),
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("I've Read"),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _hasViewedContract = true; // Mark contract as viewed
+                });
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: MyColors.white),
+                  color: MyColors.color1
+                ),
+                child: Text(
+                  "I've Read",
+                  style: TextStyle(color: MyColors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ],
         );
@@ -93,125 +119,136 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
     );
   }
 
+  void _toggleAgreement(bool? value) {
+    if (!_hasViewedContract) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please view the E-Contract before agreeing."),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    } else {
+      setState(() {
+        _isContractChecked = value!;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Review and Submit"),
-        backgroundColor: Colors.greenAccent,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              "Review Your Details",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              alignment: Alignment.center,
-              child: Column(
-                children: [
-                  Text("Consultation Type: ${widget.consultationType}"),
-                  Text("Date: ${widget.selectedDate}"),
-                  Text("Time: ${widget.selectedTime}"),
-                  Text("Service: ${widget.service}"),
-                ],
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          toolbarHeight: 65,
+          elevation: 4,
+          shadowColor: Colors.black.withOpacity(0.2),
+          title: const Text("Review and Submit", style: TextStyle(color: MyColors.color1)),
+          iconTheme: IconThemeData(color: MyColors.color1),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Text("Review Your Booking Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFF59b34d), Color(0xFF359d4e)],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Container(
+                  width: 350,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                  child: Column(
+                    children: [
+                      Text("Consultation Type: ${widget.consultationType}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
+                      Text("Date: ${widget.selectedDate}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
+                      Text("Time: ${widget.selectedTime}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
+                      Text("Service: ${widget.service}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              "E-Contract",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Expanded(
-              flex: 1,
-              child: GestureDetector(
+              const SizedBox(height: 20),
+              const Text("E-Contract", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              GestureDetector(
                 onTap: _openContractPopup,
                 child: Container(
+                  padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey),
-                  ),
-                  child: Scrollbar(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: const Text(
-                          "This is a preview of the e-contract. Tap to view the full version.\n\n"
-                              "Clause 1: Terms and Conditions\n"
-                              "Clause 2: Service Agreement\n"
-                              "Clause 3: Obligations of Both Parties\n"
-                              "Clause 4: Limitation of Liability\n"
-                              "Clause 5: Termination and Refund Policy\n"
-                              "Clause 6: Other Legal Details.\n\n",
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFF59b34d), Color(0xFF359d4e)],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
                     ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                    child: const Text("Tap to view the full e-contract.", style: TextStyle(fontSize: 14)),
                   ),
                 ),
               ),
-            ),
-            Row(
-              children: [
-                Checkbox(
-                  value: _isContractChecked,
-                  onChanged: (value) {
-                    setState(() => _isContractChecked = value!);
-                  },
-                ),
-                const Text("I agree to the e-contract."),
-              ],
-            ),
-            if (_isContractChecked)
-              ElevatedButton(
-                onPressed: _openESignPopup,
-                child: const Text("Sign E-Contract"),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Checkbox(
+                    activeColor: MyColors.color2,
+                    value: _isContractChecked,
+                    onChanged: _toggleAgreement,
+                  ),
+                  const Text("I agree to the e-contract.", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                ],
               ),
-            if (_signatureImage != null) ...[
-              const SizedBox(height: 20),
-              const Text("Your Signature:", style: TextStyle(fontWeight: FontWeight.bold)),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: _openESignPopup,
+                child: Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFF59b34d), Color(0xFF359d4e)],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                    child: _signatureImage != null
+                        ? Image.memory(_signatureImage!, width: 200, height: 100, fit: BoxFit.contain)
+                        :  Container(
+                        width: 200, height: 100,
+                        child: Center(child: Text("Tap to Sign", style: TextStyle(color: Colors.grey)))),
+                  ),
                 ),
-                child: Image.memory(
-                  _signatureImage!,
-                  width: 200,
-                  height: 100,
-                  fit: BoxFit.contain,
+              ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () {
+                  Get.offAll(()=> NavigationBarMenu(dailyCheckIn: false,));
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(color: MyColors.color2, borderRadius: BorderRadius.circular(8)),
+                  width: double.infinity,
+                  alignment: Alignment.center,
+                  child: const Text("Submit Request", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
             ],
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                if (_isContractChecked && _signatureController.isNotEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Request submitted successfully!")),
-                  );
-                  Navigator.of(context).pop();
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please complete the e-contract and sign.")),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.greenAccent,
-                padding: const EdgeInsets.all(16),
-              ),
-              child: const Text(
-                "Submit Request",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

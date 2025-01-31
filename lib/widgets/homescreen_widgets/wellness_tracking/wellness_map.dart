@@ -41,12 +41,12 @@ class ProgressDashboardCard extends StatelessWidget {
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
             ),
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -78,7 +78,7 @@ class ProgressDashboardCard extends StatelessWidget {
           end: Alignment.bottomCenter,
         ),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(8),
+          topLeft: Radius.circular(5),
           topRight: Radius.circular(8),
         ),
       ),
@@ -101,7 +101,7 @@ class ProgressDashboardCard extends StatelessWidget {
       },
       child: Column(
         children: [
-          Text(day, style: GoogleFonts.archivo(color: Colors.green.shade600, fontWeight: FontWeight.bold)),
+          Text(day, style: GoogleFonts.archivo(color: Colors.green.shade600, fontWeight: FontWeight.bold,fontSize: 14)),
           const SizedBox(height: 5),
           Text(emoji, style: const TextStyle(fontSize: 24)),
         ],
@@ -136,9 +136,9 @@ class ProgressDashboardCard extends StatelessWidget {
           icon: Icons.speed,
           label: 'Progress',
           value: '95%',
-          buttonColor: MyColors.color2.withOpacity(0.1),
-          iconColor: MyColors.color2,
-          borderColor: MyColors.color2,
+          buttonColor: MyColors.color1.withOpacity(0.1),
+          iconColor: MyColors.color1,
+          borderColor: MyColors.color1,
           displayMode: 'progress',
         ),
         _buildCircularIconWithLabel(
@@ -166,9 +166,9 @@ class ProgressDashboardCard extends StatelessWidget {
           icon: Icons.local_fire_department,
           label: 'Stress Level',
           value: 'Moderate',
-          buttonColor: Colors.redAccent.withOpacity(0.1),
-          borderColor: Colors.redAccent.shade100,
-          iconColor: Colors.redAccent,
+          buttonColor: MyColors.color2.withOpacity(0.1),
+          borderColor: MyColors.color2,
+          iconColor: MyColors.color2,
           displayMode: 'stress_level',
         ),
       ],

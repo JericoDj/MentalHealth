@@ -24,18 +24,31 @@ class MoodTrendsPopup extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title with Icon
+            // Title with Icon and Close Icon
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(Icons.mood, color: Colors.orange, size: 30),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                Row(
+                  children: [
+
+
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.red, size: 24),
+                  onPressed: () => Navigator.pop(context), // Close dialog
                 ),
               ],
             ),
+
+            const Icon(Icons.mood, color: Colors.orange, size: 30),
             const SizedBox(height: 10),
 
             // Mood Summary
@@ -60,7 +73,10 @@ class MoodTrendsPopup extends StatelessWidget {
                   Expanded(
                     child: Text(
                       recommendation,
-                      style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                 ],
@@ -68,60 +84,31 @@ class MoodTrendsPopup extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Buttons (Row for "View Details" & "Exit")
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // View Details Button with Border
-                GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    Get.to(() => const ProgressMapScreen(scrollToIndex: 2)); // Scroll to Mood Trends (Index 2)
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 2,
-                        style: BorderStyle.solid,
-                        color: MyColors.color1, // Border color
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
-                    child: const Text(
-                      "View Details",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: MyColors.color1, // Text color matches the border
-                      ),
-                    ),
+            // View Details Button
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                Get.to(() => const ProgressMapScreen(scrollToIndex: 2)); // Scroll to Mood Trends (Index 2)
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2,
+                    style: BorderStyle.solid,
+                    color: MyColors.color1, // Border color
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+                child: const Text(
+                  "View Details",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: MyColors.color1, // Text color matches the border
                   ),
                 ),
-                // Exit Button with Border
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 2,
-                        style: BorderStyle.solid,
-                        color: Colors.red, // Border color
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      "Exit",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red, // Text color matches the border
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
         ),

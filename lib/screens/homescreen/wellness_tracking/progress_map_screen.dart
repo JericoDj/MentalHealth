@@ -59,33 +59,35 @@ class _ProgressMapScreenState extends State<ProgressMapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Progress Map")),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-
-            // User Progress Section (Index 0)
-            UserProgressSection(sectionKeys: _sectionKeys),
-
-            const SizedBox(height: 10),
-
-            // Achievements Section (Index 1)
-            AchievementsSection(sectionKeys: _sectionKeys),
-
-            const SizedBox(height: 10),
-
-            // Mood Trends Section (Index 2)
-            MoodSection(sectionKeys: _sectionKeys, selectedDay: widget.selectedDay),
-
-            const SizedBox(height: 10),
-
-            // Stress Level Section (Index 3)
-            StressLevelSection(sectionKeys: _sectionKeys),
-            const SizedBox(height: 30),
-          ],
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Progress Map")),
+        body: SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+      
+              // User Progress Section (Index 0)
+              UserProgressSection(sectionKeys: _sectionKeys),
+      
+              const SizedBox(height: 10),
+      
+              // Achievements Section (Index 1)
+              AchievementsSection(sectionKeys: _sectionKeys),
+      
+              const SizedBox(height: 10),
+      
+              // Mood Trends Section (Index 2)
+              MoodSection(sectionKeys: _sectionKeys, selectedDay: widget.selectedDay),
+      
+              const SizedBox(height: 10),
+      
+              // Stress Level Section (Index 3)
+              StressLevelSection(sectionKeys: _sectionKeys),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
