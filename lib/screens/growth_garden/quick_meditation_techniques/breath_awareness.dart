@@ -1,19 +1,186 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'dart:async';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
-class BreathAwarenessMeditationScreen extends StatelessWidget {
+class BreathAwarenessMeditationScreen extends StatefulWidget {
   const BreathAwarenessMeditationScreen({super.key});
+
+  @override
+  _BreathAwarenessMeditationScreenState createState() => _BreathAwarenessMeditationScreenState();
+}
+
+class _BreathAwarenessMeditationScreenState extends State<BreathAwarenessMeditationScreen> {
+  late YoutubePlayerController _controller;
+  Timer? _timer;
+  int _timeLeft = 300; // 5-minute timer
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = YoutubePlayerController(
+      initialVideoId: YoutubePlayer.convertUrlToId("https://www.youtube.com/watch?v=enJyOTvEn4M")!,
+      flags: const YoutubePlayerFlags(
+        autoPlay: false, // Let user play manually
+        mute: false,
+        loop: false,
+      ),
+    );
+  }
+
+  void startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+          (Timer timer) => setState(() {
+        if (_timeLeft <= 0) {
+          timer.cancel();
+        } else {
+          _timeLeft--;
+        }
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Breath Awareness Meditation")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      backgroundColor: Colors.white, // White background
+      appBar: AppBar(
+
+
+        toolbarHeight: 65,
+        flexibleSpace: Stack(
           children: [
-            const Text('Focus on your breath', style: TextStyle(fontSize: 24)),
-            const Text('Observe it without controlling.', style: TextStyle(fontSize: 20)),
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFF8F8F8),
+                    Color(0xFFF1F1F1),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+
+            /// Gradient Bottom Border
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 2, // Border thickness
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.orange, // Start - Orange
+                      Colors.orangeAccent, // Stop 2 - Orange Accent
+                      Colors.green, // Stop 3 - Green
+                      Colors.greenAccent, // Stop 4 - Green Accent
+                    ],
+                    stops: const [0.0, 0.5, 0.5, 1.0],
+                    // Define stops at 50% transition
+                    begin: Alignment.centerLeft,
+
+                    end: Alignment.centerRight,
+                  ),
+                ),
+              ),
+            ),
           ],
+        ),
+        title: const Text("Breath Awareness Meditation"),
+        backgroundColor: Colors.white, // White app bar
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black), // Black back button
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 🌟 Welcome Section
+              Text(
+                "Welcome to Breath Awareness Meditation",
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: MyColors.color1),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                "Focus on your breath. Observe it naturally without changing it. "
+                    "This 5-minute guided meditation will help you become more mindful.",
+                style: TextStyle(fontSize: 16, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+
+              // 🎥 YouTube Video Player
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)], // Subtle shadow
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: YoutubePlayer(
+                    controller: _controller,
+                    showVideoProgressIndicator: true,
+                    progressIndicatorColor: MyColors.color2,
+                    progressColors: ProgressBarColors(
+                      playedColor: MyColors.color2,
+                      handleColor: MyColors.color1,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // 📖 About Breath Awareness Meditation
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "What is Breath Awareness Meditation?",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.color1),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      "Breath Awareness Meditation is a simple yet powerful practice of observing your breath "
+                          "without controlling it, promoting relaxation and mindfulness.",
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "How Can It Help?",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: MyColors.color1),
+                    ),
+                    const SizedBox(height: 5),
+                    const Text(
+                      "• Enhances focus and awareness\n"
+                          "• Reduces stress and anxiety\n"
+                          "• Helps improve sleep quality\n"
+                          "• Supports emotional regulation",
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );

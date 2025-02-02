@@ -98,9 +98,10 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.white,
-            toolbarHeight: 65,
+
             elevation: 4,
             shadowColor: Colors.black.withOpacity(0.2),
+            toolbarHeight: 65,
             flexibleSpace: Stack(
               children: [
                 Container(

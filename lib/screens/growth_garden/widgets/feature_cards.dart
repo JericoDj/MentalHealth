@@ -1,20 +1,26 @@
+
+// 🌟 **Feature Card with a Single Container Gradient Border**
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
 
-import 'mindhubscreen.dart';
+import '../../../utils/constants/colors.dart';
 
-/// A stub widget for MindHubButton.
-/// Updated to match the size of InsightQuestButton.
-class MindHubButton extends StatelessWidget {
-  const MindHubButton({Key? key}) : super(key: key);
+class FeatureCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final String description;
+  final VoidCallback onTap;
+  final double width;
+
+  const FeatureCard({
+    required this.title,
+    required this.icon,
+    required this.description,
+    required this.onTap,
+    required this.width,
+  });
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width < 510
-        ? MediaQuery.of(context).size.width / 2 - 30
-        : 500 / 2 - 30;
-
     return Container(
       width: width - 15,
       height: width - 15,
@@ -40,25 +46,22 @@ class MindHubButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         child: InkWell(
-          onTap: () {
-            // Navigate to the MindHubScreen with a default category (e.g. Articles)
-            Get.to(() => const MindHubScreen(category: 'Articles'));
-          },
+          onTap: onTap,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lightbulb, size: 36, color: Colors.grey[800]),
+              Icon(icon, size: 36, color: Colors.grey[800]),
               const SizedBox(height: 8),
-              const Text(
-                'Mind Hub',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              Text(
                 textAlign: TextAlign.center,
+                title,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 5),
-              const Text(
-                'A central hub for mental well-being resources.',
+              Text(
+                description,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.black54),
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
               ),
             ],
           ),
@@ -67,3 +70,4 @@ class MindHubButton extends StatelessWidget {
     );
   }
 }
+

@@ -8,6 +8,7 @@ import '../mindful_breathing_techniques/box_breathing.dart';
 import '../quick_meditation_techniques/body_scan_meditation.dart';
 import '../quick_meditation_techniques/breath_awareness.dart';
 import '../quick_meditation_techniques/gratitude_meditation.dart';
+import 'feature_cards.dart';
 import 'insight_quest.dart';
 
 class QuickWellnessTools extends StatelessWidget {
@@ -124,6 +125,7 @@ class QuickWellnessTools extends StatelessWidget {
       ),
     );
   }
+
 
   // 🚀 Navigate to Breathing Screens
   void _navigateToBreathingScreen(BuildContext context, String breathingType) {
