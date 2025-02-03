@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:llps_mental_app/screens/createaccount.dart';
+import 'package:llps_mental_app/version.dart';
 import 'package:llps_mental_app/widgets/navigation_bar.dart';
 
 import '../utils/constants/colors.dart';
@@ -215,6 +216,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 30),
+                Text(appVersion,style: TextStyle(color: Colors.grey, fontSize: 14),),
               ],
             ),
           ),

@@ -23,6 +23,7 @@ class BottomButtons extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          SizedBox(height: 10,),
           GestureDetector(
             onTap: onCallSupport,
             child: const Text(

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
 
+import '../version.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -290,7 +292,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 30),
+                  Text(appVersion,style: TextStyle(color: Colors.grey, fontSize: 14),),
                 ],
+
               ),
             ),
           ),

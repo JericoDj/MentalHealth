@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../version.dart';
+
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -281,18 +283,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   ),
                 ],
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 // Back to Login Button
                 TextButton(
                   onPressed: () => Get.back(),
                   child: const Text(
                     "Back to Login",
                     style: TextStyle(
+                      fontSize: 14,
                       color: MyColors.color2,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+                const SizedBox(height: 50),
+                Text(appVersion,style: TextStyle(color: Colors.grey, fontSize: 14),),
               ],
             ),
           ),
