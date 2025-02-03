@@ -110,7 +110,7 @@ class MindHubArticlesScreen extends StatelessWidget {
                     children: [
                       TextButton(
                         onPressed: () => _showArticleDialog(context, article),
-                        child: const Text("Read More", style: TextStyle(color: Colors.blue)),
+                        child: const Text("Read More", style: TextStyle(color: MyColors.color1)),
                       ),
                     ],
                   ),

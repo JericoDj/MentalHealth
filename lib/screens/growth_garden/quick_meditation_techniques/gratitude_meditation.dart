@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';  // Import for SystemChrome
 import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class GratitudeMeditationScreen extends StatefulWidget {
@@ -51,12 +52,15 @@ class _GratitudeMeditationScreenState extends State<GratitudeMeditationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Detecting the current orientation
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscape = orientation == Orientation.landscape;
+
     return Scaffold(
       backgroundColor: Colors.white, // White background
-
-
-      appBar: AppBar(
-
+      appBar: isLandscape
+          ? null // Hide app bar in landscape mode
+          : AppBar(
         toolbarHeight: 65,
         flexibleSpace: Stack(
           children: [
@@ -72,24 +76,21 @@ class _GratitudeMeditationScreenState extends State<GratitudeMeditationScreen> {
                 ),
               ),
             ),
-
-            /// Gradient Bottom Border
             Positioned(
               bottom: 0,
               left: 0,
               right: 0,
               child: Container(
-                height: 2, // Border thickness
+                height: 2,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Colors.orange, // Start - Orange
-                      Colors.orangeAccent, // Stop 2 - Orange Accent
-                      Colors.green, // Stop 3 - Green
-                      Colors.greenAccent, // Stop 4 - Green Accent
+                      Colors.orange,
+                      Colors.orangeAccent,
+                      Colors.green,
+                      Colors.greenAccent,
                     ],
                     stops: const [0.0, 0.5, 0.5, 1.0],
-                    // Define stops at 50% transition
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                   ),
@@ -103,7 +104,37 @@ class _GratitudeMeditationScreenState extends State<GratitudeMeditationScreen> {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black), // Black back button
       ),
-      body: SingleChildScrollView(
+      body: isLandscape
+          ? Stack(
+        children: [
+          // Fullscreen video player
+          Center(
+            child: YoutubePlayer(
+              controller: _controller,
+              showVideoProgressIndicator: true,
+              progressIndicatorColor: MyColors.color2,
+              progressColors: ProgressBarColors(
+                playedColor: MyColors.color2,
+                handleColor: MyColors.color1,
+              ),
+            ),
+          ),
+          // Back button in landscape
+          Positioned(
+            top: 16,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                // Switch to portrait mode before navigating back
+                SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+              },
+            ),
+          ),
+        ],
+      )
+          : SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -143,7 +174,6 @@ class _GratitudeMeditationScreenState extends State<GratitudeMeditationScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
 
               // 📖 About Gratitude Meditation

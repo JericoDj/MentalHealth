@@ -61,7 +61,38 @@ class _ProgressMapScreenState extends State<ProgressMapScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(title: const Text("Progress Map")),
+        appBar: AppBar(
+            toolbarHeight: 65,
+            flexibleSpace: Stack(
+              children: [
+
+
+                /// Gradient Bottom Border
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 2, // Border thickness
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.orange, // Start - Orange
+                          Colors.orangeAccent, // Stop 2 - Orange Accent
+                          Colors.green, // Stop 3 - Green
+                          Colors.greenAccent, // Stop 4 - Green Accent
+                        ],
+                        stops: const [0.0, 0.5, 0.5, 1.0],
+                        // Define stops at 50% transition
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            title: const Text("Progress Map")),
         body: SingleChildScrollView(
           controller: _scrollController,
           child: Column(

@@ -45,6 +45,10 @@ class _MindHubScreenState extends State<MindHubScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width < 510
+        ? MediaQuery.of(context).size.width / 2 - 30
+        : 500 / 2 - 30;
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(

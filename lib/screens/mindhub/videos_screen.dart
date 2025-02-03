@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart';
 
 class VideoItem {
   final String title;
@@ -45,191 +46,234 @@ final List<VideoItem> videos = const [
   ),
 ];
 
-class MindHubVideosScreen extends StatefulWidget {
+class MindHubVideosScreen extends StatelessWidget {
   const MindHubVideosScreen({Key? key}) : super(key: key);
 
-  @override
-  _MindHubVideosScreenState createState() => _MindHubVideosScreenState();
-}
-
-class _MindHubVideosScreenState extends State<MindHubVideosScreen> {
   void _showVideoDialog(BuildContext context, VideoItem video) {
     showDialog(
       context: context,
-      builder: (context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.95, // 95% of screen width
-            height: 600, // Fixed height
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Exit button
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ),
-
-                // Video Player (16:9)
-                AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: video.isYouTube
-                      ? YoutubePlayer(
-                    controller: YoutubePlayerController(
-                      initialVideoId: YoutubePlayer.convertUrlToId(video.videoUrl)!,
-                      flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
-                    ),
-                    showVideoProgressIndicator: true,
-                  )
-                      : VideoPlayerWidget(videoUrl: video.videoUrl),
-                ),
-                const SizedBox(height: 10),
-
-                // Video Title
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Text(
-                    video.title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Full Description (Scrollable)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: SingleChildScrollView(
-                      child: Text(
-                        video.description,
-                        style: const TextStyle(fontSize: 16, color: Colors.black87),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (context) => VideoPlayerDialog(video: video),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Mental Health Videos",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: videos.length,
-                itemBuilder: (context, index) {
-                  final video = videos[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 4,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: InkWell(
-                      onTap: () => _showVideoDialog(context, video),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Thumbnail
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.9,
-                            height: (MediaQuery.of(context).size.width * 0.9) * (9 / 16),
-                            margin: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.grey[300], // Light gray placeholder
-                            ),
-                            child: const Center(
-                              child: Text(
-                                "Thumbnail here",
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
-                              ),
-                            ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: videos.length,
+        itemBuilder: (context, index) {
+          final video = videos[index];
+          return Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 4,
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: InkWell(
+              onTap: () => _showVideoDialog(context, video),
+              borderRadius: BorderRadius.circular(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      height: 200,
+                      color: Colors.grey[300],
+                      // Background color for the container
+                      child: Center(
+                        child: Text(
+                          "Thumbnail here",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54,
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  video.title,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  video.description.length > 100
-                                      ? "${video.description.substring(0, 100)}..."
-                                      : video.description,
-                                  style: const TextStyle(fontSize: 14, color: Colors.black87),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  );
-                },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          video.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          video.description,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-// Video Player Widget (For local videos)
-class VideoPlayerWidget extends StatefulWidget {
-  final String videoUrl;
-  const VideoPlayerWidget({Key? key, required this.videoUrl}) : super(key: key);
+class VideoPlayerDialog extends StatefulWidget {
+  final VideoItem video;
+
+  const VideoPlayerDialog({Key? key, required this.video}) : super(key: key);
 
   @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
+  _VideoPlayerDialogState createState() => _VideoPlayerDialogState();
 }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _controller;
+class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
+  late YoutubePlayerController _youtubeController;
+  late VideoPlayerController _localController;
+  late bool _isYouTube;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset(widget.videoUrl)
-      ..initialize().then((_) {
-        setState(() {});
-      });
+    _isYouTube = widget.video.isYouTube;
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+
+    if (_isYouTube) {
+      _youtubeController = YoutubePlayerController(
+        initialVideoId: YoutubePlayer.convertUrlToId(widget.video.videoUrl)!,
+        flags: const YoutubePlayerFlags(
+          autoPlay: true,
+          mute: false,
+          enableCaption: true,
+        ),
+      );
+    } else {
+      _localController = VideoPlayerController.network(widget.video.videoUrl)
+        ..initialize().then((_) => setState(() {}));
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    if (_isYouTube) {
+      _youtubeController.dispose();
+    } else {
+      _localController.dispose();
+    }
     super.dispose();
+  }
+
+  Widget _buildVideoPlayer(BuildContext context) {
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscape = orientation == Orientation.landscape;
+
+    return Stack(
+      children: [
+        if (_isYouTube)
+          YoutubePlayerBuilder(
+            player: YoutubePlayer(
+              controller: _youtubeController,
+              aspectRatio: isLandscape ? 16 / 9 : 16 / 9,
+            ),
+            builder: (context, player) => player,
+          )
+        else
+          _localController.value.isInitialized
+              ? AspectRatio(
+            aspectRatio: isLandscape
+                ? _localController.value.aspectRatio
+                : 16 / 9,
+            child: VideoPlayer(_localController),
+          )
+              : const Center(child: CircularProgressIndicator()),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return _controller.value.isInitialized
-        ? VideoPlayer(_controller)
-        : const Center(child: CircularProgressIndicator());
+
+    final orientation = MediaQuery.of(context).orientation;
+    final isLandscape = orientation == Orientation.landscape;
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        width: 600,
+        height: isLandscape ? MediaQuery.of(context).size.height : 400,
+        child: Column(
+          children: [
+            // Video Player
+            Expanded(
+              flex: 3,
+              child: Stack(
+                children: [
+                  _buildVideoPlayer(context),
+                  // Show 'X' button only in portrait mode
+                  if (!isLandscape)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: IconButton(
+                        icon: Icon(Icons.close, color: Colors.white, size: 28),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // Show Text Only in Portrait Mode
+            if (!isLandscape)
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        widget.video.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        widget.video.description,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
-}
+  }
+

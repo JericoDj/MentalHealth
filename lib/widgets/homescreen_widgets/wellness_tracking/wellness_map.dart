@@ -144,8 +144,8 @@ class ProgressDashboardCard extends StatelessWidget {
         _buildCircularIconWithLabel(
           context,
           icon: Icons.emoji_events,
-          label: 'Achievement',
-          value: 'Top',
+          label: 'Achievements',
+          value: 'My',
           buttonColor: MyColors.color2.withOpacity(0.1),
           borderColor: MyColors.color2,
           iconColor: MyColors.color2,

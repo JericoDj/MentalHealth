@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:llps_mental_app/screens/homescreen/calling_screen.dart';
 
-import '../../screens/homescreen/customer_support_screen.dart';
 import '../../utils/constants/colors.dart';
-
 
 class CallCustomerSupportPopup extends StatefulWidget {
   @override
@@ -76,7 +73,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                 width: buttonWidth,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: _agreeToPrivacy ? MyColors.color2: Colors.grey,
+                  color: _agreeToPrivacy ? MyColors.color2 : Colors.grey,
                   borderRadius: BorderRadius.circular(15),
                 ),
                 alignment: Alignment.center,
@@ -113,11 +110,9 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                   },
                   onHorizontalDragEnd: (_) {
                     if (_dragReachedEnd) {
-                      // Navigate to the queue screen
+                      // Only navigate when the drag reaches the end
                       Navigator.of(context).pop(); // Close popup
-                      Get.to(() => CallingScreen(),
-
-                      );
+                      Get.to(() => CallingScreen()); // Navigate to calling screen
                     } else {
                       // Reset the drag position if not completed
                       setState(() => _dragPosition = 0);

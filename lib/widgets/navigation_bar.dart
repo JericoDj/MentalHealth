@@ -99,23 +99,11 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
           appBar: AppBar(
             backgroundColor: Colors.white,
 
-            elevation: 4,
-            shadowColor: Colors.black.withOpacity(0.2),
+
             toolbarHeight: 65,
             flexibleSpace: Stack(
               children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFFF8F8F8),
-                        Color(0xFFF1F1F1),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                  ),
-                ),
+
 
                 /// Gradient Bottom Border
                 Positioned(
@@ -334,24 +322,28 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
     );
   }
 
-  /// Show Mood Selection Dialog
+  // Show Mood Selection Dialog with Stress Level
   void _showMoodDialog() {
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent closing by tapping outside
       builder: (context) {
-        return Builder(
-          builder: (dialogContext) {
+        double _stressLevel = 50.0; // Default stress level percentage
+        String _selectedMood = ""; // Store the selected mood emoji
+        String _moodTemp = ""; // Temporary mood selection until confirmed
+
+        return StatefulBuilder(
+          builder: (dialogContext, setState) {
             return Dialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Title with Exit Icon
-                    Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Title with Exit Icon
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
@@ -367,27 +359,126 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 15),
+                  ),
 
-                    // Mood Emojis
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+
+                  // Mood Emojis
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _buildMoodEmoji(dialogContext, "😃", "Happy"),
-                        // Pass dialogContext
-                        const SizedBox(width: 20),
-                        _buildMoodEmoji(dialogContext, "😐", "Neutral"),
-                        const SizedBox(width: 20),
-                        _buildMoodEmoji(dialogContext, "😔", "Sad"),
-                        const SizedBox(width: 20),
-                        _buildMoodEmoji(dialogContext, "😡", "Angry"),
-                        const SizedBox(width: 20),
-                        _buildMoodEmoji(dialogContext, "😰", "Anxious"),
+                        _buildMoodEmoji(
+                            dialogContext, "😃", "Happy", _moodTemp, () {
+                          setState(() {
+                            _moodTemp = "Happy"; // Set temporary selected mood
+                          });
+                        }),
+                        _buildMoodEmoji(
+                            dialogContext, "😐", "Neutral", _moodTemp, () {
+                          setState(() {
+                            _moodTemp = "Neutral"; // Set temporary selected mood
+                          });
+                        }),
+                        _buildMoodEmoji(
+                            dialogContext, "😔", "Sad", _moodTemp, () {
+                          setState(() {
+                            _moodTemp = "Sad"; // Set temporary selected mood
+                          });
+                        }),
+                        _buildMoodEmoji(
+                            dialogContext, "😡", "Angry", _moodTemp, () {
+                          setState(() {
+                            _moodTemp = "Angry"; // Set temporary selected mood
+                          });
+                        }),
+                        _buildMoodEmoji(
+                            dialogContext, "😰", "Anxious", _moodTemp, () {
+                          setState(() {
+                            _moodTemp = "Anxious"; // Set temporary selected mood
+                          });
+                        }),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Stress Level Section
+                  const Text(
+                    "Stress Level",
+                    style: TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  Column(
+                    children: [
+                      Slider(
+
+                        activeColor: MyColors.color2,
+                        value: _stressLevel,
+                        min: 0,
+                        max: 100,
+
+                        divisions: 10,
+                        label: '${_stressLevel.toStringAsFixed(0)}%',
+                        onChanged: (double value) {
+                          setState(() {
+                            _stressLevel = value;
+                          });
+                        },
+                      ),
+                      Text(
+                        '${_stressLevel.toStringAsFixed(0)}%',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Confirm GestureDetector
+                  GestureDetector(
+                    onTap: () {
+                      if (_moodTemp.isNotEmpty) {
+                        _selectedMood =
+                            _moodTemp; // Set selected mood on confirm
+                        ScaffoldMessenger.of(dialogContext).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "You selected: $_selectedMood with Stress Level: ${_stressLevel
+                                    .toStringAsFixed(0)}%"),
+                            duration: const Duration(seconds: 3),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(dialogContext).showSnackBar(
+                          const SnackBar(
+                            content: Text("Please select a mood first!"),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                      Navigator.pop(dialogContext); // Close dialog on confirm
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12, horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: MyColors.color1,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        "Confirm",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
               ),
             );
           },
@@ -395,32 +486,48 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
       },
     );
   }
-
-  /// Build a Mood Emoji Button
-  Widget _buildMoodEmoji(BuildContext dialogContext, String emoji,
-      String mood) {
+// Build a Mood Emoji Button with selection highlight
+  Widget _buildMoodEmoji(BuildContext dialogContext, String emoji, String mood,
+      String selectedMood, Function onTap) {
+    bool isSelected = selectedMood == mood; // Check if this mood is selected
     return GestureDetector(
       onTap: () {
-        Navigator.pop(dialogContext); // Use the passed dialogContext
-        ScaffoldMessenger.of(dialogContext).showSnackBar(
-          SnackBar(
-            content: Text("You selected: $mood"),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        onTap(); // Set the temporary selected mood without closing the dialog
       },
-      child: Column(
-        children: [
-          Text(
-            emoji,
-            style: const TextStyle(fontSize: 30),
+      child: Container(
+        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          color: isSelected ? MyColors.color2.withValues(alpha: 0.2) : Colors.transparent,
+          // Highlight selected mood
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isSelected ? MyColors.color2 : Colors.transparent,
+            // Add border when selected
+            width: 2,
           ),
-          const SizedBox(height: 5),
-          Text(
-            mood,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-        ],
+        ),
+        child: Column(
+          children: [
+            Text(
+              emoji,
+              style: TextStyle(
+                fontSize: 30,
+                color: isSelected ? Colors.black : Colors
+                    .black87, // Change color when selected
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              mood,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.black : Colors
+                    .black87, // Highlight the mood text
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -257,7 +257,7 @@ class _BoxBreathingScreenState extends State<BoxBreathingScreen> with SingleTick
                   ),
                 ],
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 60),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Text(

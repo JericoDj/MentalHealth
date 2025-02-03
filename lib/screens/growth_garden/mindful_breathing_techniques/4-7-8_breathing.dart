@@ -212,8 +212,8 @@ class _FourSevenEightBreathingScreenState
                       return Transform.scale(
                         scale: _rippleAnimation.value,
                         child: Container(
-                          width: 250,
-                          height: 250,
+                          width: 220,
+                          height: 220,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: MyColors.color2.withOpacity(0.5),
@@ -259,9 +259,9 @@ class _FourSevenEightBreathingScreenState
                   ),
                 ],
               ),
-              const SizedBox(height: 80),
+              const SizedBox(height: 60),
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(18.0),
                 child: Text(
                   'The 4-7-8 breathing technique can help reduce stress, promote relaxation, improve focus, and help with sleep. Breathe deeply, hold, and exhale to feel more balanced and centered!',
                   style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),

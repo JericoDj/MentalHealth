@@ -18,7 +18,7 @@ class DailyMoodPopup extends StatelessWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -29,7 +29,7 @@ class DailyMoodPopup extends StatelessWidget {
                 Text(
                   "Mood for $selectedDay",
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -39,15 +39,26 @@ class DailyMoodPopup extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 15),
 
             // Content
-            Text(
-              "Today's Mood: $mood\nNotes: 'Feeling good and productive!'",
-              style: const TextStyle(fontSize: 16),
-              textAlign: TextAlign.left,
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    "$mood",
+                    style: const TextStyle(fontSize: 30),
+                    textAlign: TextAlign.left,
+                  ),
+                  Text(
+                    "$selectedDay Mood",
+                    style: const TextStyle(fontSize: 16),
+                    textAlign: TextAlign.left,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 25),
+            const SizedBox(height: 15),
+
 
             // View Details Button
             GestureDetector(
@@ -67,7 +78,7 @@ class DailyMoodPopup extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 25),
                 child: const Text(
                   "View Details",
                   style: TextStyle(

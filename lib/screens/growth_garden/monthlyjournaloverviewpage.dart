@@ -43,22 +43,55 @@ class _MonthlyJournalOverviewPageState extends State<MonthlyJournalOverviewPage>
         selectedMonth.year, selectedMonth.month);
     final firstDay = DateTime(selectedMonth.year, selectedMonth.month, 1);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          DateFormat('MMMM y').format(selectedMonth),
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+
+          toolbarHeight: 65,
+          flexibleSpace: Stack(
+            children: [
+
+
+              /// Gradient Bottom Border
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 2, // Border thickness
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.orange, // Start - Orange
+                        Colors.orangeAccent, // Stop 2 - Orange Accent
+                        Colors.green, // Stop 3 - Green
+                        Colors.greenAccent, // Stop 4 - Green Accent
+                      ],
+                      stops: const [0.0, 0.5, 0.5, 1.0],
+                      // Define stops at 50% transition
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          title: Text(
+            DateFormat('MMMM y').format(selectedMonth),
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildCalendarGrid(context, daysInMonth, firstDay),
-            const SizedBox(height: 24),
-            _buildJournalHighlights(context),
-          ],
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildCalendarGrid(context, daysInMonth, firstDay),
+              const SizedBox(height: 24),
+              _buildJournalHighlights(context),
+            ],
+          ),
         ),
       ),
     );
