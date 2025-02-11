@@ -88,6 +88,7 @@ class ConsultationForm extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ConsultationToggle(
+
                         selectedType: selectedConsultationType,
                         onToggle: onToggleType,
                       ),

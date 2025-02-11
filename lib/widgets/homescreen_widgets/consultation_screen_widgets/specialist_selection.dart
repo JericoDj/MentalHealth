@@ -133,16 +133,16 @@ class SpecialistSelection extends StatelessWidget {
   String _getServiceDescription(String service) {
     const Map<String, String> _serviceDetails = {
       "Psychological Assessment":
-      "Comprehensive tools like tests, interviews, and observations to understand mental health for school, work, legal, or personal purposes.",
+      "Use of integrative tools such as testing, interviews, and observation, or other assessment tools to a comprehensive understanding of the client's system, concern or condition depending on their needs and purpose(e.g. school, employment, diagnosis, legal requirement, emotional support animal)",
       "Consultation":
-      "Discuss mental health concerns with a psychologist or psychiatrist. Get guidance and therapeutic goals.\n\n"
+      "A session where you can freely express, share, and consult your mental health concerns, experiences, thoughts and emotions. A recommendation or established therapeutic goals will be given at the end of this session.\n\n"
           "A. Psychiatric Consultation – With a psychiatrist.\n"
           "B. Adult Psychological Consultation – For adults.\n"
           "C. Child and Adolescent Consultation – For children and teens.",
       "Couple Therapy/Counseling":
-      "Helps couples build healthy relationships and resolve conflicts that hinder satisfaction.",
+      "An intervention that aims to help the couple build a healthy relationship and facilitate conflict resolutions that hinder a satisfying relationship",
       "Counseling and Psychotherapy":
-      "Therapy for emotional healing, trauma, and mental health challenges with a psychologist.",
+      "A therapeutic session with a psychologist to help a client towards healing, intervention, or recovery from his/her concern, experiences, trauma, or any psychological and mental health challenges.",
     };
 
     return _serviceDetails[service] ?? "No description available.";
@@ -153,17 +153,17 @@ class SpecialistSelection extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(10),
         ),
         title: Text(
           service,
-          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+          style: TextStyle(color: MyColors.color1, fontWeight: FontWeight.bold),
         ),
         content: Text(description),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Close", style: TextStyle(color: Colors.blue)),
+            child: Text("Close", style: TextStyle(color: MyColors.color1,fontSize: 14, )),
           ),
         ],
       ),

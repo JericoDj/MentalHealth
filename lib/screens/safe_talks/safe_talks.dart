@@ -58,30 +58,98 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
 
   Widget _buildKeepItCleanDialog(BuildContext context) {
     return AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text(
-            "Community Guidelines",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-              widget.onBackToHome?.call();
-            },
-            child: const Icon(
-              Icons.close,
-              color: Colors.black54,
+      title: const Text(
+        "Welcome to Safe Talk!",
+        style: TextStyle(fontWeight: FontWeight.bold, color: MyColors.color1, fontSize: 20),
+      ),
+      content: Container(
+        height: MediaQuery.of(context).size.height * 0.51, // 50% of screen height
+        child: Column(
+          children: [
+
+            Text(
+              textAlign: TextAlign.center,
+              "All together, let's create a warm and supportive mental health community.\n\n"
+                  "Share your thoughts, helpful quotes, and motivational words to help inspire and uplift fellow community members. "
+                  "Let's cultivate a space where we can all feel safe, heard, and understood.\n",
+              style: TextStyle(fontSize: 14),
             ),
-          ),
-        ],
+            Container(
+
+              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+              height: MediaQuery.of(context).size.height * 0.3, // 50% of screen height
+              width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
+              child: ScrollbarTheme(
+                data: ScrollbarThemeData(
+                  thumbColor: MaterialStateProperty.all(MyColors.color2), // Scroll wheel color
+                  thickness: MaterialStateProperty.all(6), // Scroll thickness
+                  radius: const Radius.circular(10), // Rounded edges
+                ),
+                child: Scrollbar(
+                  thumbVisibility: true, // Always show scrollbar
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+
+                          Text(
+                            "Community Rules:",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: MyColors.color1),
+                          ),
+                          SizedBox(height: 10),
+                          RichText(
+                            text: TextSpan(
+                              style: const TextStyle(fontSize: 14, color: Colors.black), // Default text style
+                              children: [
+                                TextSpan(
+                                  text: "1. Respect Everyone: ",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: "No cursing, malicious words, or hurtful language. We are here to support each other, so kindness is key!\n\n"),
+
+                                TextSpan(
+                                  text: "2. Be Supportive: ",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: "Offer advice with empathy, understanding that everyone's journey is different.\n\n"),
+
+                                TextSpan(
+                                  text: "3. Stay Positive: ",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: "Share content that helps uplift others. Avoid negativity or harmful content.\n\n"),
+
+                                TextSpan(
+                                  text: "4. Privacy Matters: ",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: "Don't share personal information about others (names, department) when posting content.\n\n"),
+
+                                TextSpan(
+                                  text: "5. Be Mindful of Triggers: ",
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: "Mental health topics can be sensitive. Please be aware and considerate of others' emotions.\n\n"),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            "Let's keep this space a sanctuary where everyone can express themselves freely and safely. "
+                                "Thank you for being a part of Safe Talk!",
+                            style: TextStyle(fontSize: 14,),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-      content: const Text(
-        "All posts are reviewed to maintain a supportive environment. "
-            "Please keep discussions respectful and avoid hate comments.",
-      ),
-      actionsAlignment: MainAxisAlignment.end,
       actions: [
         GestureDetector(
           onTap: () {
@@ -102,14 +170,17 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
         ),
         GestureDetector(
           onTap: () => Navigator.pop(context),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Agree",
-              style: TextStyle(
-                fontSize: 16,
-                color: MyColors.color1,
-                fontWeight: FontWeight.w600,
+          child: Container(
+            decoration: BoxDecoration(color: MyColors.color2, borderRadius: BorderRadius.all(Radius.circular(5))),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+                "Agree",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: MyColors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

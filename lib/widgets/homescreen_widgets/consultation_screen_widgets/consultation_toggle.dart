@@ -41,7 +41,7 @@ class ConsultationToggle extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 5),
+          const SizedBox(height: 0),
 
           // Toggle Buttons
           Row(
@@ -67,7 +67,7 @@ class ConsultationToggle extends StatelessWidget {
             child: Text(
               type,
               style: TextStyle(
-                fontSize: isSelected ? 16 : 14,
+                fontSize: isSelected ? 15 : 13,
                 fontWeight: FontWeight.bold,
                 color: isSelected ? MyColors.color1: Colors.grey,
 

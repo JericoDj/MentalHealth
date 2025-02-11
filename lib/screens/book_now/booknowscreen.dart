@@ -19,7 +19,7 @@ class BookNowScreen extends StatefulWidget {
 }
 
 class _BookNowScreenState extends State<BookNowScreen> {
-  String _selectedCategory = "Consultation Touchpoint"; // Default selection
+  String _selectedCategory = "Safe Space"; // Default selection
   String _selectedConsultationType = "Online"; // Default to Online
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
@@ -32,7 +32,78 @@ class _BookNowScreenState extends State<BookNowScreen> {
   void initState() {
     super.initState();
     sessionController = Get.find<SessionController>(); // Initialize the controller
+
+    // Show welcome dialog when the screen loads
+    Future.delayed(Duration.zero, () {
+      _showWelcomeDialog();
+    });
   }
+
+
+  void _showWelcomeDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Allows the user to tap outside to dismiss
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Makes the dialog wrap its content
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "Welcome to Safe Space",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: MyColors.color1,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "Connect with a mental health specialist or professional for support.",
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+                textAlign: TextAlign.center
+                ,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "* To book an appointment with a mental health professional, please complete the form through this link",
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              GestureDetector(
+                onTap: () => Get.back(), // Closes the dialog
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: MyColors.color2, // Custom button color
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Center(
+                    child: Text(
+                      "OK",
+                      style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ),
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+
   void _pickDate() async {
     final DateTime? selectedDate = await showDatePicker(
       context: context,
@@ -122,23 +193,23 @@ class _BookNowScreenState extends State<BookNowScreen> {
                 children: [
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => setState(() => _selectedCategory = "Consultation Touchpoint"),
+                      onTap: () => setState(() => _selectedCategory = "Safe Space"),
                       child: Container(
                         height: 86,
                         padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color: _selectedCategory == "Consultation Touchpoint" ? MyColors.color2.withValues(alpha: 0.9): Colors.black54,
+                            color: _selectedCategory == "Safe Space" ? MyColors.color2.withValues(alpha: 0.9): Colors.black54,
                           ),
-                          color: _selectedCategory == "Consultation Touchpoint" ? MyColors.color2.withValues(alpha: 0.9) : Colors.grey.shade300,
+                          color: _selectedCategory == "Safe Space" ? MyColors.color2.withValues(alpha: 0.9) : Colors.grey.shade300,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Center(child: Text(
           
-                            "Consultation Touchpoint", textAlign: TextAlign.center, style: TextStyle(
-                          fontSize: _selectedCategory == "Consultation Touchpoint" ? 16 : 14,
+                            "Safe Space", textAlign: TextAlign.center, style: TextStyle(
+                          fontSize: _selectedCategory == "Safe Space" ? 16 : 14,
                             fontWeight: FontWeight.bold,
-                            color:  _selectedCategory == "Consultation Touchpoint" ? Colors.white: Colors.black54))),
+                            color:  _selectedCategory == "Safe Space" ? Colors.white: Colors.black54))),
                       ),
                     ),
                   ),
@@ -171,7 +242,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
               const SizedBox(height: 20),
           
               // Dynamic Content
-              _selectedCategory == "Consultation Touchpoint"
+              _selectedCategory == "Safe Space"
                   ? ConsultationForm(
                 selectedConsultationType: _selectedConsultationType,
                 selectedDate: _selectedDate,
@@ -195,7 +266,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _selectedCategory == "Consultation Touchpoint"
+      bottomNavigationBar: _selectedCategory == "Safe Space"
           ? BottomButtons(
         isFormComplete: isFormComplete,
         onBookSession: _bookSession,

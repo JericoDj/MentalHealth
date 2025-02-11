@@ -74,7 +74,7 @@ class _ConsultationScreenState extends State<ConsultationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Consultation Touchpoint"),
+        title: const Text("Safe Space"),
         backgroundColor: Colors.greenAccent,
         elevation: 0,
       ),

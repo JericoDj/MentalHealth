@@ -42,7 +42,7 @@ class ConsultationTouchpointCard extends StatelessWidget {
             ),
           ),
           title: const Text(
-            "Consultation Touchpoint",
+            "Safe Space",
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,

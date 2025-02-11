@@ -37,7 +37,8 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
   void _openESignPopup() async {
     await showDialog(
       context: context,
-      builder: (context) => ESignPopup(signatureController: _signatureController),
+      builder: (context) =>
+          ESignPopup(signatureController: _signatureController),
     );
 
     if (_signatureController.isNotEmpty) {
@@ -56,7 +57,8 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("E-Contract", style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text(
+                  "E-Contract", style: TextStyle(fontWeight: FontWeight.bold)),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -70,8 +72,14 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
           ),
           content: ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.6,
-              maxWidth: MediaQuery.of(context).size.width * 0.9,
+              maxHeight: MediaQuery
+                  .of(context)
+                  .size
+                  .height * 0.6,
+              maxWidth: MediaQuery
+                  .of(context)
+                  .size
+                  .width * 0.9,
             ),
             child: SingleChildScrollView(
               child: const Text(
@@ -101,15 +109,17 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                 Navigator.of(context).pop();
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 12, horizontal: 24),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: MyColors.white),
-                  color: MyColors.color1
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: MyColors.white),
+                    color: MyColors.color1
                 ),
                 child: Text(
                   "I've Read",
-                  style: TextStyle(color: MyColors.white, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: MyColors.white, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -144,20 +154,27 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
           toolbarHeight: 65,
           elevation: 4,
           shadowColor: Colors.black.withOpacity(0.2),
-          title: const Text("Review and Submit", style: TextStyle(color: MyColors.color1)),
+          title: const Text(
+              "Review and Submit", style: TextStyle(color: MyColors.color1)),
           iconTheme: IconThemeData(color: MyColors.color1),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const Text("Review Your Booking Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("Review Your Booking Details",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 20),
               Container(
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFF59b34d), Color(0xFF359d4e)],
+                    colors: [
+                      Color(0xFFfcbc1d),
+                      Color(0xFFfd9c33),
+                      Color(0xFF59b34d),
+                      Color(0xFF359d4e)
+                    ],
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                   ),
@@ -166,19 +183,26 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                 child: Container(
                   width: 350,
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: Colors.white,
+                      borderRadius: BorderRadius.circular(10)),
                   child: Column(
                     children: [
-                      Text("Consultation Type: ${widget.consultationType}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
-                      Text("Date: ${widget.selectedDate}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
-                      Text("Time: ${widget.selectedTime}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
-                      Text("Service: ${widget.service}", style: TextStyle(color: MyColors.black, fontWeight: FontWeight.w600)),
+                      Text("Consultation Type: ${widget.consultationType}",
+                          style: TextStyle(color: MyColors.black,
+                              fontWeight: FontWeight.w600)),
+                      Text("Date: ${widget.selectedDate}", style: TextStyle(
+                          color: MyColors.black, fontWeight: FontWeight.w600)),
+                      Text("Time: ${widget.selectedTime}", style: TextStyle(
+                          color: MyColors.black, fontWeight: FontWeight.w600)),
+                      Text("Service: ${widget.service}", style: TextStyle(
+                          color: MyColors.black, fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-              const Text("E-Contract", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("E-Contract",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               GestureDetector(
                 onTap: _openContractPopup,
@@ -186,7 +210,12 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFF59b34d), Color(0xFF359d4e)],
+                      colors: [
+                        Color(0xFFfcbc1d),
+                        Color(0xFFfd9c33),
+                        Color(0xFF59b34d),
+                        Color(0xFF359d4e)
+                      ],
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                     ),
@@ -194,8 +223,10 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-                    child: const Text("Tap to view the full e-contract.", style: TextStyle(fontSize: 14)),
+                    decoration: BoxDecoration(color: Colors.white,
+                        borderRadius: BorderRadius.circular(8)),
+                    child: const Text("Tap to view the full e-contract.",
+                        style: TextStyle(fontSize: 14)),
                   ),
                 ),
               ),
@@ -207,7 +238,8 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                     value: _isContractChecked,
                     onChanged: _toggleAgreement,
                   ),
-                  const Text("I agree to the e-contract.", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                  const Text("I agree to the e-contract.", style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold)),
                 ],
               ),
               const SizedBox(height: 10),
@@ -217,7 +249,12 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                   padding: const EdgeInsets.all(3),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFfcbc1d), Color(0xFFfd9c33), Color(0xFF59b34d), Color(0xFF359d4e)],
+                      colors: [
+                        Color(0xFFfcbc1d),
+                        Color(0xFFfd9c33),
+                        Color(0xFF59b34d),
+                        Color(0xFF359d4e)
+                      ],
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
                     ),
@@ -225,32 +262,90 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                   ),
                   child: Container(
                     padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(color: Colors.white,
+                        borderRadius: BorderRadius.circular(8)),
                     child: _signatureImage != null
-                        ? Image.memory(_signatureImage!, width: 200, height: 100, fit: BoxFit.contain)
-                        :  Container(
+                        ? Image.memory(_signatureImage!, width: 200,
+                        height: 100,
+                        fit: BoxFit.contain)
+                        : Container(
                         width: 200, height: 100,
-                        child: Center(child: Text("Tap to Sign", style: TextStyle(color: Colors.grey)))),
+                        child: Center(
+                            child: Text("Tap to Sign", style: TextStyle(
+                                color: Colors.grey)))),
                   ),
                 ),
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  Get.offAll(()=> NavigationBarMenu(dailyCheckIn: false,));
-                },
+                onTap: _showConfirmationDialog,
+
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(color: MyColors.color2, borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: MyColors.color2,
+                      borderRadius: BorderRadius.circular(8)),
                   width: double.infinity,
                   alignment: Alignment.center,
-                  child: const Text("Submit Request", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  child: const Text("Submit Request", style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white)),
                 ),
               ),
+
+
             ],
+
+
           ),
         ),
+
       ),
+
+    );
+  }
+
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal by tapping outside
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            "Appointment Submitted",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: const Text(
+            "Your appointment request has been submitted. A representative will reach out to you within 24 hours.\n\n"
+                "Please ensure that the mobile number you provided is active and able to receive calls or texts.",
+            style: TextStyle(fontSize: 14),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                Get.offAll(()=> NavigationBarMenu(dailyCheckIn: false,));
+              },
+
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 12, horizontal: 24),
+                decoration: BoxDecoration(
+                  color: MyColors.color2, // Custom color
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  "OK",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

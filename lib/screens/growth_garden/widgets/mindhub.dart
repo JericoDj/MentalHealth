@@ -16,8 +16,8 @@ class MindHubButton extends StatelessWidget {
         : 500 / 2 - 30;
 
     return Container(
-      width: width - 15,
-      height: width - 15,
+      width: width - 5,
+      height: width - 5,
       padding: const EdgeInsets.all(3), // Border thickness
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
@@ -34,7 +34,7 @@ class MindHubButton extends StatelessWidget {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -54,11 +54,11 @@ class MindHubButton extends StatelessWidget {
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 3),
               const Text(
-                'A central hub for mental well-being resources.',
+                'Feel free to explore a variety of mental health resources, including articles, videos, and eBooks, to support your self-help journey',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12, color: Colors.black54),
+                style: TextStyle(fontSize: 10, color: Colors.black54,letterSpacing: 0.1),
               ),
             ],
           ),

@@ -63,30 +63,30 @@ class GrowthGardenScreen extends StatelessWidget {
     );
   }
 
-  // Hero Section (Optional)
-  Widget _buildHeroSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      decoration: BoxDecoration(
-        color: Colors.green[200],
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            "Welcome to Your Growth Garden",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            "Nurture your mental wellness with small daily actions.",
-            style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-          ),
+    // Hero Section (Optional)
+    Widget _buildHeroSection() {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.green[200],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          children: [
+            const Text(
+              "Welcome to Your Growth Garden",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Nurture your mental wellness with small daily actions.",
+              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+            ),
 
-        ],
-      ),
-    );
+          ],
+        ),
+      );
   }
 }
 

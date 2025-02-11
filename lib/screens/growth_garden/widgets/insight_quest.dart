@@ -24,8 +24,8 @@ class InsightQuestButton extends StatelessWidget {
               Get.to(() => const InsightQuestScreen());
             },
             width: MediaQuery.of(context).size.width < 510
-                ? MediaQuery.of(context).size.width / 2 - 30
-                : 500 / 2 - 30,
+                ? MediaQuery.of(context).size.width / 2 - 20
+                : 500 / 2 - 20,
           ),
         ],
       ),

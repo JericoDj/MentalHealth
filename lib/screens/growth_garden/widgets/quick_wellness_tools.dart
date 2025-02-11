@@ -28,8 +28,8 @@ class QuickWellnessTools extends StatelessWidget {
               description: 'Guided breathing exercises to calm the mind.',
               onTap: () => _showBreathingDialog(context),
               width: MediaQuery.of(context).size.width < 510
-                  ? MediaQuery.of(context).size.width / 2 - 30
-                  : 500 / 2 - 30,
+                  ? MediaQuery.of(context).size.width / 2 - 20
+                  : 500 / 2 - 20,
             ),
             const SizedBox(width: 15),
             FeatureCard(
@@ -38,8 +38,8 @@ class QuickWellnessTools extends StatelessWidget {
               description: 'A 5-minute mindfulness session.',
               onTap: () => _showMeditationDialog(context),
               width: MediaQuery.of(context).size.width < 510
-                  ? MediaQuery.of(context).size.width / 2 - 30
-                  : 500 / 2 - 30,
+                  ? MediaQuery.of(context).size.width / 2 - 20
+                  : 500 / 2 - 20,
             ),
           ],
         ),
