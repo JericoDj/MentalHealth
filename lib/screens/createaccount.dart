@@ -1,47 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
-
+import '../controllers/create_account/create_account_controller.dart';
 import '../version.dart';
 
-class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+class SignUpScreen extends StatelessWidget {
+  final controller = Get.put(SignUpController());
 
-  @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends State<SignUpScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _usernameController = TextEditingController();
-  final _fullNameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _usernameController.dispose();
-    _fullNameController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  void _handleSignUp() {
-    if (_formKey.currentState!.validate()) {
-      // Perform sign-up logic here
-      Get.snackbar(
-        'Success',
-        'Account created successfully!',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-      );
-    }
-  }
+  SignUpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,43 +18,57 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Form(
-              key: _formKey,
+              key: controller.formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Logo
                   Image.asset(
                     "assets/images/logo/Logo_Square.png",
                     width: 150,
                     height: 150,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
 
-                  // Title
                   const Text(
                     "Create Account",
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
                   const SizedBox(height: 8),
 
-                  // Subtitle
                   const Text(
                     "Sign up to get started",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
+
+                  // Company ID Field
+                  TextFormField(
+                    controller: controller.companyIdController,
+                    decoration: InputDecoration(
+
+                      labelText: "Company ID",
+                      prefixIcon: const Icon(Icons.business),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your Company ID';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 15),
 
                   // Email Field
                   TextFormField(
-                    controller: _emailController,
+                    controller: controller.emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: "Email",
@@ -107,11 +87,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
 
                   // Username Field
                   TextFormField(
-                    controller: _usernameController,
+                    controller: controller.usernameController,
                     decoration: InputDecoration(
                       labelText: "Username",
                       prefixIcon: const Icon(Icons.person_outline),
@@ -126,11 +106,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
 
                   // Full Name Field
                   TextFormField(
-                    controller: _fullNameController,
+                    controller: controller.fullNameController,
                     decoration: InputDecoration(
                       labelText: "Full Name",
                       prefixIcon: const Icon(Icons.person_outline),
@@ -145,26 +125,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
 
                   // Password Field
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: !_isPasswordVisible,
+                  Obx(() => TextFormField(
+                    controller: controller.passwordController,
+                    obscureText: !controller.isPasswordVisible.value,
                     decoration: InputDecoration(
                       labelText: "Password",
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _isPasswordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isPasswordVisible = !_isPasswordVisible;
-                          });
-                        },
+                        icon: Icon(controller.isPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                        onPressed: controller.togglePasswordVisibility,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -179,28 +153,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       }
                       return null;
                     },
-                  ),
-                  const SizedBox(height: 20),
+                  )),
+                  const SizedBox(height: 15),
 
                   // Confirm Password Field
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: !_isConfirmPasswordVisible,
+                  Obx(() => TextFormField(
+                    controller: controller.confirmPasswordController,
+                    obscureText: !controller.isConfirmPasswordVisible.value,
                     decoration: InputDecoration(
                       labelText: "Confirm Password",
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
-                        icon: Icon(
-                          _isConfirmPasswordVisible
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isConfirmPasswordVisible =
-                            !_isConfirmPasswordVisible;
-                          });
-                        },
+                        icon: Icon(controller.isConfirmPasswordVisible.value
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                        onPressed: controller.toggleConfirmPasswordVisibility,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -210,63 +177,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Please confirm your password';
                       }
-                      if (value != _passwordController.text) {
+                      if (value != controller.passwordController.text) {
                         return 'Passwords do not match';
                       }
                       return null;
                     },
-                  ),
-                  const SizedBox(height: 30),
+                  )),
+                  const SizedBox(height: 20),
 
                   // Sign Up Button
                   SizedBox(
-                    height: 60,
+                    height: 55,
                     width: double.infinity,
-                    child: InkWell(
-                      onTap: _handleSignUp,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        decoration: BoxDecoration(
+                    child: ElevatedButton(
+                      onPressed: controller.signUp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: MyColors.color2,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFFFFA726),
-                              Color(0xFFFFC107),
-                              Color(0xFF8BC34A),
-                              Color(0xFF4CAF50),
-                            ],
-                            stops: [0.0, 0.33, 0.67, 1.0],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
                         ),
-                        padding: const EdgeInsets.all(2),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          alignment: Alignment.center,
-                          child: ShaderMask(
-                            shaderCallback: (bounds) => LinearGradient(
-                              colors: [
-                                Color(0xFFFFA726),
-                                Color(0xFFFFC107),
-                              ],
-                              stops: [0.0, 1.0],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ).createShader(bounds),
-                            child: Text(
-                              "Sign Up",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
+                      ),
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -279,23 +212,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     children: [
                       const Text("Already have an account? "),
                       GestureDetector(
-                        onTap: () {
-                          Get.back(); // Navigate back to the login screen
-                        },
+                        onTap: () => Get.back(),
                         child: const Text(
                           "Login",
-                          style: TextStyle(
-                            color: MyColors.color2,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: MyColors.color2, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 30),
-                  Text(appVersion,style: TextStyle(color: Colors.grey, fontSize: 14),),
+                  Text(appVersion, style: const TextStyle(color: Colors.grey, fontSize: 14)),
                 ],
-
               ),
             ),
           ),

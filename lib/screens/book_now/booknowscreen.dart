@@ -78,7 +78,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
               ),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () => Get.back(), // Closes the dialog
+                onTap: () => Navigator.pop(context),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 12),
                   decoration: BoxDecoration(
@@ -87,7 +87,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      "OK",
+                      "Okay",
                       style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                   ),

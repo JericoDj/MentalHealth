@@ -1,23 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:llps_mental_app/screens/createaccount.dart';
-import 'package:llps_mental_app/version.dart';
-import 'package:llps_mental_app/widgets/navigation_bar.dart';
-
+import '../controllers/login_controller/loginController.dart';
+import '../screens/forgotpassword.dart';
+import '../screens/createaccount.dart';
+import '../version.dart';
 import '../utils/constants/colors.dart';
-import 'forgotpassword.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class LoginScreen extends StatelessWidget {
+  final LoginController controller = Get.put(LoginController());
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
-  bool _isPasswordVisible = false;
-  bool _rememberMe = false; // Added remember me state
+  LoginScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Email TextField
                 TextField(
+                  controller: controller.emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: "Email",
@@ -84,51 +77,34 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 20),
 
                 // Password TextField
-                TextField(
-                  obscureText: !_isPasswordVisible,
+                Obx(() => TextField(
+                  controller: controller.passwordController,
+                  obscureText: !controller.isPasswordVisible.value,
                   decoration: InputDecoration(
                     labelText: "Password",
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _isPasswordVisible
+                        controller.isPasswordVisible.value
                             ? Icons.visibility
                             : Icons.visibility_off,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
+                      onPressed: controller.togglePasswordVisibility,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                ),
+                )),
                 const SizedBox(height: 10),
 
                 // Remember Me & Forgot Password
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Checkbox(
-                           activeColor: MyColors.color2,
-                          value: _rememberMe,
-                          onChanged: (value) {
-                            setState(() {
-                              _rememberMe = value ?? false;
-                            });
-                          },
-                        ),
-                        const Text("Remember me"),
-                      ],
-                    ),
                     GestureDetector(
                       onTap: () {
-                        Get.to(() => const ForgotPasswordScreen()); // Add your forgot password screen
+                        Get.to(() => const ForgotPasswordScreen());
                       },
                       child: const Text(
                         "Forgot Password?",
@@ -146,54 +122,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 SizedBox(
                   height: 60,
                   width: double.infinity,
-                  child: InkWell(
-                    onTap: () {
-                      Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      decoration: BoxDecoration(
+                  child: Obx(() => ElevatedButton(
+                    onPressed: controller.isLoading.value ? null : controller.login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MyColors.color2,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFFFA726),
-                            Color(0xFFFFC107),
-                            Color(0xFF8BC34A),
-                            Color(0xFF4CAF50),
-                          ],
-                          stops: [0.0, 0.33, 0.67, 1.0],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                      ),
-                      padding: const EdgeInsets.all(2),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        alignment: Alignment.center,
-                        child:  ShaderMask(
-                          shaderCallback: (bounds) => LinearGradient(
-                            colors: [
-                              Color(0xFFFFA726),
-                              Color(0xFFFFC107),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ).createShader(bounds),
-                          child: Text(
-                            "Sign In",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
                       ),
                     ),
-                  ),
+                    child: controller.isLoading.value
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                      "Sign In",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )),
                 ),
 
                 // Create Account
@@ -204,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text("Don't have an account? "),
                     GestureDetector(
                       onTap: () {
-                        Get.to(() => const SignUpScreen()); // Add your registration screen
+                        Get.to(() => SignUpScreen());
                       },
                       child: const Text(
                         "Sign Up",
@@ -217,7 +164,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                Text(appVersion,style: TextStyle(color: Colors.grey, fontSize: 14),),
+                Text(
+                  appVersion,
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
               ],
             ),
           ),
@@ -226,5 +176,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-

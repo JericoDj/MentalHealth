@@ -66,7 +66,7 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
           ElevatedButton(
             onPressed: () {
               if (currentPage == onboardingData.length - 1) {
-                Get.to(() => const LoginScreen());
+                Get.to(() =>  LoginScreen());
               } else {
                 nextPage();
               }

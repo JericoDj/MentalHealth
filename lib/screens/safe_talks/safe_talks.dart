@@ -151,35 +151,41 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
         ),
       ),
       actions: [
-        GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-            widget.onBackToHome?.call();
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              "Back to Home",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.black54,
-                fontWeight: FontWeight.w600,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+              widget.onBackToHome?.call();
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                "Back to Home",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),
         ),
-        GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: Container(
-            decoration: BoxDecoration(color: MyColors.color2, borderRadius: BorderRadius.all(Radius.circular(5))),
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                "Agree",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: MyColors.white,
-                  fontWeight: FontWeight.w600,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              decoration: BoxDecoration(color: MyColors.color2, borderRadius: BorderRadius.all(Radius.circular(5))),
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text(
+                  "Agree",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: MyColors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),

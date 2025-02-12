@@ -7,9 +7,14 @@ import 'package:llps_mental_app/utils/constants/colors.dart';
 import 'package:llps_mental_app/utils/theme/theme.dart';
 
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
 
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(

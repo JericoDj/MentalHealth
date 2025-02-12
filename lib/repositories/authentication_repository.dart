@@ -52,15 +52,32 @@ class AuthenticationRepository extends GetxController {
     }
   }
 
-  // SIGN UP METHOD
-  Future<void> createUserWithEmailAndPassword(String email, String password) async {
+  Future<void> signUp({
+    required String email,
+    required String username,
+    required String fullName,
+    required String password,
+  }) async {
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      
-    } on FirebaseAuthException catch (e) {
-      print("Error during sign up: ${e.message}");
+      // Simulate API call (Replace with actual authentication logic)
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Success message
+      Get.snackbar(
+        'Success',
+        'Account created successfully!',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Sign-up failed. Please try again!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
+
 
   // SIGN IN METHOD
   Future<void> signInWithEmailAndPassword(String email, String password) async {

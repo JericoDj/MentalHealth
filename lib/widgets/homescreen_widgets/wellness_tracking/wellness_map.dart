@@ -8,21 +8,13 @@ import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/stress_level_popup.dart';
 
 import '../../../../utils/constants/colors.dart';
+import '../../../controllers/moodTrackingController.dart';
 import '../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
 
 class ProgressDashboardCard extends StatelessWidget {
   ProgressDashboardCard({Key? key}) : super(key: key);
 
-  // Moods for each day (Dynamic)
-  final Map<String, String> dailyMoods = {
-    "Mon": "😊",
-    "Tue": "😢",
-    "Wed": "😠",
-    "Thu": "🤩",
-    "Fri": "😄",
-    "Sat": "😐",
-    "Sun": "😨",
-  };
+  final MoodTrackingController _moodController = Get.put(MoodTrackingController()); // Inject Controller
 
   @override
   Widget build(BuildContext context) {
@@ -110,21 +102,24 @@ class ProgressDashboardCard extends StatelessWidget {
   }
 
   Widget _buildMoodSection(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(10),
-          bottomRight: Radius.circular(10),
+    return Obx(() {
+      final moods = _moodController.userMoods;
+      return Container(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+          ),
         ),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: dailyMoods.keys.map((day) {
-          return _buildMoodDay(day, dailyMoods[day]!, context);
-        }).toList(),
-      ),
-    );
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) {
+            return _buildMoodDay(day, getMoodEmoji(moods[day] ?? ""), context); // Convert mood to emoji
+          }).toList(),
+        ),
+      );
+    });
   }
 
   Widget _buildProgressButtons(BuildContext context) {
@@ -256,10 +251,5 @@ void _showPopup(BuildContext context, String mode,
     default:
       break;
   }
-}
-
-void _scrollToMoodSection(BuildContext context, String selectedDay) {
-  // Navigate to ProgressMapScreen and Scroll to Mood Section
-  Get.to(() => ProgressMapScreen(scrollToIndex: 2, selectedDay: selectedDay));
 }
 
