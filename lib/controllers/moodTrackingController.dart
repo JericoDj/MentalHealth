@@ -45,7 +45,6 @@ class MoodTrackingController extends GetxController {
     }
   }
 
-  // Fetch User Mood Data (Last 7 Days)
   Future<void> fetchUserMoodData() async {
     String? uid = _storage.getUid();
     if (uid == null) return;
@@ -56,21 +55,33 @@ class MoodTrackingController extends GetxController {
           .doc(uid)
           .collection("moodTracking")
           .orderBy("timestamp", descending: true)
-          .limit(7) // Fetch last 7 days' moods
-          .get();
+          .get(); // Fetch all mood records
+
+      if (snapshot.docs.isEmpty) {
+        Get.snackbar("No Data", "No mood data found.");
+        return;
+      }
 
       var newMoods = <String, String>{};
 
       for (var doc in snapshot.docs) {
-        String dayOfWeek = getDayOfWeek(doc.id); // Convert date to Mon-Sun
-        newMoods[dayOfWeek] = doc["mood"] ?? "😐"; // Default to neutral mood
+        String date = doc.id; // Use document ID (YYYY-MM-DD)
+        String dayOfWeek = getDayOfWeek(date); // Convert to Mon-Sun
+        String mood = doc["mood"] ?? " "; // Default to neutral if missing
+
+        newMoods[dayOfWeek] = getMoodEmoji(mood); // Convert mood to emoji
       }
 
-      userMoods.assignAll(newMoods);
+      userMoods.clear();
+      userMoods.addAll(newMoods); // Update reactive state
+
+      print("Fetched moods: $newMoods"); // Debugging logs
+      Get.snackbar("Success", "Mood data loaded successfully!");
     } catch (e) {
       Get.snackbar("Error", "Failed to fetch mood data: $e");
     }
   }
+
 
   // Show Mood Popup when Clicking on a Day
   void showDailyMoodPopup(String day, String mood, BuildContext context) {
@@ -107,7 +118,7 @@ String getMoodEmoji(String mood) {
     case "anxious":
       return "😰";
     default:
-      return "◽️"; // Default to empty if no mood data
+      return " "; // Default to empty if no mood data
   }
 }
 

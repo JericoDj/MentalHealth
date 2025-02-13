@@ -10,6 +10,7 @@ import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop
 import '../../../../utils/constants/colors.dart';
 import '../../../controllers/moodTrackingController.dart';
 import '../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
+import 'moods_section.dart';
 
 class ProgressDashboardCard extends StatelessWidget {
   ProgressDashboardCard({Key? key}) : super(key: key);
@@ -44,7 +45,7 @@ class ProgressDashboardCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 _buildHeader(),
-                _buildMoodSection(context),
+                buildMoodSection(context),
               ],
             ),
           ),
@@ -86,41 +87,7 @@ class ProgressDashboardCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMoodDay(String day, String emoji, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _showPopup(context, 'daily_mood', selectedDay: day, mood: emoji);
-      },
-      child: Column(
-        children: [
-          Text(day, style: GoogleFonts.archivo(color: Colors.green.shade600, fontWeight: FontWeight.bold,fontSize: 14)),
-          const SizedBox(height: 5),
-          Text(emoji, style: const TextStyle(fontSize: 24)),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildMoodSection(BuildContext context) {
-    return Obx(() {
-      final moods = _moodController.userMoods;
-      return Container(
-        decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-            bottomLeft: Radius.circular(10),
-            bottomRight: Radius.circular(10),
-          ),
-        ),
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) {
-            return _buildMoodDay(day, getMoodEmoji(moods[day] ?? ""), context); // Convert mood to emoji
-          }).toList(),
-        ),
-      );
-    });
-  }
 
   Widget _buildProgressButtons(BuildContext context) {
     return Row(
@@ -182,7 +149,7 @@ Widget _buildCircularIconWithLabel(BuildContext context, {
 }) {
   return GestureDetector(
     onTap: () {
-      _showPopup(context, displayMode);
+      showTrackingPopup(context, displayMode);
     },
     child: Column(
       children: [
@@ -208,7 +175,7 @@ Widget _buildCircularIconWithLabel(BuildContext context, {
 }
 
 // Trigger the Appropriate Pop-up
-void _showPopup(BuildContext context, String mode,
+void showTrackingPopup(BuildContext context, String mode,
     {String selectedDay = "", String mood = "😊"}) {
   switch (mode) {
     case 'progress':

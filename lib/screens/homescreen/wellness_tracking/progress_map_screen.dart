@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:llps_mental_app/screens/homescreen/wellness_tracking/progress_map_widgets/achievements_section.dart';
+import 'package:llps_mental_app/screens/homescreen/wellness_tracking/progress_map_widgets/mood_trends_section.dart';
+import 'package:llps_mental_app/screens/homescreen/wellness_tracking/progress_map_widgets/progress_section.dart';
+import 'package:llps_mental_app/screens/homescreen/wellness_tracking/progress_map_widgets/stress_management_section.dart';
 
-import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/achievements_section.dart';
-import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/mood_trends_section.dart';
-import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/progress_section.dart';
-import '../../../widgets/homescreen_widgets/wellness_tracking/progress_map_widgets/stress_management_section.dart';
 
 class ProgressMapScreen extends StatefulWidget {
   final int? scrollToIndex;
@@ -98,22 +98,22 @@ class _ProgressMapScreenState extends State<ProgressMapScreen> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-      
+
               // User Progress Section (Index 0)
               UserProgressSection(sectionKeys: _sectionKeys),
-      
+
               const SizedBox(height: 10),
-      
+
               // Achievements Section (Index 1)
               AchievementsSection(sectionKeys: _sectionKeys),
-      
+
               const SizedBox(height: 10),
-      
+
               // Mood Trends Section (Index 2)
               MoodSection(sectionKeys: _sectionKeys, selectedDay: widget.selectedDay),
-      
+
               const SizedBox(height: 10),
-      
+
               // Stress Level Section (Index 3)
               StressLevelSection(sectionKeys: _sectionKeys),
               const SizedBox(height: 30),
