@@ -56,7 +56,7 @@ class MoodController extends GetxController {
 
       for (var doc in snapshot.docs) {
         var data = doc.data();
-        String mood = data["Mood"] ?? "Neutral";
+        String mood = data["mood"] ?? " ";
         String date = doc.id; // Assuming doc ID is the date
 
         DateTime moodDate = DateTime.parse(date);

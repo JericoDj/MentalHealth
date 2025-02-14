@@ -101,6 +101,8 @@ class MoodSection extends StatelessWidget {
         itemCount: days.length,
         itemBuilder: (context, index) {
           final moodEntry = days[index];
+          String moodEmoji = _getMoodEmoji(moodEntry["mood"]!); // ✅ Convert mood to emoji
+
           return GestureDetector(
             onTap: () => _showMoodDetails(moodEntry["date"]!, moodEntry["mood"]!),
             child: Padding(
@@ -109,7 +111,7 @@ class MoodSection extends StatelessWidget {
                 children: [
                   Text(moodEntry["day"]!, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(moodEntry["mood"]!, style: const TextStyle(fontSize: 30)),
+                  Text(moodEmoji, style: const TextStyle(fontSize: 30)), // ✅ Show emoji instead of text
                   const SizedBox(height: 5),
                   Text(DateFormat('MMM d').format(DateTime.parse(moodEntry["date"]!)), style: const TextStyle(fontSize: 12)),
                 ],
@@ -120,6 +122,20 @@ class MoodSection extends StatelessWidget {
       ),
     );
   }
+
+// ✅ Mood Mapping Function (Text → Emoji)
+  String _getMoodEmoji(String mood) {
+    const moodEmojis = {
+      "Happy": "😊",
+      "Neutral": "😐",
+      "Sad": "😢",
+      "Angry": "😠",
+      "Anxious": "😰",
+    };
+
+    return moodEmojis[mood] ?? "⬜"; // ✅ Default to ⬜ if mood is unknown
+  }
+
 
   // ✅ Generate Mood Data for Past X Days
   List<Map<String, String>> _generatePastDays({int daysCount = 14}) {
@@ -153,25 +169,29 @@ class MoodSection extends StatelessWidget {
       colorText: Colors.black,
     );
   }
-
-  // ✅ Mood Frequency Chart (Adjusts Based on Selected Period)
+// ✅ Mood Frequency Chart (Adjusts Based on Selected Period)
   Widget _buildMoodBarChart() {
     final moodData = _moodController.moodData;
+
+    // ✅ Find the highest mood count for scaling
+    int maxMoodCount = moodData.values.isNotEmpty ? moodData.values.reduce((a, b) => a > b ? a : b) : 1;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: moodData.entries.map((entry) {
+        double heightFactor = maxMoodCount > 0 ? entry.value / maxMoodCount : 0;
+
         return Column(
           children: [
             Text(entry.key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Container(
-              height: 100,
+              height: 100, // Max bar height
               width: 30,
               decoration: BoxDecoration(color: Colors.black38, borderRadius: BorderRadius.circular(10)),
               alignment: Alignment.bottomCenter,
               child: FractionallySizedBox(
-                heightFactor: entry.value / 60, // Scaling for chart
+                heightFactor: heightFactor, // ✅ Scale dynamically based on highest count
                 child: Container(
                   decoration: BoxDecoration(
                     color: _getBarColor(entry.key),
