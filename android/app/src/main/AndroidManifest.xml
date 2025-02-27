@@ -1,7 +1,7 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.llps_mental_app">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permissions for Camera & Microphone -->
+
+<!-- Permissions for Camera & Microphone -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -14,7 +14,7 @@
         android:label="llps_mental_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-
+`````
         <activity
             android:name=".MainActivity"
             android:exported="true"
