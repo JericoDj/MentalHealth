@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../controllers/MoodController.dart';
 import '../../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
-import '../../../../utils/constants/colors.dart'; // Assuming MyColors is imported from this file
+import '../../../../utils/constants/colors.dart';
 
 class MoodTrendsPopup extends StatelessWidget {
-  final String title;
-  final String moodSummary;
-  final String recommendation;
-
-  const MoodTrendsPopup({
-    Key? key,
-    required this.title,
-    required this.moodSummary,
-    required this.recommendation,
-  }) : super(key: key);
+  const MoodTrendsPopup({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final MoodController moodController = Get.put(MoodController()); // ✅ Use MoodController
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
@@ -24,89 +18,77 @@ class MoodTrendsPopup extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Title with Icon and Close Icon
+            // Title with Close Button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-
-
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+                const Text(
+                  "Mood Trends",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                   icon: const Icon(Icons.close, color: Colors.red, size: 24),
-                  onPressed: () => Navigator.pop(context), // Close dialog
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
 
-            const Icon(Icons.mood, color: Colors.orange, size: 30),
             const SizedBox(height: 10),
 
-            // Mood Summary
-            Text(
-              moodSummary,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 20),
+            // ✅ Mood Summary (Dynamically Updated)
+            Obx(() {
+              if (moodController.moodData.isEmpty) {
+                return const Text(
+                  "No mood data available for the past week.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                );
+              }
 
-            // Recommendation Container
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
+              // ✅ Get the most frequently recorded mood
+              String dominantMood = moodController.moodData.entries
+                  .reduce((a, b) => a.value > b.value ? a : b)
+                  .key;
+
+              // ✅ Get emoji for dominant mood
+              String moodEmoji = getMoodEmoji(dominantMood);
+
+              return Column(
                 children: [
-                  const Icon(Icons.lightbulb, color: Colors.orange),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      recommendation,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
+                  Text(
+                    moodEmoji, // ✅ Display emoji properly
+                    style: const TextStyle(fontSize: 36), // ✅ Large emoji size
                   ),
+
+                  Text(
+                    "Your dominant mood for the past week: $dominantMood",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  _getMoodRecommendation(dominantMood),
                 ],
-              ),
-            ),
+
+
+              );
+            }),
             const SizedBox(height: 20),
 
             // View Details Button
             GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
-                Get.to(() => const ProgressMapScreen(scrollToIndex: 2)); // Scroll to Mood Trends (Index 2)
+                Get.to(() => const ProgressMapScreen(scrollToIndex: 2)); // Scroll to Mood Trends
               },
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 2,
-                    style: BorderStyle.solid,
-                    color: MyColors.color1, // Border color
-                  ),
+                  border: Border.all(width: 2, style: BorderStyle.solid, color: MyColors.color1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 25),
                 child: const Text(
                   "View Details",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: MyColors.color1, // Text color matches the border
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: MyColors.color1),
                 ),
               ),
             ),
@@ -114,5 +96,67 @@ class MoodTrendsPopup extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// ✅ **Returns a Mood-Based Recommendation**
+  Widget _getMoodRecommendation(String mood) {
+    String recommendation = "";
+    switch (mood.toLowerCase()) {
+      case "happy":
+        recommendation = "Great job! Keep maintaining your positivity.";
+        break;
+      case "neutral":
+        recommendation = "You're doing okay! Try adding some activities that boost happiness.";
+        break;
+      case "sad":
+        recommendation = "It's okay to feel down. Consider talking to a friend or engaging in self-care.";
+        break;
+      case "angry":
+        recommendation = "Try relaxation techniques like deep breathing or a short walk.";
+        break;
+      case "anxious":
+        recommendation = "Practicing mindfulness and deep breathing can help manage anxiety.";
+        break;
+      default:
+        recommendation = "Keep tracking your mood to find patterns and improve your well-being.";
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.lightbulb, color: Colors.orange),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              recommendation,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ✅ **Maps Mood Strings to Emojis**
+  String getMoodEmoji(String mood) {
+    switch (mood.toLowerCase()) {
+      case "happy":
+        return "😃";
+      case "neutral":
+        return "😐";
+      case "sad":
+        return "😔";
+      case "angry":
+        return "😡";
+      case "anxious":
+        return "😰";
+      default:
+        return "❔"; // Unknown mood
+    }
   }
 }

@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
-import '../../../../utils/constants/colors.dart'; // Assuming MyColors is imported from this file
+import '../../../../utils/constants/colors.dart';
+import '../../../../controllers/achievements_controller.dart';
 
 class AchievementsPopup extends StatelessWidget {
   const AchievementsPopup({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final AchievementsController achievementsController = Get.find<AchievementsController>();
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
@@ -37,19 +40,36 @@ class AchievementsPopup extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Content Text
-            const Text(
-              "Achievements Unlocked:\n🏆 10 Day Streak\n🏅 50 Check-ins\n🥇 Consistent Moods Logged\n\nNext Achievement: 100 Check-ins",
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
+            // Achievements List (Dynamic)
+            Obx(() {
+              if (achievementsController.achievements.isEmpty) {
+                return const Text(
+                  "No achievements yet.\nStart tracking to unlock achievements!",
+                  style: TextStyle(fontSize: 16),
+                  textAlign: TextAlign.center,
+                );
+              }
 
-            // Buttons (Row for "View Achievements" & "Close")
+              return Column(
+                children: [
+                  for (var achievement in achievementsController.achievements)
+                    _buildAchievementTile(
+                      title: achievement["title"],
+                      icon: achievement["icon"],
+                      progress: achievement["progress"],
+                      goal: achievement["goal"],
+                      unlocked: achievement["unlocked"],
+                    ),
+                  const SizedBox(height: 20),
+                ],
+              );
+            }),
+
+            // View Achievements Button
             GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
-                Get.to(() => const ProgressMapScreen(scrollToIndex: 1)); // Scroll to Achievements Section (Index 1)
+                Get.to(() => const ProgressMapScreen(scrollToIndex: 1)); // Scroll to Achievements Section
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -71,11 +91,41 @@ class AchievementsPopup extends StatelessWidget {
                 ),
               ),
             ),
-            // Close Button with Gradient Border
-
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper Method: Build Achievement Item UI
+  Widget _buildAchievementTile({
+    required String title,
+    required String icon,
+    required int progress,
+    required int goal,
+    required bool unlocked,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Text(
+            unlocked ? "✅" : icon, // Show checkmark if unlocked, otherwise show emoji/icon
+            style: const TextStyle(fontSize: 22),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              "$title ($progress/$goal)",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: unlocked ? Colors.green : Colors.black,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -7,10 +7,8 @@ import '../../controllers/session_controller.dart';
 import '../../widgets/homescreen_widgets/call_customer_support_widget.dart';
 import '../../widgets/homescreen_widgets/consultation_screen_widgets/bottom_buttons.dart';
 import '../../widgets/homescreen_widgets/consultation_screen_widgets/consultation_form.dart';
-import '../../widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
 import '../homescreen/booking_review_screen.dart';
-import '../homescreen/safe_space/queue_screen.dart';
-import '../homescreen/safe_space/safe_space.dart';
+
 class BookNowScreen extends StatefulWidget {
   const BookNowScreen({Key? key}) : super(key: key);
 
@@ -19,8 +17,7 @@ class BookNowScreen extends StatefulWidget {
 }
 
 class _BookNowScreenState extends State<BookNowScreen> {
-  String _selectedCategory = "Safe Space"; // Default selection
-  String _selectedConsultationType = "Online"; // Default to Online
+  String _selectedConsultationType = "Online"; // Default consultation type
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String? _selectedService;
@@ -31,7 +28,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
   @override
   void initState() {
     super.initState();
-    sessionController = Get.find<SessionController>(); // Initialize the controller
+    sessionController = Get.find<SessionController>(); // Initialize controller
 
     // Show welcome dialog when the screen loads
     Future.delayed(Duration.zero, () {
@@ -39,11 +36,10 @@ class _BookNowScreenState extends State<BookNowScreen> {
     });
   }
 
-
   void _showWelcomeDialog() {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allows the user to tap outside to dismiss
+      barrierDismissible: true, // Allow dismissing by tapping outside
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -51,7 +47,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Makes the dialog wrap its content
+            mainAxisSize: MainAxisSize.min, // Make dialog wrap content
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
@@ -67,12 +63,11 @@ class _BookNowScreenState extends State<BookNowScreen> {
               Text(
                 "Connect with a mental health specialist or professional for support.",
                 style: TextStyle(fontSize: 14, color: Colors.black87),
-                textAlign: TextAlign.center
-                ,
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
               Text(
-                "* To book an appointment with a mental health professional, please complete the form through this link",
+                "* To book an appointment with a mental health professional, please complete the form below.",
                 style: TextStyle(fontSize: 14, color: Colors.black87),
                 textAlign: TextAlign.center,
               ),
@@ -93,16 +88,12 @@ class _BookNowScreenState extends State<BookNowScreen> {
                   ),
                 ),
               ),
-
             ],
           ),
         ),
       ),
     );
   }
-
-
-
 
   void _pickDate() async {
     final DateTime? selectedDate = await showDatePicker(
@@ -116,21 +107,20 @@ class _BookNowScreenState extends State<BookNowScreen> {
             primaryColor: MyColors.color2, // Header background color
             hintColor: MyColors.color2, // Hint text color
             textTheme: TextTheme(
-              headlineMedium: TextStyle( // **Month & Year in the header**
-                fontSize: 20, // Bigger text
+              headlineMedium: TextStyle( // **Month & Year in header**
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
-
               bodyLarge: const TextStyle( // **Selected Date Text**
-                fontSize: 16, // Bigger for emphasis
+                fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.black, // Black text for selected date
+                color: Colors.black,
               ),
             ),
             colorScheme: ColorScheme.light(
               primary: MyColors.color2, // Selected date color
-              onPrimary: Colors.white70, // Selected date text (black)
+              onPrimary: Colors.white70, // Selected date text color
               onSurface: MyColors.color1, // Normal text color
             ),
             dialogBackgroundColor: Colors.white, // Background color
@@ -151,22 +141,17 @@ class _BookNowScreenState extends State<BookNowScreen> {
     }
   }
 
-
-
-
-  // Pick Time
   void _pickTime(TimeOfDay time) {
     setState(() {
       _selectedTime = time;
     });
   }
 
-  // Book Session
   void _bookSession() {
     if (_selectedDate != null && _selectedTime != null && _selectedService != null) {
       Get.to(() => BookingReviewScreen(
         consultationType: _selectedConsultationType,
-        selectedDate: DateFormat('EEE., MMM. d').format(_selectedDate!),
+        selectedDate: DateFormat('EEE, MMM d').format(_selectedDate!),
         selectedTime: _selectedTime!.format(context),
         service: _selectedService!,
       ));
@@ -179,71 +164,17 @@ class _BookNowScreenState extends State<BookNowScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-          
-              SizedBox(height: 20,),
-              // Category Selector
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _selectedCategory = "Safe Space"),
-                      child: Container(
-                        height: 86,
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: _selectedCategory == "Safe Space" ? MyColors.color2.withValues(alpha: 0.9): Colors.black54,
-                          ),
-                          color: _selectedCategory == "Safe Space" ? MyColors.color2.withValues(alpha: 0.9) : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(child: Text(
-          
-                            "Safe Space", textAlign: TextAlign.center, style: TextStyle(
-                          fontSize: _selectedCategory == "Safe Space" ? 16 : 14,
-                            fontWeight: FontWeight.bold,
-                            color:  _selectedCategory == "Safe Space" ? Colors.white: Colors.black54))),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () => setState(() => _selectedCategory = "24/7 Safe Space"),
-                      child: Container(
-                        height: 86,
-                        padding: EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: _selectedCategory == "24/7 Safe Space" ? MyColors.color2.withValues(alpha: 0.9): Colors.black54,
-                          ),
-                          color: _selectedCategory == "24/7 Safe Space" ? MyColors.color2.withValues(alpha: 0.9): Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Center(child: Text(
-          
-                            "24/7 Safe Space", style: TextStyle(
-          
-                            fontSize: _selectedCategory == "24/7 Safe Space" ? 16 : 14,
-                            fontWeight: FontWeight.bold,
-                            color: _selectedCategory == "24/7 Safe Space" ? Colors.white : Colors.black54))),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 20),
-          
-              // Dynamic Content
-              _selectedCategory == "Safe Space"
-                  ? ConsultationForm(
+
+              // Consultation Form
+              ConsultationForm(
                 selectedConsultationType: _selectedConsultationType,
                 selectedDate: _selectedDate,
                 selectedTime: _selectedTime,
@@ -260,44 +191,19 @@ class _BookNowScreenState extends State<BookNowScreen> {
                     _selectedConsultationType = type;
                   });
                 },
-              )
-                  : SafeSpaceBody(),
+              ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: _selectedCategory == "Safe Space"
-          ? BottomButtons(
+      bottomNavigationBar: BottomButtons(
         isFormComplete: isFormComplete,
         onBookSession: _bookSession,
         onCallSupport: () => showDialog(
           context: context,
           builder: (context) => CallCustomerSupportPopup(),
         ),
-      )
-          : SafeSpaceBottomButtons(onConfirm: _navigateToChatScreen, onCallSupport: () => showDialog(
-        context: context,
-        builder: (context) => CallCustomerSupportPopup(),
-      ),
-
       ),
     );
-  }
-
-  // Navigate to chat screen for 24/7 Safe Space
-  void _navigateToChatScreen() {
-    // Get session type and action from the controller
-    String? selectedSessionType = sessionController.selectedSessionType?.value;
-    String? selectedAction = sessionController.selectedAction?.value;
-
-    if (selectedSessionType != null && selectedAction != null) {
-      Get.to(() => QueueScreen(sessionType: selectedSessionType));
-    } else {
-      Get.snackbar(
-        'Incomplete',
-        'Please select a session type and action.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
   }
 }

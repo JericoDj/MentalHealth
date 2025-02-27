@@ -9,7 +9,7 @@ class MoodTrackingController extends GetxController {
   final UserStorage _storage = UserStorage(); // Local storage instance
 
   var isSaving = false.obs; // Loading state
-  var userMoods = <String, String>{}.obs; // Reactive map for storing moods
+  var userMoods = <String, String>{}.obs; // Reactive map for storing moods (Day -> Emoji)
 
   // Save Mood & Stress Level to Firestore
   Future<void> saveMoodTracking(String mood, int stressLevel) async {
@@ -21,6 +21,7 @@ class MoodTrackingController extends GetxController {
     }
 
     String todayDate = DateTime.now().toIso8601String().split('T')[0]; // YYYY-MM-DD format
+    String moodEmoji = getMoodEmoji(mood); // Convert mood to emoji
 
     isSaving.value = true; // Show loading indicator
 
@@ -30,12 +31,13 @@ class MoodTrackingController extends GetxController {
           .doc(todayDate)
           .set({
         "mood": mood,
+        "moodEmoji": moodEmoji, // Store the emoji representation in Firestore
         "stressLevel": stressLevel,
         "timestamp": Timestamp.now(),
       });
 
       // Update local state to reflect the new mood immediately
-      userMoods[getDayOfWeek(todayDate)] = mood;
+      userMoods[getDayOfWeek(todayDate)] = moodEmoji; // ✅ Store the emoji instead of text
 
       Get.snackbar("Success", "Mood tracking saved successfully!");
     } catch (e) {
@@ -45,43 +47,54 @@ class MoodTrackingController extends GetxController {
     }
   }
 
-  Future<void> fetchUserMoodData() async {
+  Future<void> fetchUserMoodDataForCurrentWeek() async {
     String? uid = _storage.getUid();
     if (uid == null) return;
 
     try {
+      DateTime now = DateTime.now();
+      DateTime startOfWeek = now.subtract(Duration(days: now.weekday - 1)); // Monday of this week
+      DateTime endOfWeek = startOfWeek.add(const Duration(days: 6)); // Sunday of this week
+
+      print("DEBUG: Fetching moods from ${startOfWeek.toIso8601String()} to ${endOfWeek.toIso8601String()}");
+
       var snapshot = await _firestore
           .collection("users")
           .doc(uid)
           .collection("moodTracking")
+          .where("timestamp", isGreaterThanOrEqualTo: Timestamp.fromDate(startOfWeek))
+          .where("timestamp", isLessThanOrEqualTo: Timestamp.fromDate(endOfWeek))
           .orderBy("timestamp", descending: true)
-          .get(); // Fetch all mood records
+          .get(); // Fetch moods only for this week
 
       if (snapshot.docs.isEmpty) {
-        Get.snackbar("No Data", "No mood data found.");
+        print("DEBUG: No mood data found for this week.");
+        Get.snackbar("No Data", "No mood data found for this week.");
         return;
       }
 
       var newMoods = <String, String>{};
 
       for (var doc in snapshot.docs) {
-        String date = doc.id; // Use document ID (YYYY-MM-DD)
+        String date = doc.id; // YYYY-MM-DD format
         String dayOfWeek = getDayOfWeek(date); // Convert to Mon-Sun
-        String mood = doc["mood"] ?? " "; // Default to neutral if missing
+        String mood = doc["mood"] ?? " ";
+        String moodEmoji = getMoodEmoji(mood); // Convert mood to emoji
 
-        newMoods[dayOfWeek] = getMoodEmoji(mood); // Convert mood to emoji
+        print("DEBUG: Retrieved Mood for $dayOfWeek -> $mood ($moodEmoji)");
+
+        newMoods[dayOfWeek] = moodEmoji; // ✅ Store the emoji representation
       }
 
       userMoods.clear();
-      userMoods.addAll(newMoods); // Update reactive state
+      userMoods.addAll(newMoods); // Update state
 
-      print("Fetched moods: $newMoods"); // Debugging logs
-      Get.snackbar("Success", "Mood data loaded successfully!");
+      print("DEBUG: Updated Weekly Mood Data -> $userMoods");
     } catch (e) {
-      Get.snackbar("Error", "Failed to fetch mood data: $e");
+      print("DEBUG: Error Fetching Weekly Mood Data -> $e");
+      Get.snackbar("Error", "Failed to fetch weekly mood data: $e");
     }
   }
-
 
   // Show Mood Popup when Clicking on a Day
   void showDailyMoodPopup(String day, String mood, BuildContext context) {
@@ -105,20 +118,20 @@ class MoodTrackingController extends GetxController {
   }
 }
 
+// ✅ Convert Mood Text to Emoji
 String getMoodEmoji(String mood) {
-  switch (mood.toLowerCase()) {
+  switch (mood.toLowerCase()) { // Convert to lowercase for consistency
     case "happy":
-      return "😊";
-    case "sad":
-      return "😢";
+      return "😃";
     case "neutral":
       return "😐";
+    case "sad":
+      return "😔";
     case "angry":
       return "😡";
     case "anxious":
       return "😰";
     default:
-      return " "; // Default to empty if no mood data
+      return "◽️"; // Default emoji for missing data
   }
 }
-

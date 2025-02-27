@@ -14,20 +14,22 @@ class UserProgressController extends GetxController {
     super.onInit();
     fetchUserCheckIns(); // Fetch data when the controller initializes
   }
+
   Future<void> fetchUserCheckIns() async {
     String? uid = _storage.getUid();
     if (uid == null) {
-      print("❌ Error: UID is null");
+      print("❌ Error: UID is null. Cannot fetch check-ins.");
       return;
     }
 
     try {
+      print("📡 Fetching check-ins for UID: $uid...");
+
       var snapshot = await _firestore
           .collection("users")
           .doc(uid)
           .collection("moodTracking")
-          .orderBy("timestamp", descending: true) // Ensure timestamp field exists!
-          .get();
+          .get(); // Fetch all documents
 
       if (snapshot.docs.isEmpty) {
         print("⚠️ No check-ins found for user: $uid");
@@ -36,10 +38,11 @@ class UserProgressController extends GetxController {
         return;
       }
 
+      // Since document IDs are the check-in dates, count the number of documents
       List<String> checkInDates = snapshot.docs.map((doc) => doc.id).toList();
 
-      // Print raw Firestore data for debugging
-      print("✅ Raw Firestore Documents:");
+      // DEBUG: Print the fetched check-ins
+      print("✅ Firestore Check-ins Fetched: ${checkInDates.length}");
       for (var doc in snapshot.docs) {
         print("📝 ${doc.id}: ${doc.data()}");
       }
@@ -47,13 +50,12 @@ class UserProgressController extends GetxController {
       totalCheckIns.value = checkInDates.length; // Update total check-ins
       calculateStreak(checkInDates); // Calculate streak
 
-      print("📊 Total Check-ins: ${totalCheckIns.value}, Streak: ${streak.value}");
+      print("📊 Updated Total Check-ins: ${totalCheckIns.value}, Streak: ${streak.value}");
     } catch (e) {
       print("❌ Firestore Fetch Error: $e");
       Get.snackbar("Error", "Failed to fetch check-ins: $e");
     }
   }
-
 
   void calculateStreak(List<String> checkInDates) {
     if (checkInDates.isEmpty) {
@@ -69,14 +71,17 @@ class UserProgressController extends GetxController {
       DateTime prevDate = DateTime.parse(checkInDates[i]);
       DateTime expectedDate = latestDate.subtract(Duration(days: 1));
 
-      if (prevDate == expectedDate) {
+      if (prevDate.year == expectedDate.year &&
+          prevDate.month == expectedDate.month &&
+          prevDate.day == expectedDate.day) {
         currentStreak++;
         latestDate = prevDate;
       } else {
-        break; // Break on the first missing day
+        break; // Streak broken
       }
     }
 
     streak.value = currentStreak;
+    print("🔥 Current Streak: ${streak.value} days");
   }
 }

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../screens/loginscreen.dart';
 import '../../utils/storage/user_storage.dart';
 import '../../widgets/navigation_bar.dart';
 
 class LoginController extends GetxController {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final UserStorage _userStorage = UserStorage(); // Use the storage class
+  final UserStorage _userStorage = UserStorage(); // User storage for UID
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   var isPasswordVisible = false.obs;
-  var isLoading = false.obs; // Show a loading indicator during login
+  var isLoading = false.obs; // Loading indicator
 
   void togglePasswordVisibility() {
     isPasswordVisible.value = !isPasswordVisible.value;
@@ -31,40 +34,63 @@ class LoginController extends GetxController {
     isLoading.value = true;
 
     try {
-      // Check if the email exists in Firestore
-      var userQuery = await _firestore.collection("users").where("email", isEqualTo: email).get();
+      // ✅ Step 1: Sign in with Firebase Authentication
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-      if (userQuery.docs.isEmpty) {
-        Get.snackbar("Error", "Account not found. Please check your email.",
+      String uid = userCredential.user!.uid;
+      print("✅ Firebase Auth UID: $uid");
+
+      // ✅ Step 2: Retrieve user profile from Firestore
+      DocumentSnapshot userDoc = await _firestore.collection("users").doc(uid).get();
+
+      if (!userDoc.exists) {
+        Get.snackbar("Error", "User profile not found. Please contact support.",
             snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
         isLoading.value = false;
         return;
       }
 
-      // Get user data
-      var userData = userQuery.docs.first.data();
+      var userData = userDoc.data() as Map<String, dynamic>;
+      print("📌 Firestore User Data: $userData");
 
-      // Validate password
-      if (userData["password"] != password) {
-        Get.snackbar("Error", "Incorrect password. Please try again.",
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
-        isLoading.value = false;
-        return;
-      }
+      // ✅ Step 3: Save UID in Local Storage
+      _userStorage.clearUid();
+      _userStorage.saveUid(uid);
 
-      // Save UID in GetStorage via UserStorage class
-      _userStorage.saveUid(userData["uid"]);
-
-      // Navigate to the main dashboard
+      // ✅ Step 4: Navigate to Dashboard
       Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
 
       Get.snackbar("Success", "Login successful!",
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+    } on FirebaseAuthException catch (e) {
+      // Handle Firebase Auth errors
+      String errorMessage = "Login failed. Please try again.";
+      if (e.code == 'user-not-found') {
+        errorMessage = "No user found with this email.";
+      } else if (e.code == 'wrong-password') {
+        errorMessage = "Incorrect password.";
+      }
+
+      Get.snackbar("Error", errorMessage,
+          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
     } catch (e) {
+      print("❌ Login Error: $e");
       Get.snackbar("Error", "Something went wrong: ${e.toString()}",
           snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
+  }
+
+  /// **✅ Logout Function**
+  void logout() {
+    _auth.signOut(); // Firebase sign out
+    _userStorage.clearUid(); // Clear local storage
+    Get.offAll(() => LoginScreen()); // Navigate back to login
+    Get.snackbar("Success", "Logged out successfully.",
+        snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
   }
 }

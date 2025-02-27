@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
+import 'package:llps_mental_app/widgets/navigation_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/homescreen/homescreen.dart';
@@ -44,7 +45,7 @@ class AuthenticationRepository extends GetxController {
       // If not first time, check for user authentication
       if (_auth.currentUser != null) {
         // User is logged in, redirect to HomeScreen
-        Get.offAll(() => HomeScreen());
+        Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
       } else {
         // No user logged in, redirect to LoginScreen
         Get.offAll(() => LoginScreen());

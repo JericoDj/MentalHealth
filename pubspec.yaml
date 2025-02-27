@@ -55,6 +55,7 @@ dependencies:
   webview_flutter: ^4.10.0
 
   flutter_screenutil: ^5.9.3
+  flutter_webrtc: ^0.12.11
 
 
 

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class SafeSpaceButtons extends StatelessWidget {
+class BottomButtons extends StatelessWidget {
 
   final bool isFormComplete;
   final Function() onBookSession;
   final Function() onCallSupport;
 
-  const SafeSpaceButtons({
+  const BottomButtons({
     Key? key,
 
     required this.isFormComplete,
@@ -28,7 +28,7 @@ class SafeSpaceButtons extends StatelessWidget {
             onTap: onCallSupport,
             child: const Text(
               "Connect with customer support",
-              style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold, color: Colors.red),
+              style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold, color: Colors.red),
               textAlign: TextAlign.center,
             ),
           ),
@@ -56,7 +56,7 @@ class SafeSpaceButtons extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    "Connect to a specialist",
+                    "Book A Session",
                     style: TextStyle(
                       color: isButtonEnabled ? Colors.white : Colors.black54,  // Text color changes if greyed out
                       fontSize: 16,

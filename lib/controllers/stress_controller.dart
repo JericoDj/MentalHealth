@@ -85,6 +85,8 @@ class StressController extends GetxController {
     }
   }
 
+
+
   // ✅ Calculate Stress Distribution (Low, Moderate, High)
   void calculateStressDistribution(List<int> stressLevels) {
     if (stressLevels.isEmpty) return;

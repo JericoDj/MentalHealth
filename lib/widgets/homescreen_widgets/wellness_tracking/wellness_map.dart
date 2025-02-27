@@ -6,16 +6,18 @@ import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/mood_trends_popup.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/progress_popup.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/pop_ups/stress_level_popup.dart';
+import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/progress_buttons.dart';
 
 import '../../../../utils/constants/colors.dart';
 import '../../../controllers/moodTrackingController.dart';
+import '../../../controllers/progress_controller.dart';
 import '../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
 import 'moods_section.dart';
 
 class ProgressDashboardCard extends StatelessWidget {
   ProgressDashboardCard({Key? key}) : super(key: key);
 
-  final MoodTrackingController _moodController = Get.put(MoodTrackingController()); // Inject Controller
+  final ProgressController progressController = Get.put(ProgressController());
 
   @override
   Widget build(BuildContext context) {
@@ -51,10 +53,12 @@ class ProgressDashboardCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        _buildProgressButtons(context),
+        ProgressButtons(context), // Now controlled by GetX
       ],
     );
   }
+}
+
 
   Widget _buildHeader() {
     return Container(
@@ -87,136 +91,4 @@ class ProgressDashboardCard extends StatelessWidget {
     );
   }
 
-
-
-  Widget _buildProgressButtons(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildCircularIconWithLabel(
-          context,
-          icon: Icons.speed,
-          label: 'Progress',
-          value: '95%',
-          buttonColor: MyColors.color1.withOpacity(0.1),
-          iconColor: MyColors.color1,
-          borderColor: MyColors.color1,
-          displayMode: 'progress',
-        ),
-        _buildCircularIconWithLabel(
-          context,
-          icon: Icons.emoji_events,
-          label: 'Achievements',
-          value: 'My',
-          buttonColor: MyColors.color2.withOpacity(0.1),
-          borderColor: MyColors.color2,
-          iconColor: MyColors.color2,
-          displayMode: 'achievement',
-        ),
-        _buildCircularIconWithLabel(
-          context,
-          icon: Icons.mood,
-          label: 'Mood Trends',
-          value: '😊',
-          buttonColor: Colors.green.shade600.withOpacity(0.1),
-          borderColor: MyColors.color1,
-          iconColor: MyColors.color1,
-          displayMode: 'mood_trends',
-        ),
-        _buildCircularIconWithLabel(
-          context,
-          icon: Icons.local_fire_department,
-          label: 'Stress Level',
-          value: 'Moderate',
-          buttonColor: MyColors.color2.withOpacity(0.1),
-          borderColor: MyColors.color2,
-          iconColor: MyColors.color2,
-          displayMode: 'stress_level',
-        ),
-      ],
-    );
-  }
-}
-
-Widget _buildCircularIconWithLabel(BuildContext context, {
-  required IconData icon,
-  required String label,
-  required String value,
-  required Color borderColor,
-  required Color iconColor,
-  required Color buttonColor,
-  required String displayMode,
-}) {
-  return GestureDetector(
-    onTap: () {
-      showTrackingPopup(context, displayMode);
-    },
-    child: Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: borderColor, width: 1.5),  // Border color
-            color: buttonColor,  // Background color of the circle
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            icon,
-            color: iconColor,  // Icon color
-            size: 26,
-          ),
-        ),
-        const SizedBox(height: 5),
-        Text(value),
-        Text(label),
-      ],
-    ),
-  );
-}
-
-// Trigger the Appropriate Pop-up
-void showTrackingPopup(BuildContext context, String mode,
-    {String selectedDay = "", String mood = "😊"}) {
-  switch (mode) {
-    case 'progress':
-      showDialog(
-        context: context,
-        builder: (context) => const ProgressPopup(),
-      );
-      break;
-    case 'mood_trends':
-      showDialog(
-        context: context,
-        builder: (context) => const MoodTrendsPopup(title: 'Your Average Mood', moodSummary: ' Your mood looks good', recommendation: 'Keep going on',),
-      );
-    // // Navigate to Mood Trends Section and Highlight Da
-    //   Navigator.of(context).pop(); // Close existing popup
-    //   _scrollToMoodSection(context, selectedDay);
-      break;
-    case 'stress_level':
-      showDialog(
-        context: context,
-        builder: (context) => const StressLevelPopup(),
-      );
-      break;
-    case 'achievement':
-      showDialog(
-        context: context,
-        builder: (context) => const AchievementsPopup(),
-      );
-      break;
-    case 'daily_mood':
-      showDialog(
-        context: context,
-        builder: (context) =>
-            DailyMoodPopup(
-              mood: mood,
-              selectedDay: selectedDay,
-            ),
-      );
-      break;
-    default:
-      break;
-  }
-}
 

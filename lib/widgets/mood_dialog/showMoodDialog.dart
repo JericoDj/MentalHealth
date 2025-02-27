@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controllers/moodTrackingController.dart';
+import '../../controllers/home_controller.dart';
+import '../../controllers/user_progress_controller.dart';
 import '../../utils/constants/colors.dart';
 
 void showMoodDialog(BuildContext context) {
   final MoodTrackingController moodController = Get.put(MoodTrackingController());
+  final UserProgressController userProgressController = Get.put(UserProgressController());
+  final HomeController homeController = Get.find<HomeController>(); // ✅ Ensure HomeController is found
 
   showDialog(
     context: context,
-    barrierDismissible: false, // Prevent closing by tapping outside
+    barrierDismissible: false,
     builder: (dialogContext) {
-      double _stressLevel = 50.0; // Default stress level percentage
-      String _selectedMood = ""; // Store the selected mood emoji
-      String _moodTemp = ""; // Temporary mood selection until confirmed
+      double _stressLevel = 50.0;
+      String _selectedMood = "";
+      String _moodTemp = "";
 
       return StatefulBuilder(
         builder: (dialogContext, setState) {
@@ -27,7 +31,10 @@ void showMoodDialog(BuildContext context) {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text("How are you feeling today?", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      const Text(
+                        "How are you feeling today?",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red, size: 24),
                         onPressed: () => Navigator.pop(dialogContext),
@@ -92,9 +99,18 @@ void showMoodDialog(BuildContext context) {
                 GestureDetector(
                   onTap: () async {
                     if (_moodTemp.isNotEmpty) {
-                      _selectedMood = _moodTemp; // Set selected mood on confirm
+                      _selectedMood = _moodTemp;
 
                       await moodController.saveMoodTracking(_selectedMood, _stressLevel.toInt());
+
+                      // ✅ Fetch the latest mood data
+                      await moodController.fetchUserMoodDataForCurrentWeek();
+
+                      // ✅ Fetch latest daily check-ins
+                      await userProgressController.fetchUserCheckIns();
+
+                      // ✅ Refresh HomeScreen
+                      homeController.update();
 
                       ScaffoldMessenger.of(dialogContext).showSnackBar(
                         SnackBar(
@@ -103,7 +119,7 @@ void showMoodDialog(BuildContext context) {
                         ),
                       );
 
-                      Navigator.pop(dialogContext); // Close dialog on confirm
+                      Navigator.pop(dialogContext); // ✅ Close dialog
                     } else {
                       ScaffoldMessenger.of(dialogContext).showSnackBar(
                         const SnackBar(
@@ -120,7 +136,7 @@ void showMoodDialog(BuildContext context) {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Obx(() => moodController.isSaving.value
-                        ? const CircularProgressIndicator(color: Colors.white) // Show loading indicator while saving
+                        ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                       "Confirm",
                       style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),

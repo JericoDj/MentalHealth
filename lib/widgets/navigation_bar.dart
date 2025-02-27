@@ -19,11 +19,17 @@ class NavigationBarMenu extends StatefulWidget {
 
   const NavigationBarMenu({Key? key, required this.dailyCheckIn}) : super(key: key);
 
+
+
   @override
   _NavigationBarMenuState createState() => _NavigationBarMenuState();
 }
 
 class _NavigationBarMenuState extends State<NavigationBarMenu> {
+
+
+
+
   int _selectedIndex = 0;
   late List<Widget> _pages; // Declare the list as late
 

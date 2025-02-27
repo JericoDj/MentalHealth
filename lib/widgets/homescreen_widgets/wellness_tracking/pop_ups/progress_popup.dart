@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../screens/homescreen/wellness_tracking/progress_map_screen.dart';
-import '../../../../utils/constants/colors.dart'; // Assuming MyColors is imported from this file
+import '../../../../utils/constants/colors.dart';
+import '../../../../controllers/user_progress_controller.dart'; // Import controller
 
 class ProgressPopup extends StatelessWidget {
   const ProgressPopup({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final UserProgressController userProgressController = Get.find<UserProgressController>();
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
@@ -21,7 +24,6 @@ class ProgressPopup extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-
                   const Text(
                     "User Progress",
                     style: TextStyle(
@@ -38,15 +40,26 @@ class ProgressPopup extends StatelessWidget {
             ),
             const SizedBox(height: 10),
 
-            // Content Text
-            const Text(
-              "You have checked in 25 times\n this month!\nStreak: 10 days in a row.\nKeep up the great work!",
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
+            // Dynamic Content
+            Obx(() {
+              final int checkIns = userProgressController.totalCheckIns.value;
+              final int streak = userProgressController.streak.value;
 
-            // Buttons (Row for "View Progress" & "Exit")
+              return Column(
+                children: [
+                  Text(
+                    "You have checked in $checkIns times\n this month!\n"
+                        "Streak: $streak days in a row.\n"
+                        "Keep up the great work!",
+                    style: const TextStyle(fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              );
+            }),
+
+            // View Progress Button
             GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
@@ -72,9 +85,7 @@ class ProgressPopup extends StatelessWidget {
                 ),
               ),
             ),
-            // Exit Button with Gradient Border
-
-            SizedBox(height: 10,),
+            const SizedBox(height: 10),
           ],
         ),
       ),

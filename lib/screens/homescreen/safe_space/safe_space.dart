@@ -1,10 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:llps_mental_app/screens/homescreen/safe_space/queue_screen.dart';
-import '../../../controllers/session_controller.dart';
+import 'package:llps_mental_app/widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
 import '../../../utils/constants/colors.dart';
-import '../../../widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
-import 'chat_screen.dart';
+import '../../../utils/storage/user_storage.dart';
+import '../../../widgets/homescreen_widgets/call_customer_support_widget.dart';
 
 class SafeSpaceBody extends StatefulWidget {
   const SafeSpaceBody({Key? key}) : super(key: key);
@@ -14,65 +15,200 @@ class SafeSpaceBody extends StatefulWidget {
 }
 
 class _SafeSpaceBodyState extends State<SafeSpaceBody> {
-  String? _selectedAction;
+  String? _selectedAction; // Stores user's selection (Chat or Talk)
+  String? userId; // Store user ID
+  DocumentReference? queueRef; // Firestore reference for cleanup
 
-  void _navigateToChatScreen() {
+  @override
+  void initState() {
+    super.initState();
+    userId = UserStorage().getUid(); // ✅ Get user ID from local storage
+  }
+
+  // ✅ Navigate to Queue Screen & Save Request in Firestore
+  void _navigateToQueueScreen() async {
+    if (userId == null) {
+      Get.snackbar("Error", "User not found. Please log in again.");
+      return;
+    }
+
     if (_selectedAction != null) {
-      Get.to(() => QueueScreen(sessionType: "Safe Space"));
-    } else {
-      Get.snackbar(
-        'Incomplete',
-        'Please select an action.',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      String sessionType = _selectedAction == "chat" ? "Chat" : "Talk";
+      String requestPath = "safe_space/${sessionType.toLowerCase()}/queue/$userId";
+
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      queueRef = firestore.doc(requestPath); // Save reference for cleanup
+
+      try {
+        await queueRef!.set({
+          "uid": userId,
+          "sessionType": sessionType,
+          "status": "queue",
+          "timestamp": FieldValue.serverTimestamp(),
+        });
+
+        print("✅ Firestore Queue Request Created at: $requestPath");
+        Get.to(() => QueueScreen(sessionType: sessionType, userId: userId!));
+
+      } catch (e) {
+        print("❌ Firestore Write Error: $e");
+        Get.snackbar("Error", "Failed to add request to queue: $e");
+      }
+    }
+  }
+
+  // ✅ Remove Request from Queue on Exit (Back Button or Force Stop)
+  void _cancelQueueRequest() async {
+    if (queueRef != null) {
+      try {
+        await queueRef!.delete();
+        print("🗑️ Queue request removed for $userId.");
+      } catch (e) {
+        print("❌ Error removing request: $e");
+      }
     }
   }
 
   @override
+  void dispose() {
+    _cancelQueueRequest(); // ✅ Auto-remove from queue on screen exit
+    super.dispose();
+  }
+
+  // ✅ Open Customer Support Dialog
+  void _openCustomerSupport() {
+    showDialog(
+      context: context,
+      builder: (context) => CallCustomerSupportPopup(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Card(
-              elevation: 5,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: MyColors.color2.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const Text(
-                  "Welcome to the 24/7 Safe Space. Connect with a specialist instantly through chat or call. We're here to help you anytime.",
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          toolbarHeight: 65,
+          title: const Text(
+            'Safe Space',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          elevation: 2,
+          flexibleSpace: Stack(
+            children: [
+              /// Gradient Bottom Border
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  height: 2, // Border thickness
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.orange,
+                        Colors.orangeAccent,
+                        Colors.green,
+                        Colors.greenAccent,
+                      ],
+                      stops: const [0.0, 0.5, 0.5, 1.0],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
+            ],
+          ),
+        ),
 
-            // Chat and Call Buttons with Gradient Border
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+        // ✅ Main Body
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _buildActionButton("chat", "Chat with\nSpecialist"),
-                const SizedBox(width: 20),
-                _buildActionButton("call", "Talk to\nSpecialist"),
+                // Welcome Card
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: MyColors.color2.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Text(
+                      "Welcome to the Safe Space.\n"
+                          "Connect with a specialist instantly through chat or call.\n"
+                          "We're here to help you anytime.",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // ✅ Chat and Talk Options (Outlined Buttons)
+                Column(
+                  children: [
+                    _buildActionButton("chat", "Chat with Specialist"),
+                    const SizedBox(height: 15),
+                    _buildActionButton("call", "Talk to Specialist"),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+
+                // ✅ Customer Support Button
+                GestureDetector(
+                  onTap: _openCustomerSupport,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.redAccent, width: 1),
+                    ),
+                    child: const Text(
+                      "Need Help? Contact Customer Support",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-            const SizedBox(height: 20),
-          ],
+          ),
+        ),
+
+        // ✅ Bottom Navigation Buttons
+        bottomNavigationBar: SafeSpaceButtons(
+          isFormComplete: _selectedAction != null,
+          onBookSession: _navigateToQueueScreen,
+          onCallSupport: _openCustomerSupport,
         ),
       ),
     );
   }
 
+  /// **✅ Chat and Call Buttons (Outlined)**
   Widget _buildActionButton(String actionType, String label) {
     final bool isSelected = _selectedAction == actionType;
 
@@ -93,13 +229,13 @@ class _SafeSpaceBodyState extends State<SafeSpaceBody> {
           ),
           borderRadius: BorderRadius.circular(10),
         ),
-        padding: const EdgeInsets.all(2), // Creates gradient border effect
+        padding: const EdgeInsets.all(2), // Gradient border effect
         child: Container(
-          padding: const EdgeInsets.all(10),
-          width: 130,
+          padding: const EdgeInsets.all(15),
+          width: 140,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
             label,

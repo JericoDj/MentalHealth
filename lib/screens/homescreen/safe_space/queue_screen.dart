@@ -1,124 +1,193 @@
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
+import 'package:get/get.dart';
+import 'package:llps_mental_app/screens/homescreen/safe_space/video_call_screen.dart';
 
-import 'chat_screen.dart';
-
-class QueueScreen extends StatelessWidget {
+class QueueScreen extends StatefulWidget {
   final String sessionType;
+  final String userId;
 
-  const QueueScreen({Key? key, required this.sessionType}) : super(key: key);
+  const QueueScreen({Key? key, required this.sessionType, required this.userId}) : super(key: key);
+
+  @override
+  _QueueScreenState createState() => _QueueScreenState();
+}
+
+class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
+  int queuePosition = 1;
+  bool isOngoing = false;
+  String? callRoom;
+  StreamSubscription<DocumentSnapshot>? queueSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _monitorQueueStatus();
+  }
+
+  // ✅ Monitor Queue Status in Firestore (with Mounted Check)
+  void _monitorQueueStatus() {
+    queueSubscription = FirebaseFirestore.instance
+        .collection("safe_space/chat/queue")
+        .doc(widget.userId)
+        .snapshots()
+        .listen((snapshot) {
+      if (!mounted) return;
+
+      if (snapshot.exists) {
+        var data = snapshot.data() as Map<String, dynamic>;
+
+        setState(() {
+          isOngoing = data["status"] == "ongoing";
+          callRoom = data["callRoom"];
+        });
+
+        if (isOngoing && callRoom != null && callRoom!.isNotEmpty) {
+          print("✅ Call Room ID received: $callRoom");
+          _autoJoinVideoCall(callRoom!);
+        } else {
+          print("⚠️ Waiting for callRoom to be assigned...");
+        }
+      }
+    });
+
+    _trackQueuePosition();
+  }
+
+  // ✅ Track Queue Position in Real-Time
+  void _trackQueuePosition() {
+    FirebaseFirestore.instance
+        .collection("safe_space/chat/queue")
+        .orderBy("timestamp", descending: false)
+        .snapshots()
+        .listen((snapshot) {
+      if (!mounted) return;
+
+      int position = 1;
+      for (var doc in snapshot.docs) {
+        if (doc.id == widget.userId) break;
+        position++;
+      }
+
+      setState(() {
+        queuePosition = position;
+      });
+    });
+  }
+
+  // ✅ Automatically Join Video Call (Ensuring Call Room Exists)
+  void _autoJoinVideoCall(String? roomId) {
+    if (roomId != null && roomId.isNotEmpty) {
+      Future.delayed(Duration.zero, () {
+        print("🎥 Auto-joining Video Call Room: $roomId");
+
+        try {
+          if (mounted) {
+            print("🔥 Navigating to Video Call Screen...");
+
+            // ✅ Navigate to VideoCallScreen with the Room ID (No Named Route)
+            Get.off(() => VideoCallScreen(roomId: roomId)); // Replaces the current screen
+
+          } else {
+            print("⚠️ Widget not mounted, cannot navigate.");
+          }
+        } catch (e) {
+          print("❌ Error navigating to video call: $e");
+        }
+      });
+    } else {
+      print("⚠️ Room ID is empty. Cannot join.");
+    }
+  }
+
+  // ✅ Remove User from Queue (Only When Leaving Manually)
+  void _leaveQueue() async {
+    await FirebaseFirestore.instance
+        .collection("safe_space/chat/queue")
+        .doc(widget.userId)
+        .delete();
+    print("🛑 User removed from queue.");
+  }
+
+  // ✅ Detect App Close & Remove from Queue
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      print("📴 App Paused/Closed - Not removing user automatically.");
+    }
+  }
+
+  @override
+  void dispose() {
+    queueSubscription?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return WillPopScope(
+      onWillPop: () async {
+        _leaveQueue();
+        return true;
+      },
       child: Scaffold(
         appBar: AppBar(
-          toolbarHeight: 65,
-          title: Text("Chat with Specialist$sessionType",style: TextStyle(color: MyColors.color1),),
-          iconTheme: IconThemeData(color: MyColors.color1,size: 20),
-          backgroundColor: Colors.black12,
-          flexibleSpace: Stack(
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFF8F8F8),
-                      Color(0xFFF1F1F1),
-                    ],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-                ),
-              ),
-              /// Gradient Bottom Border
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 2, // Border thickness
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.orange,         // Start - Orange
-                        Colors.orangeAccent,   // Stop 2 - Orange Accent
-                        Colors.green,          // Stop 3 - Green
-                        Colors.greenAccent,    // Stop 4 - Green Accent
-                      ],
-                      stops: [0.0, 0.5, 0.5, 1.0], // Define stops at 50% transition
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-
-          ),
+          title: Text("${widget.sessionType} Queue"),
         ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Center(
-              child: Icon(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
                 Icons.chat_bubble_outline,
                 size: 100,
                 color: Colors.orangeAccent,
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "You are now in the queue for a $sessionType session.",
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
-            // Return to Home (GestureDetector)
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                decoration: BoxDecoration(
-                  color: MyColors.color2,
-                  borderRadius: BorderRadius.circular(8),
+              // ✅ Live Queue Position Indicator
+              Text(
+                isOngoing
+                    ? "Your session is starting! Redirecting..."
+                    : "You are #$queuePosition in the queue for a ${widget.sessionType} session.",
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 30),
+
+              // ✅ Manual Join Button (if not auto-redirected)
+              if (isOngoing && callRoom != null && callRoom!.isNotEmpty)
+                ElevatedButton(
+                  onPressed: () {
+                    _autoJoinVideoCall(callRoom!);
+                  },
+                  child: const Text("Join Video Call"),
                 ),
-                child: const Text(
-                  "Return to Home",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+
+              // ✅ Leave Queue Button (Only Removes When Pressed)
+              GestureDetector(
+                onTap: () {
+                  _leaveQueue();
+                  Navigator.pop(context);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "Leave Queue",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Go to Chat Screen (GestureDetector)
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChatScreen(sessionType: sessionType)),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                decoration: BoxDecoration(
-                  color: MyColors.color1,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  "Go to Chat Screen",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-
       ),
     );
   }

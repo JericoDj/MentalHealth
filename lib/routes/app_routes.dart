@@ -1,14 +1,16 @@
-
-
-import 'package:get/get_navigation/src/routes/get_route.dart';
-import 'package:llps_mental_app/routes/routes.dart';
-
-import '../screens/onboardingscreen.dart';
-
+import 'package:get/get.dart';
+import '../screens/homescreen/safe_space/video_call_screen.dart';
 
 class AppRoutes {
   static final pages = [
-
-    GetPage(name: MyRoutes.onBoarding, page: () =>  OnBoardingScreen()),
+    GetPage(
+      name: '/videocall/:roomId',
+      page: () {
+        // ✅ Extract roomId from route arguments
+        String roomId = Get.parameters['roomId'] ?? '';
+        return VideoCallScreen(roomId: roomId);
+      },
+      transition: Transition.fadeIn, // ✅ Smooth transition
+    ),
   ];
 }

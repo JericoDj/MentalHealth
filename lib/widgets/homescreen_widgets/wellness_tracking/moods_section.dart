@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/progress_buttons.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
 
 import '../../../controllers/moodTrackingController.dart';
@@ -9,7 +10,7 @@ import '../../../controllers/moodTrackingController.dart';
 final MoodTrackingController moodController = Get.put(MoodTrackingController()); // Inject Controller
 
 Widget buildMoodSection(BuildContext context) {
-  moodController.fetchUserMoodData(); // Ensures data is fetched on UI build
+  moodController.fetchUserMoodDataForCurrentWeek(); // Ensures data is fetched on UI build
 
   return Obx(() {
     final moods = moodController.userMoods;
