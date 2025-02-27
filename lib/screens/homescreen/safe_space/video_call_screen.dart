@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:llps_mental_app/screens/homescreen/safe_space/signalling.dart';
-
 
 class VideoCallScreen extends StatefulWidget {
   final String roomId;
@@ -25,7 +26,41 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   @override
   void initState() {
     super.initState();
-    _initVideoCall();
+    _checkPermissionsAndStartCall();
+  }
+
+  // ✅ Check & Request Permissions
+  Future<void> _checkPermissionsAndStartCall() async {
+    await _requestPermissions(); // ✅ Ensure permissions are granted
+    await _initVideoCall();
+  }
+
+  // ✅ Request Camera & Microphone Permissions
+  Future<void> _requestPermissions() async {
+    final statusCamera = await Permission.camera.request();
+    final statusMicrophone = await Permission.microphone.request();
+
+    if (statusCamera.isDenied || statusMicrophone.isDenied) {
+      print("🚨 Camera or Microphone permission denied.");
+      _showPermissionDeniedDialog();
+    }
+  }
+
+  // ✅ Show Dialog If Permissions are Denied
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Permissions Required"),
+        content: const Text("Camera and Microphone access is required for video calls."),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   // ✅ Initialize Video Call
