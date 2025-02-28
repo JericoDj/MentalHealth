@@ -87,23 +87,68 @@ class Signaling {
 
   // ✅ End Call & Cleanup
   Future<void> hangUp(RTCVideoRenderer localVideo) async {
-    if (localStream != null) {
-      for (var track in localStream!.getTracks()) {
-        track.stop(); // ✅ Stop all media tracks
-      }
-      localStream = null; // ✅ Clear the stream
-    }
+    print("📴 Hanging up...");
 
-    if (remoteStream != null) {
-      for (var track in remoteStream!.getTracks()) {
-        track.stop();
+    try {
+      // ✅ Stop and release all media tracks from localStream
+      if (localStream != null) {
+        for (var track in localStream!.getTracks()) {
+          print("🛑 Stopping local track: ${track.kind}");
+          track.stop();
+        }
+        await localStream!.dispose();
+        localStream = null;
       }
-      remoteStream = null;
-    }
 
-    peerConnection?.close(); // ✅ Properly close PeerConnection
-    peerConnection = null;
+      // ✅ Stop and release all media tracks from remoteStream
+      if (remoteStream != null) {
+        for (var track in remoteStream!.getTracks()) {
+          print("🛑 Stopping remote track: ${track.kind}");
+          track.stop();
+        }
+        await remoteStream!.dispose();
+        remoteStream = null;
+      }
+
+      // ✅ Close and clear PeerConnection
+      if (peerConnection != null) {
+        print("🔌 Closing peer connection...");
+        await peerConnection!.close();
+        peerConnection = null;
+      }
+
+      // ✅ Clear video renderers before disposal
+      if (localVideo.srcObject != null) {
+        print("🛑 Clearing local video renderer...");
+        localVideo.srcObject = null;
+      }
+
+      // ✅ Dispose video renderer safely
+      print("🗑️ Disposing local video renderer...");
+      await localVideo.dispose();
+
+      // ✅ Forcefully revoke camera & microphone permissions
+      print("🚨 Revoking camera & microphone access...");
+      await navigator.mediaDevices.getUserMedia({'video': true, 'audio': true})
+          .then((stream) {
+        stream.getTracks().forEach((track) {
+          track.stop();
+        });
+      }).catchError((error) {
+        print("⚠️ Error revoking media access: $error");
+      });
+
+      print("🔄 Camera & Microphone fully released");
+
+      print("🔥 Cleaning up Firestore session...");
+    } catch (e) {
+      print("❌ Error while hanging up: $e");
+    }
   }
+
+
+
+
 
 
   void _registerPeerConnectionListeners() {

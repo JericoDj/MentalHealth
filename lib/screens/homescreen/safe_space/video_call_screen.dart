@@ -52,7 +52,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Permissions Required"),
-        content: const Text("Camera and Microphone access is required for video calls."),
+        content: const Text("Camera and Microphone accesshange is required for video calls."),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
@@ -132,17 +132,28 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   // ✅ End Call
   void _endCall() {
+    print("📴 Ending call...");
+
+    // ✅ Hang up properly
     signaling.hangUp(_localRenderer);
 
-    // ✅ Stop and release renderers before disposing
-    _localRenderer.srcObject = null;
-    _remoteRenderer.srcObject = null;
+    // ✅ Clear video streams before disposing
+    setState(() {
+      _localRenderer.srcObject = null;
+      _remoteRenderer.srcObject = null;
+    });
 
-    _localRenderer.dispose();
-    _remoteRenderer.dispose();
+    // ✅ Dispose renderers safely
+    Future.delayed(Duration(milliseconds: 500), () {
+      _localRenderer.dispose();
+      _remoteRenderer.dispose();
+    });
 
-    Get.back(); // ✅ Navigate back
+    print("✅ Call Ended, navigating back.");
+    Get.back();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
