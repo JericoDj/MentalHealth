@@ -87,14 +87,24 @@ class Signaling {
 
   // ✅ End Call & Cleanup
   Future<void> hangUp(RTCVideoRenderer localVideo) async {
-    localStream?.getTracks().forEach((track) => track.stop());
-    remoteStream?.getTracks().forEach((track) => track.stop());
+    if (localStream != null) {
+      for (var track in localStream!.getTracks()) {
+        track.stop(); // ✅ Stop all media tracks
+      }
+      localStream = null; // ✅ Clear the stream
+    }
 
-    peerConnection?.close();
+    if (remoteStream != null) {
+      for (var track in remoteStream!.getTracks()) {
+        track.stop();
+      }
+      remoteStream = null;
+    }
 
-    localStream?.dispose();
-    remoteStream?.dispose();
+    peerConnection?.close(); // ✅ Properly close PeerConnection
+    peerConnection = null;
   }
+
 
   void _registerPeerConnectionListeners() {
     peerConnection?.onAddStream = (MediaStream stream) {

@@ -133,7 +133,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   // ✅ End Call
   void _endCall() {
     signaling.hangUp(_localRenderer);
-    Get.back();
+
+    // ✅ Stop and release renderers before disposing
+    _localRenderer.srcObject = null;
+    _remoteRenderer.srcObject = null;
+
+    _localRenderer.dispose();
+    _remoteRenderer.dispose();
+
+    Get.back(); // ✅ Navigate back
   }
 
   @override

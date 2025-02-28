@@ -4,11 +4,11 @@
 <dict>
     <!-- ✅ Required for Camera Access -->
     <key>NSCameraUsageDescription</key>
-    <string>We need camera access for video calls</string>
+    <string>$(PRODUCT_NAME) Camera Usage!</string>
 
     <!-- ✅ Required for Microphone Access -->
     <key>NSMicrophoneUsageDescription</key>
-    <string>We need microphone access for voice communication</string>
+    <string>$(PRODUCT_NAME) Microphone Usage!</string>
 
     <!-- ✅ Required for WebRTC (Real-Time Communication) -->
     <key>NSLocalNetworkUsageDescription</key>
