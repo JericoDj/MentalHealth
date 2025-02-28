@@ -17,11 +17,32 @@ class Signaling {
   };
 
   // ✅ Open Camera & Mic
-  Future<void> openUserMedia(RTCVideoRenderer localVideo, RTCVideoRenderer remoteVideo) async {
-    localStream = await navigator.mediaDevices.getUserMedia({'video': true, 'audio': true});
-    localVideo.srcObject = localStream;
-    remoteVideo.srcObject = await createLocalMediaStream('remote');
+  Future<MediaStream?> openUserMedia(RTCVideoRenderer localRenderer, RTCVideoRenderer remoteRenderer) async {
+    try {
+      final Map<String, dynamic> constraints = {
+        "audio": true,
+        "video": {
+          "mandatory": {
+            "minWidth": 640,
+            "minHeight": 480,
+            "minFrameRate": 30,
+          },
+          "facingMode": "user", // 🔥 Ensure this is a string, not a HashMap!
+        }
+      };
+
+      MediaStream stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      localRenderer.srcObject = stream;
+      return stream;
+    } catch (e) {
+      print("❌ Error opening user media: $e");
+      return null;
+    }
   }
+
+
+
 
   // ✅ Join Room
   Future<void> joinRoom(String roomId, RTCVideoRenderer remoteRenderer) async {

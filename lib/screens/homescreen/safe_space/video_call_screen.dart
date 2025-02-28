@@ -65,21 +65,41 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   // ✅ Initialize Video Call
   Future<void> _initVideoCall() async {
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
+    try {
+      await _localRenderer.initialize();
+      await _remoteRenderer.initialize();
 
-    signaling.onAddRemoteStream = (MediaStream stream) {
-      setState(() {
-        _remoteRenderer.srcObject = stream;
-      });
-    };
+      signaling.onAddRemoteStream = (MediaStream stream) {
+        print("🎥 Received remote stream: ${stream.id}");
+        setState(() {
+          _remoteRenderer.srcObject = stream;
+        });
+      };
 
-    // ✅ Open local media (Camera & Mic)
-    await signaling.openUserMedia(_localRenderer, _remoteRenderer);
+      // ✅ Open local media (Camera & Mic)
+      MediaStream? stream = await signaling.openUserMedia(_localRenderer, _remoteRenderer);
 
-    // ✅ Join the room
-    await signaling.joinRoom(widget.roomId, _remoteRenderer);
+      if (stream != null) {
+        print("🎥 Local stream opened successfully: ${stream.id}");
+
+        // 🔥 Ensure local stream is assigned properly
+        setState(() {
+          _localRenderer.srcObject = stream;
+        });
+      } else {
+        print("❌ Failed to open local stream");
+      }
+
+      // ✅ Join the room
+      await signaling.joinRoom(widget.roomId, _remoteRenderer);
+    } catch (e) {
+      print("❌ Error initializing video call: $e");
+    }
   }
+
+
+
+
 
   @override
   void dispose() {
@@ -88,6 +108,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     _remoteRenderer.dispose();
     super.dispose();
   }
+
 
   // ✅ Toggle Mic
   void _toggleMic() {
@@ -129,7 +150,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           Positioned.fill(
             child: RTCVideoView(_remoteRenderer, mirror: false),
           ),
-
           // ✅ Local Video (Bottom Right)
           Positioned(
             right: 20,
