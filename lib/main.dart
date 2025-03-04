@@ -5,6 +5,9 @@ import 'package:get/get.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:llps_mental_app/repositories/authentication_repository.dart';
 import 'package:llps_mental_app/screens/loginscreen.dart';
+import 'package:llps_mental_app/test/test/services/webrtc_service.dart';
+import 'package:llps_mental_app/test/test/test.dart';
+import 'package:provider/provider.dart';
 import 'controllers/achievements_controller.dart';
 import 'controllers/login_controller/loginController.dart';
 import 'controllers/session_controller.dart';
@@ -41,6 +44,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     ).then((FirebaseApp value) => Get.put(AuthenticationRepository()));
+    Get.put(WebRtcService());
 
 
 
@@ -48,8 +52,14 @@ Future<void> main() async {
     Get.put(LoginController()); // ✅ Register LoginController globally
     Get.put(AchievementsController()); // Then initialize AchievementsController
 
-
-    runApp(const App());
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => WebRtcService()),
+        ],
+        child: App(), // Your main app widget
+      ),
+    );
   }
 }
 
