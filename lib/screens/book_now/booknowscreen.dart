@@ -51,7 +51,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Welcome to Safe Space",
+                "Welcome to Safe Spa",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
+import 'package:llps_mental_app/test/test/test.dart';
 import 'package:llps_mental_app/widgets/navigation_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -48,7 +49,7 @@ class AuthenticationRepository extends GetxController {
         Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
       } else {
         // No user logged in, redirect to LoginScreen
-        Get.offAll(() => LoginScreen());
+        Get.offAll(() => TestApp());
       }
     }
   }
