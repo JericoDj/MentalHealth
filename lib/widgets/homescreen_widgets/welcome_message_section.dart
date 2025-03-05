@@ -5,11 +5,11 @@ import 'package:llps_mental_app/screens/homescreen/safe_space/safe_space.dart';
 
 import '../../utils/constants/colors.dart';
 
-class SafeSpaceSection extends StatelessWidget {
+class SafeTalkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Get.to(() => SafeSpaceBody()),
+      onTap: () => Get.to(() => SafeTalk()),
       child: Container(
         padding: const EdgeInsets.all(2.5), // Padding to create a border effect
         decoration: BoxDecoration(
@@ -38,7 +38,7 @@ class SafeSpaceSection extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                '24/7 Safe Space`',
+                'Safe Talk`',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: MyColors.color1),
                 textAlign: TextAlign.center,
               ),

@@ -1,22 +1,21 @@
-// ignore_for_file: must_be_immutable
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:provider/provider.dart';
+import '../../../../controllers/call_controller.dart';
 import '../../services/webrtc_service.dart';
 import 'components/call_page_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CallPage extends StatefulWidget {
-  String? roomId;
-  bool isCaller;
+  final String? roomId;
+  final bool isCaller;
+  final String? sessionType;
+  final String? userId;
 
-  /// if 'roomId' = null; new call will be made.
-  /// if 'roomId' != null; will join the room.
   CallPage({
     Key? key,
     required this.roomId,
     required this.isCaller,
+    this.sessionType,
+    this.userId,
   }) : super(key: key);
 
   @override
@@ -24,42 +23,65 @@ class CallPage extends StatefulWidget {
 }
 
 class _CallPageState extends State<CallPage> {
-  late FirebaseFirestore videoapp;
-  late WebRtcService fbCallService;
-
-  RTCPeerConnection? peerConnection;
-  final localVideo = RTCVideoRenderer();
-  MediaStream? localStream;
-
-  final remoteVideo = RTCVideoRenderer();
-
+  late CallController _callController;
   bool connectingLoading = true;
-
-  // media status
-  bool isAudioOn = true;
-  bool isVideoOn = true;
-  bool isFrontCameraSelected = true;
+  String? _currentRoomId; // Local variable to store the room ID
 
   @override
   void initState() {
     super.initState();
+    _currentRoomId = widget.roomId;
+
+    // Initialize CallController
+    _callController = CallController(
+      fbCallService: WebRtcService(),
+      onRoomIdGenerated: (newRoomId) {
+        setState(() {
+          _currentRoomId = newRoomId;
+          print("🔥 New Room ID: $_currentRoomId");
+
+          // ✅ Save room ID to Firestore
+          _saveRoomToFirestore(newRoomId);
+        });
+      },
+      onCallEnded: _leaveCall,
+      onConnectionEstablished: _connectingLoadingCompleted,
+    );
+
     Future.delayed(const Duration(milliseconds: 100), () async {
-      fbCallService = Provider.of<WebRtcService>(context, listen: false);
-      await openCamera();
-      init();
+      await _callController.openCamera();
+      _callController.init(_currentRoomId);
     });
+  }
+
+  /// ✅ **Function to Save Room ID to Firestore**
+  Future<void> _saveRoomToFirestore(String roomId) async {
+    if (widget.sessionType == null || widget.userId == null) {
+      print("❌ ERROR: Missing sessionType or userId. Cannot save room.");
+      return;
+    }
+
+    String collectionPath = widget.sessionType == "Chat"
+        ? "safe_talk/chat/queue"
+        : "safe_talk/talk/queue";
+
+    try {
+      await FirebaseFirestore.instance.collection(collectionPath).doc(widget.userId).set({
+        'sessionType': widget.sessionType,
+        'userId': widget.userId,
+        'roomId': roomId, // ✅ Save the generated room ID here
+        'status': 'waiting',
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      print("🔥 Room ID Saved in Firestore: $roomId");
+    } catch (e) {
+      print("❌ Error saving room ID: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    String title = "";
-
-    if (widget.roomId != null) {
-      title = "Room ID: ${widget.roomId}";
-    } else {
-      title = "Loading... Wait...";
-    }
-
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 26, 26, 26),
       appBar: AppBar(
@@ -67,160 +89,44 @@ class _CallPageState extends State<CallPage> {
         leading: const SizedBox(),
         centerTitle: true,
         title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 15,
-            color: Colors.white,
-          ),
+          _currentRoomId != null ? "Room ID: $_currentRoomId" : "Loading... Wait...",
+          style: const TextStyle(fontSize: 15, color: Colors.white),
         ),
       ),
       body: CallPageWidget(
         connectingLoading: connectingLoading,
-        roomId: widget.roomId ?? "",
-        remoteVideo: remoteVideo,
-        localVideo: localVideo,
-        leaveCall: () => _leaveCall(),
-        switchCamera: () => _switchCamera(),
-        toggleCamera: () => _toggleCamera(),
-        toggleMic: () => _toggleMic(),
-        isAudioOn: isAudioOn,
-        isVideoOn: isVideoOn,
+        roomId: _currentRoomId ?? "",
+        remoteVideo: _callController.remoteVideo,
+        localVideo: _callController.localVideo,
+        leaveCall: _leaveCall,
+        switchCamera: _callController.switchCamera,
+        toggleCamera: _callController.toggleCamera,
+        toggleMic: _callController.toggleMic,
+        isAudioOn: _callController.isAudioOn,
+        isVideoOn: _callController.isVideoOn,
         isCaller: widget.isCaller,
       ),
     );
   }
 
-  Future<void> init() async {
-    try {
-      await remoteVideo.initialize();
-      final remoteStreams = peerConnection?.getRemoteStreams();
-
-      if (remoteStreams != null && remoteStreams.isEmpty) {
-        peerConnection?.onTrack = (event) {
-          if (event.track.kind == 'video') {
-            setState(() {
-              remoteVideo.srcObject = event.streams.first;
-            });
-          }
-        };
-      }
-
-      if (widget.roomId == null) {
-        String newRoomId = await fbCallService.call();
-        setState(() {
-          widget.roomId = newRoomId;
-        });
-        iceStatusListen();
-      } else {
-        await fbCallService.answer(roomId: widget.roomId.toString());
-        iceStatusListen();
-      }
-    } catch (e) {
-      debugPrint("************** call_start_page : LN=77 : $e");
-    }
-  }
-
-  Future<void> openCamera() async {
-    await localVideo.initialize();
-    peerConnection = await fbCallService.createPeer();
-
-    final Map<String, dynamic> mediaConstraints = {
-      'audio': isAudioOn,
-      'video': isVideoOn,
-    };
-
-    localStream = await navigator.mediaDevices.getUserMedia(
-      mediaConstraints,
-    );
-
-    localStream!.getTracks().forEach(
-          (track) async => await peerConnection?.addTrack(
-            track,
-            localStream!,
-          ),
-        );
-    localVideo.srcObject = localStream;
-    setState(() {});
-  }
-
-  void iceStatusListen() {
-    try {
-      peerConnection!.onIceConnectionState = (iceConnectionState) async {
-        if ((peerConnection!.iceConnectionState ==
-                RTCIceConnectionState.RTCIceConnectionStateConnected ||
-            peerConnection!.iceConnectionState ==
-                RTCIceConnectionState.RTCIceConnectionStateCompleted)) {
-          _connectingLoadingComplated();
-        }
-
-        if (iceConnectionState ==
-                RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
-            iceConnectionState ==
-                RTCIceConnectionState.RTCIceConnectionStateFailed) {
-          // The other person left the chat or was disconnected.
-          _leaveCall();
-        }
-      };
-    } catch (e) {
-      debugPrint("********* call_start_page : LN=109 : $e");
-    }
-  }
-
-  void _connectingLoadingComplated() {
-    if (mounted && connectingLoading) {
+  void _connectingLoadingCompleted() {
+    if (mounted) {
       setState(() {
         connectingLoading = false;
       });
     }
   }
 
-  /// The other person left the chat or was disconnected.
   void _leaveCall() {
     if (mounted) {
       Navigator.pop(context);
-      fbCallService.deleteFirebaseDoc(
-        roomId: widget.roomId.toString(),
-      );
+      _callController.dispose();
     }
   }
 
-  _toggleMic() {
-    isAudioOn = !isAudioOn;
-    // enable or disable audio track
-    localStream?.getAudioTracks().forEach((track) {
-      track.enabled = isAudioOn;
-    });
-    setState(() {});
-  }
-
-  _toggleCamera() {
-    isVideoOn = !isVideoOn;
-    // enable or disable video track
-    localStream?.getVideoTracks().forEach((track) {
-      track.enabled = isVideoOn;
-    });
-    setState(() {});
-  }
-
-  _switchCamera() {
-    isFrontCameraSelected = !isFrontCameraSelected;
-    localStream?.getVideoTracks().forEach((track) {
-      // ignore: deprecated_member_use
-      track.switchCamera();
-    });
-    setState(() {});
-  }
-
   @override
-  void dispose() async {
-    peerConnection?.close();
-    localStream?.getTracks().forEach((track) {
-      track.stop();
-    });
-    localVideo.dispose();
-    remoteVideo.dispose();
-    localStream?.dispose();
-    peerConnection?.dispose();
+  void dispose() {
+    _callController.dispose();
     super.dispose();
   }
 }

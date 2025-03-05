@@ -42,7 +42,7 @@ class HomeScreen extends StatelessWidget {
               ProgressDashboardCard(),
               const SizedBox(height: 20),
 
-              SafeSpaceSection(),
+              SafeTalkButton(),
               const SizedBox(height: 20),
 
               // Carousel Slider Section

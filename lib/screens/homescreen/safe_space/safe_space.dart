@@ -5,18 +5,19 @@ import 'package:llps_mental_app/screens/homescreen/safe_space/queue_screen.dart'
 import 'package:llps_mental_app/test/test/pages/homePage/home_page.dart';
 import 'package:llps_mental_app/test/test/test.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
+import '../../../test/test/pages/callPage/call_page.dart';
 import '../../../utils/constants/colors.dart';
 import '../../../utils/storage/user_storage.dart';
 import '../../../widgets/homescreen_widgets/call_customer_support_widget.dart';
 
-class SafeSpaceBody extends StatefulWidget {
-  const SafeSpaceBody({Key? key}) : super(key: key);
+class SafeTalk extends StatefulWidget {
+  const SafeTalk({Key? key}) : super(key: key);
 
   @override
-  State<SafeSpaceBody> createState() => _SafeSpaceBodyState();
+  State<SafeTalk> createState() => _SafeSpaceBodyState();
 }
 
-class _SafeSpaceBodyState extends State<SafeSpaceBody> {
+class _SafeSpaceBodyState extends State<SafeTalk> {
   String? _selectedAction; // Stores user's selection (Chat or Talk)
   String? userId; // Store user ID
   DocumentReference? queueRef; // Firestore reference for cleanup
@@ -29,29 +30,30 @@ class _SafeSpaceBodyState extends State<SafeSpaceBody> {
 
   // ✅ Navigate to Queue Screen & Save Request in Firestore
   void _navigateToQueueScreen() async {
-    if (userId == null) {
+    if (userId == null || userId!.isEmpty) {
       Get.snackbar("Error", "User not found. Please log in again.");
+      print("❌ ERROR: User ID is missing.");
       return;
     }
 
     if (_selectedAction != null) {
       String sessionType = _selectedAction == "chat" ? "Chat" : "Talk";
-      String requestPath = "safe_space/${sessionType.toLowerCase()}/queue/$userId";
 
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-      queueRef = firestore.doc(requestPath); // Save reference for cleanup
+
+
+
 
       try {
-        await queueRef!.set({
-          "uid": userId,
-          "sessionType": sessionType,
-          "status": "queue",
-          "timestamp": FieldValue.serverTimestamp(),
-        });
 
-        print("✅ Firestore Queue Request Created at: $requestPath");
-        Get.to(() => TestApp());
-        // Get.to(() => QueueScreen(sessionType: sessionType, userId: userId!));
+
+
+        // ✅ Navigate to `CallPage` & Wait for Room ID
+        String? newRoomId = await Get.to(() => CallPage(
+          roomId: null,
+          isCaller: true,
+          sessionType: sessionType,
+          userId: userId!,
+        )) ?? null;
 
       } catch (e) {
         print("❌ Firestore Write Error: $e");
@@ -59,6 +61,9 @@ class _SafeSpaceBodyState extends State<SafeSpaceBody> {
       }
     }
   }
+
+
+
 
   // ✅ Remove Request from Queue on Exit (Back Button or Force Stop)
   void _cancelQueueRequest() async {
@@ -94,7 +99,7 @@ class _SafeSpaceBodyState extends State<SafeSpaceBody> {
           backgroundColor: Colors.white,
           toolbarHeight: 65,
           title: const Text(
-            'Safe Space',
+            'Safe Talk',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

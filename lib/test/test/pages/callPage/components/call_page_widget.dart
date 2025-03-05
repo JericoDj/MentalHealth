@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
-// ignore: must_be_immutable
 class CallPageWidget extends StatelessWidget {
-  bool connectingLoading;
-  String roomId;
-  bool isCaller;
-  RTCVideoRenderer remoteVideo;
-  RTCVideoRenderer localVideo;
-  VoidCallback leaveCall;
-  VoidCallback switchCamera;
-  VoidCallback toggleCamera;
-  VoidCallback toggleMic;
-  bool isAudioOn;
-  bool isVideoOn;
+  final bool connectingLoading;
+  final String roomId;
+  final bool isCaller;
+  final RTCVideoRenderer remoteVideo;
+  final RTCVideoRenderer localVideo;
+  final VoidCallback leaveCall;
+  final VoidCallback switchCamera;
+  final VoidCallback toggleCamera;
+  final VoidCallback toggleMic;
+  final bool isAudioOn;
+  final bool isVideoOn;
+  final String? sessionType; // ✅ New: Pass session type
+  final String? userId; // ✅ New: Pass user ID
 
   CallPageWidget({
     super.key,
@@ -28,6 +29,8 @@ class CallPageWidget extends StatelessWidget {
     required this.toggleMic,
     required this.isAudioOn,
     required this.isVideoOn,
+    this.sessionType, // ✅ New
+    this.userId, // ✅ New
   });
 
   @override
@@ -38,21 +41,15 @@ class CallPageWidget extends StatelessWidget {
       child: Stack(
         alignment: AlignmentDirectional.bottomEnd,
         children: [
-          if (connectingLoading == false)
+          if (!connectingLoading)
             SizedBox(
               height: size.height,
               width: size.width,
-              child: RTCVideoView(
-                remoteVideo,
-                mirror: true,
-              ),
+              child: RTCVideoView(remoteVideo, mirror: true),
             )
           else if (isCaller)
             Container(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 10,
-              ),
+              padding: const EdgeInsets.only(left: 20, right: 10),
               height: size.height,
               width: size.width,
               child: Center(
@@ -62,18 +59,12 @@ class CallPageWidget extends StatelessWidget {
                   children: [
                     const Text(
                       "Waiting for participant...",
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(fontSize: 16.0, color: Colors.white),
                     ),
                     const SizedBox(height: 10),
                     const Text(
                       "Share your room ID.",
-                      style: TextStyle(
-                        fontSize: 17.0,
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(fontSize: 17.0, color: Colors.white),
                     ),
                     const SizedBox(height: 10),
                     Container(
@@ -102,10 +93,7 @@ class CallPageWidget extends StatelessWidget {
             child: SizedBox(
               height: size.height / 4.76,
               width: size.width / 4,
-              child: RTCVideoView(
-                localVideo,
-                mirror: true,
-              ),
+              child: RTCVideoView(localVideo, mirror: true),
             ),
           ),
           Positioned(
@@ -113,99 +101,39 @@ class CallPageWidget extends StatelessWidget {
             left: 10,
             child: Row(
               children: [
-                GestureDetector(
-                  onTap: () => leaveCall(),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(1000),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.call_end,
-                      size: 27,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                _buildButton(Icons.call_end, Colors.red, leaveCall),
                 const SizedBox(width: 16),
-                GestureDetector(
-                  onTap: () {
-                    try {
-                      switchCamera();
-                    } catch (e) {
-                      //
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade700,
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(1000),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.switch_camera,
-                      size: 23,
-                      color: Colors.white,
-                    ),
-                  ),
+                _buildButton(Icons.switch_camera, Colors.grey.shade700, switchCamera),
+                const SizedBox(width: 8),
+                _buildButton(
+                  isVideoOn ? Icons.videocam : Icons.videocam_off,
+                  isVideoOn ? Colors.grey.shade700 : Colors.white,
+                  toggleCamera,
                 ),
                 const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    try {
-                      toggleCamera();
-                    } catch (e) {
-                      //
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isVideoOn ? Colors.grey.shade700 : Colors.white,
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(1000),
-                      ),
-                    ),
-                    child: Icon(
-                      isVideoOn ? Icons.videocam : Icons.videocam_off,
-                      size: 23,
-                      color: isVideoOn ? Colors.white : Colors.grey.shade700,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: () {
-                    try {
-                      toggleMic();
-                    } catch (e) {
-                      //
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: isAudioOn ? Colors.grey.shade700 : Colors.white,
-                      borderRadius: const BorderRadius.all(
-                        Radius.circular(1000),
-                      ),
-                    ),
-                    child: Icon(
-                      isAudioOn ? Icons.mic : Icons.mic_off,
-                      size: 23,
-                      color: isAudioOn ? Colors.white : Colors.grey.shade700,
-                    ),
-                  ),
+                _buildButton(
+                  isAudioOn ? Icons.mic : Icons.mic_off,
+                  isAudioOn ? Colors.grey.shade700 : Colors.white,
+                  toggleMic,
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildButton(IconData icon, Color color, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: const BorderRadius.all(Radius.circular(1000)),
+        ),
+        child: Icon(icon, size: 23, color: Colors.white),
       ),
     );
   }
