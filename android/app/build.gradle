@@ -3,6 +3,7 @@ plugins {
     // START: FlutterFire Configuration
     id 'com.google.gms.google-services'
     // END: FlutterFire Configuration
+    id 'org.jetbrains.kotlin.android' // ✅ Ensure Kotlin plugin is added
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
 }
@@ -48,7 +49,7 @@ android {
     defaultConfig {
         applicationId "com.llps.mental_health.llps_mental_app"
         minSdkVersion 24
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
