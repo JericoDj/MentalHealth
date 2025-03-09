@@ -7,9 +7,9 @@ class Utils {
     return [
       {"url": "stun:stun.l.google.com:19302"},
       {
-        "url": "turn:eu-0.turn.peerjs.com:3478",
-        "username": "peerjs",
-        "credential": "peerjsp",
+        "url": "turn:relay1.expressturn.com:3478",
+        "username": "efCZROI01OLPMN8I36",
+        "credential": "UZJ6nsqQoCXfVm6S",
       },
     ];
   }
