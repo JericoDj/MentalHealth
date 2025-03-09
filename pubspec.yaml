@@ -58,9 +58,7 @@ dependencies:
 
 
 
-  flutter_webrtc: ^0.9.36  # Downgrade to a stable version
-  webrtc_interface: ^1.0.6  # Compatible with flutter_webrtc 0.9.36
-
+  flutter_webrtc: ^0.12.12  # Downgrade to a stable version
 
 
 
