@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:llps_mental_app/screens/homescreen/safe_space/safe_space.dart';
 
+import '../../screens/homescreen/safe_space/safetalk.dart';
 import '../../utils/constants/colors.dart';
 
 class SafeTalkButton extends StatelessWidget {
@@ -20,7 +20,7 @@ class SafeTalkButton extends StatelessWidget {
 
               Color(0xFFfcbc1d),
               Color(0xFFfd9c33),
-               // Dark Orange
+              // Dark Orange
             ],
             stops: [0.0, 0.60, 0.60, 1.0], // Half green, half orange
             begin: Alignment.topCenter,

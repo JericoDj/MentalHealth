@@ -2,7 +2,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:llps_mental_app/screens/homescreen/safe_space/video_call_screen.dart';
+import '../../../controllers/call_controller.dart';
+import '../../../test/test/pages/callPage/components/call_page_widget.dart';
+import '../../../test/test/services/webrtc_service.dart';
+import 'chat_screen.dart';
 
 class QueueScreen extends StatefulWidget {
   final String sessionType;
@@ -19,18 +22,36 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
   bool isOngoing = false;
   String? callRoom;
   StreamSubscription<DocumentSnapshot>? queueSubscription;
+  bool _hasLeftQueue = false;
+  bool _isNavigating = false;
+  late CallController _callController;
+  bool connectingLoading = true;
+  String? _currentRoomId;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _monitorQueueStatus();
+    _callController = CallController(
+      fbCallService: WebRtcService(),
+      onRoomIdGenerated: (newRoomId) {
+        setState(() {
+          _currentRoomId = newRoomId;
+          print("🔥 New Room ID: $_currentRoomId");
+          _saveRoomToFirestore(newRoomId);
+        });
+      },
+      onCallEnded: _leaveQueue,
+      onConnectionEstablished: _connectingLoadingCompleted,
+    );
   }
 
-  // ✅ Monitor Queue Status in Firestore (with Mounted Check)
   void _monitorQueueStatus() {
+    String collectionPath = "safe_talk/${widget.sessionType.toLowerCase()}/queue";
+
     queueSubscription = FirebaseFirestore.instance
-        .collection("safe_space/chat/queue")
+        .collection(collectionPath)
         .doc(widget.userId)
         .snapshots()
         .listen((snapshot) {
@@ -42,13 +63,19 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
         setState(() {
           isOngoing = data["status"] == "ongoing";
           callRoom = data["callRoom"];
+          _currentRoomId = callRoom;
         });
 
-        if (isOngoing && callRoom != null && callRoom!.isNotEmpty) {
-          print("✅ Call Room ID received: $callRoom");
-          _autoJoinVideoCall(callRoom!);
-        } else {
-          print("⚠️ Waiting for callRoom to be assigned...");
+        if (isOngoing && !_isNavigating && widget.sessionType.toLowerCase() == "talk") {
+          _isNavigating = true;
+
+          // ✅ Initialize Call Controller when session is ongoing
+          Future.delayed(const Duration(milliseconds: 100), () async {
+            await _callController.openCamera();
+            _callController.init(_currentRoomId);
+          });
+
+          print("📞 Talk session ongoing - Starting CallPageWidget...");
         }
       }
     });
@@ -58,8 +85,10 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
   // ✅ Track Queue Position in Real-Time
   void _trackQueuePosition() {
+    String collectionPath = "safe_talk/${widget.sessionType.toLowerCase()}/queue";
+
     FirebaseFirestore.instance
-        .collection("safe_space/chat/queue")
+        .collection(collectionPath)
         .orderBy("timestamp", descending: false)
         .snapshots()
         .listen((snapshot) {
@@ -77,45 +106,47 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
     });
   }
 
-  // ✅ Automatically Join Video Call (Ensuring Call Room Exists)
-  void _autoJoinVideoCall(String? roomId) {
-    if (roomId != null && roomId.isNotEmpty) {
-      Future.delayed(Duration.zero, () {
-        print("🎥 Auto-joining Video Call Room: $roomId");
-
-        try {
-          if (mounted) {
-            print("🔥 Navigating to Video Call Screen...");
-
-            // ✅ Navigate to VideoCallScreen with the Room ID (No Named Route)
-            Get.off(() => VideoCallScreen(roomId: roomId)); // Replaces the current screen
-
-          } else {
-            print("⚠️ Widget not mounted, cannot navigate.");
-          }
-        } catch (e) {
-          print("❌ Error navigating to video call: $e");
-        }
-      });
-    } else {
-      print("⚠️ Room ID is empty. Cannot join.");
+  // ✅ Function to Save Room ID to Firestore
+  Future<void> _saveRoomToFirestore(String roomId) async {
+    if (widget.sessionType.isEmpty || widget.userId.isEmpty) {
+      print("❌ ERROR: Missing sessionType or userId. Cannot save room.");
+      return;
     }
   }
 
-  // ✅ Remove User from Queue (Only When Leaving Manually)
-  void _leaveQueue() async {
-    await FirebaseFirestore.instance
-        .collection("safe_space/chat/queue")
-        .doc(widget.userId)
-        .delete();
-    print("🛑 User removed from queue.");
+  // ✅ Remove User from Queue
+  Future<void> _leaveQueue() async {
+    if (_hasLeftQueue || _isNavigating) return;
+    _hasLeftQueue = true;
+
+    try {
+      String collectionPath = "safe_talk/${widget.sessionType.toLowerCase()}/queue";
+
+      await FirebaseFirestore.instance
+          .collection(collectionPath)
+          .doc(widget.userId)
+          .delete();
+
+      print("🛑 User removed from queue.");
+    } catch (e) {
+      print("❌ Error removing user from queue: $e");
+    }
   }
 
   // ✅ Detect App Close & Remove from Queue
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
-      print("📴 App Paused/Closed - Not removing user automatically.");
+    if ((state == AppLifecycleState.paused || state == AppLifecycleState.detached) && !_isNavigating) {
+      print("📴 App Paused or Force Closed - Removing user from queue...");
+      _leaveQueue();
+    }
+  }
+
+  void _connectingLoadingCompleted() {
+    if (mounted) {
+      setState(() {
+        connectingLoading = false;
+      });
     }
   }
 
@@ -123,14 +154,49 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
   void dispose() {
     queueSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+
+    if (!_isNavigating) {
+      _leaveQueue();
+    }
+
+    _callController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // ✅ If Talk session is ongoing, show CallPageWidget instead
+    if (isOngoing && widget.sessionType.toLowerCase() == "talk" && _currentRoomId != null) {
+      return Scaffold(
+        backgroundColor: const Color.fromARGB(255, 26, 26, 26),
+        appBar: AppBar(
+          backgroundColor: Colors.grey.shade800,
+          leading: const SizedBox(),
+          centerTitle: true,
+          title: Text(
+            "Room ID: $_currentRoomId",
+            style: const TextStyle(fontSize: 15, color: Colors.white),
+          ),
+        ),
+        body: CallPageWidget(
+          connectingLoading: connectingLoading,
+          roomId: _currentRoomId ?? "",
+          remoteVideo: _callController.remoteVideo,
+          localVideo: _callController.localVideo,
+          leaveCall: _leaveQueue,
+          switchCamera: _callController.switchCamera,
+          toggleCamera: _callController.toggleCamera,
+          toggleMic: _callController.toggleMic,
+          isAudioOn: _callController.isAudioOn,
+          isVideoOn: _callController.isVideoOn,
+          isCaller: false,
+        ),
+      );
+    }
+
     return WillPopScope(
       onWillPop: () async {
-        _leaveQueue();
+        await _leaveQueue();
         return true;
       },
       child: Scaffold(
@@ -148,7 +214,6 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
               ),
               const SizedBox(height: 20),
 
-              // ✅ Live Queue Position Indicator
               Text(
                 isOngoing
                     ? "Your session is starting! Redirecting..."
@@ -158,31 +223,24 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
               ),
               const SizedBox(height: 30),
 
-              // ✅ Manual Join Button (if not auto-redirected)
-              if (isOngoing && callRoom != null && callRoom!.isNotEmpty)
+              if (isOngoing && widget.sessionType.toLowerCase() == "talk" && callRoom != null)
                 ElevatedButton(
                   onPressed: () {
-                    _autoJoinVideoCall(callRoom!);
+                    _isNavigating = true;
+                    setState(() {});
                   },
                   child: const Text("Join Video Call"),
                 ),
 
-              // ✅ Leave Queue Button (Only Removes When Pressed)
               GestureDetector(
-                onTap: () {
-                  _leaveQueue();
-                  Navigator.pop(context);
+                onTap: () async {
+                  await _leaveQueue();
+                  if (mounted) Navigator.pop(context);
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    "Leave Queue",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
+                  decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(8)),
+                  child: const Text("Leave Queue", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                 ),
               ),
             ],

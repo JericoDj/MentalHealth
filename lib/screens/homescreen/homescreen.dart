@@ -7,8 +7,7 @@ import '../../controllers/achievements_controller.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/progress_controller.dart';
 import '../../controllers/user_progress_controller.dart';
-import '../../widgets/homescreen_widgets/safe_space.dart';
-import '../../widgets/homescreen_widgets/welcome_message_section.dart';
+import '../../widgets/homescreen_widgets/safe_talk_button.dart';
 import '../../widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
 
 class HomeScreen extends StatelessWidget {

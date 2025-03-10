@@ -29,6 +29,36 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
   }
 
   // ✅ Navigate to Queue Screen & Save Request in Firestore
+  // void _navigateToQueueScreen() async {
+  //   if (userId == null || userId!.isEmpty) {
+  //     Get.snackbar("Error", "User not found. Please log in again.");
+  //     print("❌ ERROR: User ID is missing.");
+  //     return;
+  //   }
+  //
+  //   if (_selectedAction != null) {
+  //     String sessionType = _selectedAction == "chat" ? "Chat" : "Talk";
+  //
+  //     try {
+  //
+  //
+  //
+  //       // ✅ Navigate to `CallPage` & Wait for Room ID
+  //       String? newRoomId = await Get.to(() => CallPage(
+  //         roomId: null,
+  //         isCaller: true,
+  //         sessionType: sessionType,
+  //         userId: userId!,
+  //       )) ?? null;
+  //
+  //     } catch (e) {
+  //       print("❌ Firestore Write Error: $e");
+  //       Get.snackbar("Error", "Failed to add request to queue: $e");
+  //     }
+  //   }
+  // }
+
+
   void _navigateToQueueScreen() async {
     if (userId == null || userId!.isEmpty) {
       Get.snackbar("Error", "User not found. Please log in again.");
@@ -37,30 +67,39 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
     }
 
     if (_selectedAction != null) {
-      String sessionType = _selectedAction == "chat" ? "Chat" : "Talk";
-
-
-
-
+      String sessionType = _selectedAction == "chat" ? "chat" : "talk"; // Define session type
+      String formattedSessionType =
+          sessionType[0].toUpperCase() + sessionType.substring(1); // Capitalize first letter
+      String collectionPath = "safe_talk/$sessionType/queue"; // Dynamic Firestore path
 
       try {
+        // ✅ Save Request to Firestore Queue in the appropriate collection
+        await FirebaseFirestore.instance
+            .collection(collectionPath)
+            .doc(userId!)
+            .set({
+          "userId": userId,
+          "sessionType": formattedSessionType, // Store as "Chat" or "Talk"
+          "status": "queue", // Status is now "queue"
+          "timestamp": FieldValue.serverTimestamp(), // Timestamp for ordering
+        });
 
+        print("✅ User added to $formattedSessionType queue");
 
-
-        // ✅ Navigate to `CallPage` & Wait for Room ID
-        String? newRoomId = await Get.to(() => CallPage(
-          roomId: null,
-          isCaller: true,
-          sessionType: sessionType,
+        // ✅ Navigate to Queue Screen
+        Get.to(() => QueueScreen(
+          sessionType: formattedSessionType, // Pass as "Chat" or "Talk"
           userId: userId!,
-        )) ?? null;
-
+        ));
       } catch (e) {
         print("❌ Firestore Write Error: $e");
         Get.snackbar("Error", "Failed to add request to queue: $e");
       }
     }
   }
+
+
+
 
 
 
