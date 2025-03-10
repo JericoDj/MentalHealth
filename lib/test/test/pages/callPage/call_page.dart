@@ -45,7 +45,7 @@ class _CallPageState extends State<CallPage> {
         });
       },
       onCallEnded: _leaveCall,
-      onConnectionEstablished: _connectingLoadingCompleted,
+      onConnectionEstablished: _connectingLoadingCompleted, onStateChanged: () {  },
     );
 
     Future.delayed(const Duration(milliseconds: 100), () async {

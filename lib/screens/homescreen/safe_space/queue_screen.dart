@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get/get.dart';
 import '../../../controllers/call_controller.dart';
 import '../../../test/test/pages/callPage/components/call_page_widget.dart';
@@ -28,6 +29,8 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
   bool connectingLoading = true;
   String? _currentRoomId;
 
+
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +46,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
         });
       },
       onCallEnded: _leaveQueue,
-      onConnectionEstablished: _connectingLoadingCompleted,
+      onConnectionEstablished: _connectingLoadingCompleted, onStateChanged: () {  },
     );
   }
 
@@ -114,6 +117,13 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
     }
   }
 
+  void _leaveCall() {
+    if (mounted) {
+      Navigator.pop(context);
+      _callController.dispose();
+    }
+  }
+
   // ✅ Remove User from Queue
   Future<void> _leaveQueue() async {
     if (_hasLeftQueue || _isNavigating) return;
@@ -165,6 +175,8 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+
+
     // ✅ If Talk session is ongoing, show CallPageWidget instead
     if (isOngoing && widget.sessionType.toLowerCase() == "talk" && _currentRoomId != null) {
       return Scaffold(
@@ -183,7 +195,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
           roomId: _currentRoomId ?? "",
           remoteVideo: _callController.remoteVideo,
           localVideo: _callController.localVideo,
-          leaveCall: _leaveQueue,
+          leaveCall: _leaveCall,
           switchCamera: _callController.switchCamera,
           toggleCamera: _callController.toggleCamera,
           toggleMic: _callController.toggleMic,
@@ -192,7 +204,13 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
           isCaller: false,
         ),
       );
+
+
     }
+
+
+
+
 
     return WillPopScope(
       onWillPop: () async {

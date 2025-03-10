@@ -8,6 +8,7 @@ class CallController {
   final Function(String) onRoomIdGenerated;
   final Function() onCallEnded;
   final Function() onConnectionEstablished;
+  final Function() onStateChanged; // Notify UI when state changes
 
   RTCPeerConnection? peerConnection;
   final RTCVideoRenderer localVideo = RTCVideoRenderer();
@@ -23,6 +24,7 @@ class CallController {
     required this.onRoomIdGenerated,
     required this.onCallEnded,
     required this.onConnectionEstablished,
+    required this.onStateChanged, // Pass state change callback
   });
 
   Future<void> init(String? roomId) async {
@@ -92,7 +94,10 @@ class CallController {
     localStream?.getAudioTracks().forEach((track) {
       track.enabled = isAudioOn;
     });
+    onStateChanged(); // Notify UI
   }
+
+
 
   void toggleCamera() {
     isVideoOn = !isVideoOn;

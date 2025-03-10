@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.llps.mental_health.llps_mental_app-mergeDebugResources-69:/values-v16/values-v16.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\dejes\\.gradle\\caches\\transforms-3\\33cd59bf8d7ed4b9fec5d47685ffc88d\\transformed\\appcompat-1.6.1\\res\\values-v16\\values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "223"
+                    }
+                }
+            ]
+        }
+    ]
+}

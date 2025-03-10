@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">120005958239</string>
+    <string name="google_api_key" translatable="false">AIzaSyA1IrsQ13Oqrhn8FajLQD3_PjDFDVadfy8</string>
+    <string name="google_app_id" translatable="false">1:120005958239:android:58bec37d37fb54909e99ea</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyA1IrsQ13Oqrhn8FajLQD3_PjDFDVadfy8</string>
+    <string name="google_storage_bucket" translatable="false">llps-mentalapp.firebasestorage.app</string>
+    <string name="project_id" translatable="false">llps-mentalapp</string>
+</resources>
