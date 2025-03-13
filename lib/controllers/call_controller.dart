@@ -1,7 +1,10 @@
-// call_controller.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import '../test/test/services/webrtc_service.dart'; // Adjust the import path as needed
+import 'package:llps_mental_app/screens/homescreen/call_ended_screen.dart';
+import '../test/test/services/webrtc_service.dart';
+import '../widgets/navigation_bar.dart'; // Adjust the import path as needed
 
 class CallController {
   final WebRtcService fbCallService;
@@ -18,6 +21,7 @@ class CallController {
   bool isAudioOn = true;
   bool isVideoOn = true;
   bool isFrontCameraSelected = true;
+  bool _isNavigating = false; // ✅ Added flag to prevent multiple exits
 
   CallController({
     required this.fbCallService,
@@ -50,7 +54,7 @@ class CallController {
         iceStatusListen();
       }
     } catch (e) {
-      debugPrint("************** CallController.init: $e");
+      debugPrint("❌ CallController.init Error: $e");
     }
   }
 
@@ -114,14 +118,53 @@ class CallController {
     });
   }
 
-  void dispose() async {
-    peerConnection?.close();
-    localStream?.getTracks().forEach((track) {
-      track.stop();
-    });
-    await localVideo.dispose();
-    await remoteVideo.dispose();
-    localStream?.dispose();
-    peerConnection?.dispose();
+  /// ✅ Enhanced `dispose()` for Clean Exit and Navigation
+  Future<void> dispose({
+    required BuildContext context,
+    String? userId,
+    String? sessionType,
+  }) async {
+    if (_isNavigating) return; // ✅ Prevent multiple exits
+    _isNavigating = true;
+
+    debugPrint("🔥 Leaving Call and Cleaning Resources...");
+
+    try {
+      // ✅ Stop Media Tracks (Camera + Mic)
+      localStream?.getTracks().forEach((track) => track.stop());
+
+      // ✅ Clean Video Renders
+      await localVideo.dispose();
+      await remoteVideo.dispose();
+      localStream?.dispose();
+      peerConnection?.dispose();
+
+      // ✅ Firestore Status Change
+      if (userId != null && sessionType != null) {
+        await FirebaseFirestore.instance
+            .collection("safe_talk/${sessionType.toLowerCase()}/queue")
+            .doc(userId)
+            .set({
+          'status': 'finished'
+        }, SetOptions(merge: true));
+      }
+
+      // ✅ Navigate Back Using `Navigator.pushReplacement`
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CallEndedScreen(),
+          ),
+        );
+        debugPrint("✅ Successfully Navigated Back!");
+      } else {
+        debugPrint("❗ Unable to Navigate Back. Context is Unmounted.");
+      }
+    } catch (e) {
+      debugPrint("❌ Error during Leave Call Process: $e");
+    }
+
+    _isNavigating = false;
   }
 }

@@ -112,7 +112,10 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                     if (_dragReachedEnd) {
                       // Only navigate when the drag reaches the end
                       Navigator.of(context).pop(); // Close popup
-                      Get.to(() => CallingScreen()); // Navigate to calling screen
+                      Get.to(() => CallingCustomerSupportScreen(
+                        roomId: null,
+                        isCaller: true,  // ✅ Corrected this line (Removed `()` after `true`)
+                      )); // Navigate to calling screen
                     } else {
                       // Reset the drag position if not completed
                       setState(() => _dragPosition = 0);

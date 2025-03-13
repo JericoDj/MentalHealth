@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../../controllers/call_controller.dart';
+import '../../../../widgets/navigation_bar.dart';
 import '../../services/webrtc_service.dart';
 import 'components/call_page_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -98,7 +100,11 @@ class _CallPageState extends State<CallPage> {
         roomId: _currentRoomId ?? "",
         remoteVideo: _callController.remoteVideo,
         localVideo: _callController.localVideo,
-        leaveCall: _leaveCall,
+        leaveCall: () => _callController.dispose(
+          context: context,          // ✅ Correct navigation context
+          userId: widget.userId,     // ✅ Firestore cleanup
+          sessionType: widget.sessionType,
+        ),
         switchCamera: _callController.switchCamera,
         toggleCamera: _callController.toggleCamera,
         toggleMic: _callController.toggleMic,
@@ -119,14 +125,13 @@ class _CallPageState extends State<CallPage> {
 
   void _leaveCall() {
     if (mounted) {
-      Navigator.pop(context);
-      _callController.dispose();
+      Get.off(() => NavigationBarMenu(dailyCheckIn: false,));
     }
   }
 
   @override
   void dispose() {
-    _callController.dispose();
+
     super.dispose();
   }
 }
