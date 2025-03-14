@@ -56,7 +56,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
         });
       },
       onCallEnded: _leaveQueue,
-      onConnectionEstablished: _connectingLoadingCompleted,
+      onConnectionEstablished: _connectingLoadingCompleted, onStateChanged: () {  },
     );
 
     _chatController = ChatController(
