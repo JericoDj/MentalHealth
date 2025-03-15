@@ -331,9 +331,11 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                         ],
                       ),
                     ),
+
                     GestureDetector(
                       onTap: () {
                         setState(() {
+                          _callController.toggleMic(); // ✅ Correctly call toggleMic() here
                           isSpeakerMuted = !isSpeakerMuted;
                         });
                       },
@@ -359,7 +361,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                           Text(isSpeakerMuted ? "Speaker Off" : "Speaker On"),
                         ],
                       ),
-                    ),
+                    )
                   ],
                 ),
 

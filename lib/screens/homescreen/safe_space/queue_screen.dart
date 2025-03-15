@@ -303,7 +303,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
         localVideo: _callController.localVideo,
         leaveCall: () => _leaveCall(),
         switchCamera: _callController.switchCamera,
-        toggleCamera: _callController.toggleCamera,
+        toggleCamera: (){},
         toggleMic: _callController.toggleMic,
         isAudioOn: _callController.isAudioOn,
         isVideoOn: _callController.isVideoOn,

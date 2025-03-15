@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:llps_mental_app/screens/homescreen/calling_screen.dart';
 
+import '../../screens/homescreen/calling_customer_support_screen.dart';
 import '../../utils/constants/colors.dart';
 
 class CallCustomerSupportPopup extends StatefulWidget {
