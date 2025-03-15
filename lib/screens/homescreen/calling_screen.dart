@@ -1,7 +1,9 @@
+import 'dart:async'; // Import for Timer functionality
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:llps_mental_app/screens/homescreen/call_ended_screen.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
 
 import '../../controllers/call_controller.dart';
@@ -9,18 +11,16 @@ import '../../test/test/services/webrtc_service.dart';
 import '../../widgets/navigation_bar.dart';
 
 class CallingCustomerSupportScreen extends StatefulWidget {
-
   final String? roomId;
   final bool isCaller;
   final String? userId;
 
   CallingCustomerSupportScreen({
-    Key ? key,
+    Key? key,
     required this.roomId,
     required this.isCaller,
-    this.userId
-}) : super(key:key);
-
+    this.userId,
+  }) : super(key: key);
 
   @override
   _CallingScreenState createState() => _CallingScreenState();
@@ -28,58 +28,124 @@ class CallingCustomerSupportScreen extends StatefulWidget {
 
 class _CallingScreenState extends State<CallingCustomerSupportScreen> {
   late CallController _callController;
-  bool isMicMuted = false; // State for microphone
-  bool isSpeakerMuted = false; // State for speaker
+  bool isMicMuted = false;
+  bool isSpeakerMuted = false;
   bool connectingLoading = true;
-  String? _currentRoomId; // Local variable to store the room ID
-  String? _currentUserId; // ✅ Store the logged-in user's UID
+  String? _currentRoomId;
+  String? _currentUserId;
+
+  // ✅ Timer State
+  Timer? _callDurationTimer;
+  int _callDurationSeconds = 0; // Duration in seconds
+  String get formattedCallDuration {
+    final minutes = _callDurationSeconds ~/ 60;
+    final seconds = _callDurationSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+
+  // ✅ New Variable to Track Queue Count
+  int _waitingCount = 0;
 
   @override
   void initState() {
     super.initState();
     _currentRoomId = widget.roomId;
 
-    // ✅ Add Auth State Listener to track user changes and ensure UID is loaded
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
         setState(() {
           _currentUserId = user.uid;
-          print("✅ User ID Retrieved: $_currentUserId");
         });
-      } else {
-        print("❌ ERROR: User is not logged in.");
       }
     });
 
-    // Initialize CallController
     _callController = CallController(
       fbCallService: WebRtcService(),
       onRoomIdGenerated: (newRoomId) async {
         setState(() {
           _currentRoomId = newRoomId;
-          print("🔥 New Room ID: $_currentRoomId");
         });
 
-        // ✅ Retry logic to ensure UID is ready before saving
         await _ensureUserIdIsReady();
 
         if (_currentUserId != null) {
           _saveRoomToFirestore(newRoomId);
-        } else {
-          print("❌ ERROR: UID still null when attempting to save room.");
         }
       },
       onCallEnded: _leaveCall,
-      onConnectionEstablished: _connectingLoadingCompleted, onStateChanged: () {  },
+      onConnectionEstablished: _connectingLoadingCompleted,
+      onStateChanged: () {},
     );
 
     Future.delayed(const Duration(milliseconds: 100), () async {
       await _callController.openCamera();
       _callController.init(_currentRoomId);
     });
+
+    // ✅ Start Listening for Status Change to 'ongoing'
+    _listenForCallStatus();
   }
 
-// ✅ Retry Logic to Ensure UID is Ready
+  // ✅ Listen for Status Change to "ongoing"
+  // ✅ Enhanced Status Listener with Immediate UI Update
+  void _listenForCallStatus() async {
+    if (_currentUserId == null) {
+      await _ensureUserIdIsReady();
+    }
+
+    if (_currentUserId != null) {
+      FirebaseFirestore.instance
+          .collection("customer_support/voice/sessions")
+          .doc(_currentUserId)
+          .snapshots()
+          .listen((snapshot) {
+        if (snapshot.exists) {
+          final status = snapshot['status'];
+          debugPrint("🔥 Firestore Status Updated: $status");
+
+          if (status == 'ongoing') {
+            _startCallDurationTimer();
+
+            if (mounted) {
+              setState(() {
+                connectingLoading = false;  // ✅ Switch to "Duration" view
+              });
+            }
+          }
+        } else {
+          debugPrint("❌ Error: Firestore snapshot doesn't exist.");
+        }
+      }, onError: (error) {
+        debugPrint("❌ Firestore Listener Error: $error");
+      });
+    } else {
+      debugPrint("❌ ERROR: Failed to initialize _currentUserId for Firestore listener.");
+    }
+  }
+
+
+  // ✅ Timer Function
+  void _startCallDurationTimer() {
+    _callDurationTimer?.cancel(); // Cancel any previous timer
+    _callDurationSeconds = 0; // Reset timer
+
+    _callDurationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          _callDurationSeconds++;
+        });
+      }
+    });
+  }
+
+
+  // ✅ Timer Cleanup
+  void _stopCallDurationTimer() {
+    _callDurationTimer?.cancel();
+  }
+
+  // ✅ Improved Retry Logic for _ensureUserIdIsReady
   Future<void> _ensureUserIdIsReady() async {
     const int maxRetries = 5;
     const Duration retryDelay = Duration(milliseconds: 500);
@@ -87,55 +153,42 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
     int attempts = 0;
 
     while (_currentUserId == null && attempts < maxRetries) {
-      print("⏳ Waiting for UID... (Attempt $attempts)");
+      debugPrint("⏳ Waiting for UID... (Attempt $attempts)");
       await Future.delayed(retryDelay);
+      _currentUserId = FirebaseAuth.instance.currentUser?.uid;
       attempts++;
     }
 
     if (_currentUserId == null) {
-      print("❌ ERROR: Failed to retrieve UID after retries.");
+      debugPrint("❌ ERROR: Failed to retrieve UID after retries.");
     } else {
-      print("✅ UID Found: $_currentUserId");
+      debugPrint("✅ UID Found: $_currentUserId");
     }
   }
 
-// ✅ **Function to Save Room ID to Firestore for Customer Support**
   Future<void> _saveRoomToFirestore(String roomId) async {
-    // 🔄 Attempt to retrieve UID directly if null
     _currentUserId ??= FirebaseAuth.instance.currentUser?.uid;
 
     if (_currentUserId == null) {
-      print("❌ ERROR: UID is null. Attempting retry...");
-
-      // Retry logic for UID retrieval
       await _ensureUserIdIsReady();
-
-      if (_currentUserId == null) {
-        print("❌ ERROR: Failed to retrieve UID even after retries.");
-        return;
-      }
+      if (_currentUserId == null) return;
     }
 
-    // ✅ Proceed to save in Firestore
-    String collectionPath = "customer_support/voice/sessions";
-
-
     try {
-      await FirebaseFirestore.instance.collection(collectionPath).doc(_currentUserId).set({
+      await FirebaseFirestore.instance
+          .collection("customer_support/voice/sessions")
+          .doc(_currentUserId)
+          .set({
         'sessionType': 'Customer Support',
         'userId': _currentUserId,
         'roomId': roomId,
         'status': 'waiting',
         'timestamp': FieldValue.serverTimestamp(),
       });
-
-      print("🔥 Room ID Saved in Firestore (Customer Support): $roomId");
     } catch (e) {
       print("❌ Error saving room ID: $e");
     }
   }
-
-
 
   void _connectingLoadingCompleted() {
     if (mounted) {
@@ -145,10 +198,60 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
     }
   }
 
-  void _leaveCall() {
-    if (mounted) {
-      Get.off(() => NavigationBarMenu(dailyCheckIn: false,));
+  void _leaveCall() async {
+    if (_currentRoomId != null && _currentUserId != null) {
+      // ✅ Step 1: Update Firestore Status to 'finished'
+      try {
+        await FirebaseFirestore.instance
+            .collection("customer_support/voice/sessions")
+            .doc(_currentUserId)
+            .update({'status': 'finished'});
+        debugPrint("✅ Firestore Status Updated to 'finished'");
+      } catch (e) {
+        debugPrint("❌ Error Updating Firestore Status: $e");
+      }
+
+      // ✅ Step 2: Delay to Ensure Firestore Update Completes
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      // ✅ Step 3: Delete Firebase Document (Cleanup)
+      try {
+        await _callController.fbCallService.deleteFirebaseDoc(roomId: _currentRoomId!);
+        debugPrint("🔥 Firestore Document Deleted Successfully");
+      } catch (e) {
+        debugPrint("❌ Error Deleting Firestore Document: $e");
+      }
+
+      // ✅ Step 4: Stop Media Tracks and Release Resources
+      if (_callController.localStream != null) {
+        _callController.localStream?.getTracks().forEach((track) {
+          track.stop();
+        });
+        await _callController.localStream?.dispose();
+      }
+
+      await _callController.localVideo.dispose();
+      await _callController.remoteVideo.dispose();
+      await _callController.peerConnection?.dispose();
+
+      // ✅ Step 5: Stop Call Duration Timer
+      _stopCallDurationTimer();
+
+      // ✅ Step 6: Navigate to Call Ended Screen
+      if (mounted) {
+        Get.off(() => CallEndedScreen());
+      }
+    } else {
+      debugPrint("❌ ERROR: Room ID or User ID is null. Unable to leave the call.");
     }
+  }
+
+
+
+  @override
+  void dispose() {
+    _stopCallDurationTimer(); // ✅ Ensure timer is stopped when leaving screen
+    super.dispose();
   }
 
   @override
@@ -165,9 +268,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
               children: [
                 const CircleAvatar(
                   radius: 60,
-                  backgroundImage: AssetImage(
-                    "assets/avatars/Avatar1.jpeg", // Placeholder for avatar
-                  ),
+                  backgroundImage: AssetImage("assets/avatars/Avatar1.jpeg"),
                 ),
                 const SizedBox(height: 20),
                 const Text(
@@ -179,9 +280,13 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "Calling...",
-                  style: TextStyle(
+                Text(
+                  connectingLoading
+                      ? (_waitingCount > 0
+                      ? "$_waitingCount waiting in queue..."
+                      : "Waiting for available agent...")
+                      : "Duration: $formattedCallDuration",
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
                     color: Colors.black54,
@@ -193,13 +298,12 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
             // Action Buttons
             Column(
               children: [
-                // Mute/Speaker Actions
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Mute Microphone
                     GestureDetector(
                       onTap: () {
+                        _callController.toggleMic(); // 🔥 Updated Function Call
                         setState(() {
                           isMicMuted = !isMicMuted;
                         });
@@ -207,10 +311,10 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(4), // Padding inside border
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: MyColors.color2, width: 2), // Border
+                              border: Border.all(color: MyColors.color2, width: 2),
                             ),
                             child: CircleAvatar(
                               radius: 30,
@@ -223,18 +327,10 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            isMicMuted ? "Unmute" : "Mute",
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          Text(isMicMuted ? "Unmute" : "Mute"),
                         ],
                       ),
                     ),
-                    // Mute Speaker
                     GestureDetector(
                       onTap: () {
                         setState(() {
@@ -244,10 +340,10 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(4), // Padding inside border
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: MyColors.color2, width: 2), // Border
+                              border: Border.all(color: MyColors.color2, width: 2),
                             ),
                             child: CircleAvatar(
                               radius: 30,
@@ -260,14 +356,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            isSpeakerMuted ? "Speaker Off" : "Speaker On",
-                            style: const TextStyle(
-                              color: Colors.black87,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                          Text(isSpeakerMuted ? "Speaker Off" : "Speaker On"),
                         ],
                       ),
                     ),
@@ -276,11 +365,8 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
 
                 const SizedBox(height: 30),
 
-                // End Call Button
                 GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop(); // Mock action for ending the call
-                  },
+                  onTap: _leaveCall,
                   child: CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.redAccent,
@@ -292,14 +378,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  "End Call",
-                  style: TextStyle(
-                    color: Colors.black54,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                const Text("End Call"),
               ],
             ),
           ],

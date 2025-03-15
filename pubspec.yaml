@@ -58,7 +58,7 @@ dependencies:
 
 
 
-  flutter_webrtc: ^0.12.12  # Downgrade to a stable version
+  flutter_webrtc: ^0.12.12+hotfix.1  # Downgrade to a stable version
 
 
 

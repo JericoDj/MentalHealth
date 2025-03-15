@@ -83,15 +83,20 @@ class CallController {
     peerConnection?.onIceConnectionState = (iceConnectionState) async {
       if (iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateConnected ||
           iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateCompleted) {
+        debugPrint("✅ WebRTC Connection Established");
+
+        // ✅ Update UI State Immediately When Connection is Ready
         onConnectionEstablished();
       }
 
       if (iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateDisconnected ||
           iceConnectionState == RTCIceConnectionState.RTCIceConnectionStateFailed) {
+        debugPrint("❌ WebRTC Disconnected or Failed");
         onCallEnded();
       }
     };
   }
+
 
   void toggleMic() {
     isAudioOn = !isAudioOn;
@@ -134,8 +139,8 @@ class CallController {
       localStream?.getTracks().forEach((track) => track.stop());
 
       // ✅ Clean Video Renders
-      await localVideo.dispose();
-      await remoteVideo.dispose();
+          await localVideo.dispose();
+          await remoteVideo.dispose();
       localStream?.dispose();
       peerConnection?.dispose();
 

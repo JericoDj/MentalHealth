@@ -44,7 +44,7 @@ class TalkController extends GetxController {
         _saveRoomToFirestore(newRoomId);
       },
       onCallEnded: leaveQueue,
-      onConnectionEstablished: () => connectingLoading.value = false,
+      onConnectionEstablished: () => connectingLoading.value = false, onStateChanged: () {  },
     );
   }
 
