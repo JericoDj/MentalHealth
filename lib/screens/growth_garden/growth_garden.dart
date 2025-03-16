@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:llps_mental_app/screens/growth_garden/widgets/gratitude_journaling_widget.dart';
+import 'package:llps_mental_app/screens/growth_garden/widgets/gratitude_journaling_widget/gratitude_journaling_widget.dart';
 import 'package:llps_mental_app/screens/growth_garden/widgets/insight_quest.dart';
 import 'package:llps_mental_app/screens/growth_garden/widgets/mindhub.dart';
 import 'package:llps_mental_app/screens/growth_garden/widgets/quick_wellness_tools.dart';
@@ -20,7 +20,7 @@ class GrowthGardenScreen extends StatelessWidget {
               children: [
 
 
-                ThriveGuide(),
+                ThriveGuideScreen(),
 
                 const SizedBox(height: 15),
 

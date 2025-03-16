@@ -24,6 +24,32 @@
     <key>NSAllowsArbitraryLoads</key>
     <true/>
 
+    <!-- ✅ Required for Local Notifications -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>processing</string>
+        <string>external-accessory</string>
+    </array>
+
+    <key>NSUserNotificationAlertStyle</key>
+    <string>alert</string>
+
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+
+    <!-- ✅ Required for iOS 14+ Local Notifications -->
+    <key>UNNotificationExtensionUserInteractionEnabled</key>
+    <true/>
+
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>This app requires location access to send you reminders.</string>
+
+
+
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
 

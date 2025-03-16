@@ -83,6 +83,11 @@ dependencies:
   firebase_storage: ^12.3.7
 
 
+
+  flutter_local_notifications: ^19.0.0
+  timezone: ^0.10.0
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -120,6 +125,17 @@ flutter:
     - assets/avatars/Avatar3.jpeg
     - assets/avatars/Avatar4.jpeg
     - assets/avatars/Avatar5.jpeg
+    - assets/images/IMG_8242.JPG
+    - assets/images/IMG_8246.JPG
+    - assets/images/IMG_8289.JPG
+    - assets/images/IMG_8298.JPG
+    - assets/images/IMG_8310.JPG
+    - assets/images/IMG_8319.JPG
+    - assets/images/IMG_8328.JPG
+    - assets/images/homescreen/Consultation.jpg
+    - assets/images/homescreen/Counselling.jpg
+    - assets/images/homescreen/CoupleTherapy.jpg
+    - assets/images/homescreen/PsychologicalAssessment.jpg
 
 
   # To add custom fonts to your application, add a fonts section here,

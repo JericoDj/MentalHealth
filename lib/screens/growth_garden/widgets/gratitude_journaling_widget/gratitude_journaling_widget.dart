@@ -1,15 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../../../utils/constants/colors.dart';
-import '../monthlyjournaloverviewpage.dart';
+import '../../../../utils/constants/colors.dart';
+import '../../monthlyjournaloverviewpage.dart';
 
 class GratitudeJournalWidget extends StatefulWidget {
+
   @override
   _GratitudeJournalWidgetState createState() => _GratitudeJournalWidgetState();
 }
 
 class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   Map<String, List<String>> journalEntries = {};
   String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
   DateTime selectedMonth = DateTime.now();
@@ -44,6 +50,45 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
         'I am grateful for my home.',
       ],
     };
+  }
+
+  // Firestore Saving Logic
+  Future<void> _saveToFirestore(String entry) async {
+    final String? uid = _auth.currentUser?.uid;
+
+    if (uid != null) {
+      await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('Journals')
+          .doc(currentDate)
+          .set({
+        'date': currentDate,
+        'notes': FieldValue.arrayUnion([entry]),
+      }, SetOptions(merge: true)).catchError((error) {
+        print("Error saving entry: $error");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error saving entry. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Entry saved successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User not logged in. Unable to save entry.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -375,16 +420,65 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                setState(() {
-                  journalEntries[currentDate] ??= [];
-                  if (index == null) {
-                    journalEntries[currentDate]!.add(_controller.text);
+              onTap: () async {
+                String entry = _controller.text.trim();
+
+                if (entry.isNotEmpty) {
+                  // Add entry locally
+                  setState(() {
+                    journalEntries[currentDate] ??= [];
+                    if (index == null) {
+                      journalEntries[currentDate]!.add(entry);
+                    } else {
+                      journalEntries[currentDate]![index] = entry;
+                    }
+                  });
+
+                  // Firestore Save Logic
+                  final String? uid = FirebaseAuth.instance.currentUser?.uid;
+                  if (uid != null) {
+                    await FirebaseFirestore.instance
+                        .collection('users')
+                        .doc(uid)
+                        .collection('Journals')
+                        .doc(currentDate)
+                        .set({
+                      'date': currentDate,
+                      'notes': FieldValue.arrayUnion([entry]),
+                    }, SetOptions(merge: true)).then((_) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Entry saved successfully!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }).catchError((error) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error saving entry: $error'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    });
                   } else {
-                    journalEntries[currentDate]![index] = _controller.text;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('User not logged in. Unable to save entry.'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
-                });
-                Navigator.pop(context);
+
+                  // Close Dialog
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please write something before saving.'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                }
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -397,7 +491,8 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                   style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
-            ),
+            )
+
           ],
         );
       },
