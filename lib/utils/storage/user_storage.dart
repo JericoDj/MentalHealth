@@ -18,87 +18,91 @@ class UserStorage {
     _storage.remove("uid");
     clearMoods();
     clearStressLevels();
-    deletePlanDetails(); // 🔥 Ensure plan details are also cleared
+    deletePlanDetails();
   }
 
-  // ✅ **Store stress levels locally (without duplicates)**
+  // ✅ Store stress levels locally
   void saveStressLevels(Map<String, int> newStressLevels) {
-    Map<String, int> existingStress = _storage.read("storedStressLevels") ?? {};
-
-    // 🔥 Add only missing stress levels
-    newStressLevels.forEach((date, stress) {
-      if (!existingStress.containsKey(date)) {
-        existingStress[date] = stress;
-      }
-    });
-
-    _storage.write("storedStressLevels", existingStress);
+    final existing = getStoredStressLevels();
+    existing.addAll(newStressLevels);
+    _storage.write("storedStressLevels", existing);
   }
 
-  // ✅ **Retrieve stored stress levels**
+  // ✅ Retrieve stored stress levels with type safety
   Map<String, int> getStoredStressLevels() {
-    return _storage.read("storedStressLevels") ?? {};
+    final raw = _storage.read("storedStressLevels") as Map<String, dynamic>? ?? {};
+    return raw.map<String, int>(
+          (key, value) => MapEntry(key, _convertToInt(value)),
+    );
   }
 
-  // ✅ **Clear stored stress levels**
+  // ✅ Clear stress levels
   void clearStressLevels() {
     _storage.remove("storedStressLevels");
   }
 
-  // ✅ **Store stress data locally (without duplicates)**
+  // ✅ Store stress data locally
   void saveStressData(Map<String, double> newStressData) {
-    Map<String, double> existingStressData = _storage.read("storedStressData") ?? {};
-
-    // 🔥 Add only missing stress data
-    newStressData.forEach((date, stress) {
-      if (!existingStressData.containsKey(date)) {
-        existingStressData[date] = stress;
-      }
-    });
-
-    _storage.write("storedStressData", existingStressData);
+    final existing = getStoredStressData();
+    existing.addAll(newStressData);
+    _storage.write("storedStressData", existing);
   }
 
-  // ✅ **Retrieve stored stress data**
+  // ✅ Retrieve stress data with type conversion
   Map<String, double> getStoredStressData() {
-    return _storage.read("storedStressData") ?? {};
+    final raw = _storage.read("storedStressData") as Map<String, dynamic>? ?? {};
+    return raw.map<String, double>(
+          (key, value) => MapEntry(key, _convertToDouble(value)),
+    );
   }
 
-  // ✅ **Store moods locally**
+  // ✅ Store moods locally
   void saveMoods(Map<String, String> newMoods) {
-    Map<String, String> existingMoods = _storage.read("storedMoods") ?? {};
-
-    newMoods.forEach((date, mood) {
-      if (!existingMoods.containsKey(date)) {
-        existingMoods[date] = mood;
-      }
-    });
-
-    _storage.write("storedMoods", existingMoods);
+    final existing = getStoredMoods();
+    existing.addAll(newMoods);
+    _storage.write("storedMoods", existing);
   }
 
-  // ✅ **Retrieve stored moods**
+  // ✅ Retrieve moods with type safety
   Map<String, String> getStoredMoods() {
-    return _storage.read("storedMoods") ?? {};
+    final raw = _storage.read("storedMoods") as Map<String, dynamic>? ?? {};
+    return raw.map<String, String>(
+          (key, value) => MapEntry(key, value.toString()),
+    );
   }
 
-  // ✅ **Clear stored moods**
+  // ✅ Clear moods
   void clearMoods() {
     _storage.remove("storedMoods");
   }
 
-  // ✅ **Save selected plan details**
+  // ✅ Save plan details
   void savePlanDetails(Map<String, dynamic> planDetails) {
     _storage.write('selectedPlan', planDetails);
   }
 
-  // ✅ **Retrieve saved plan details**
+  // ✅ Retrieve plan details
   Map<String, dynamic>? getPlanDetails() {
-    return _storage.read('selectedPlan');
+    return _storage.read('selectedPlan') as Map<String, dynamic>?;
   }
 
-  // ✅ **Delete selected plan details**
+  // ✅ Delete plan details
   void deletePlanDetails() {
     _storage.remove('selectedPlan');
+  }
+
+  // 🔥 Type conversion helpers
+  double _convertToDouble(dynamic value) {
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? 0.0;
+    return 0.0;
+  }
+
+  int _convertToInt(dynamic value) {
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
   }
 }

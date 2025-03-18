@@ -11,7 +11,7 @@ class StressLevelSection extends StatelessWidget {
   }) : _sectionKeys = sectionKeys, super(key: key);
 
   final List<GlobalKey<State<StatefulWidget>>> _sectionKeys;
-  final StressController _stressController = Get.put(StressController());
+  final StressController stressController = Get.put(StressController());
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class StressLevelSection extends StatelessWidget {
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87),
                   ),
                   DropdownButton<String>(
-                    value: _stressController.selectedPeriod.value,
+                    value: stressController.selectedPeriod.value,
                     dropdownColor: Colors.white,
                     style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
                     underline: Container(height: 1, color: Colors.black38),
@@ -69,7 +69,7 @@ class StressLevelSection extends StatelessWidget {
                       );
                     }).toList(),
                     onChanged: (value) {
-                      _stressController.updatePeriod(value!);
+                      stressController.updatePeriod(value!);
                     },
                   ),
                 ],
@@ -97,7 +97,7 @@ class StressLevelSection extends StatelessWidget {
 
   // ✅ Detailed Stress Level Section (Good, Moderate, High, Critical)
   Widget _buildDetailedStressLevel() {
-    double avgStress = _stressController.averageStressLevel.value;
+    double avgStress = stressController.averageStressLevel.value;
     String stressCategory = _getStressCategory(avgStress);
     Color stressColor = _getStressColor(stressCategory);
 
@@ -140,7 +140,7 @@ class StressLevelSection extends StatelessWidget {
 
   // ✅ Pie Chart Data
   List<PieChartSectionData> _buildPieChartSections() {
-    return _stressController.stressData.entries.map((entry) {
+    return stressController.stressData.entries.map((entry) {
       final isHighlighted = entry.value > 30;
       final color = _getSectionColor(entry.key);
 
@@ -172,9 +172,9 @@ class StressLevelSection extends StatelessWidget {
   Widget _buildRecommendations() {
     String recommendation = "You're doing great! Keep practicing mindfulness.";
 
-    if (_stressController.stressData["High"]! > 30) {
+    if (stressController.stressData["High"]! > 30) {
       recommendation = "High stress detected. Try deep breathing, meditation, or a short walk.";
-    } else if (_stressController.stressData["Moderate"]! > 40) {
+    } else if (stressController.stressData["Moderate"]! > 40) {
       recommendation = "Moderate stress level. Incorporate breaks, sleep well, and stay hydrated.";
     }
 
