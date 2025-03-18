@@ -55,6 +55,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
         "status": "Open",
         "reply": "",
         "created_at": FieldValue.serverTimestamp(),
+        "userId": userId, // Add the userId to the ticket
       });
 
       _ticketTitleController.clear();
@@ -69,6 +70,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
