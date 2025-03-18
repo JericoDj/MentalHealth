@@ -51,7 +51,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Welcome to Safe Spa",
+                "Welcome to Consultation Touchpoint",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -65,12 +65,8 @@ class _BookNowScreenState extends State<BookNowScreen> {
                 style: TextStyle(fontSize: 14, color: Colors.black87),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 10),
-              Text(
-                "* To book an appointment with a mental health professional, please complete the form below.",
-                style: TextStyle(fontSize: 14, color: Colors.black87),
-                textAlign: TextAlign.center,
-              ),
+
+
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () => Navigator.pop(context),
@@ -96,23 +92,27 @@ class _BookNowScreenState extends State<BookNowScreen> {
   }
 
   void _pickDate() async {
+    DateTime today = DateTime.now();
+    DateTime firstSelectableDate = today.add(const Duration(days: 2)); // Allow selection only from 2 days ahead
+    DateTime lastSelectableDate = firstSelectableDate.add(const Duration(days: 365)); // Allow up to 1 year from then
+
     final DateTime? selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: firstSelectableDate, // Default to 2 days from now
+      firstDate: firstSelectableDate, // Prevent selection of today or tomorrow
+      lastDate: lastSelectableDate, // Limit selection up to 1 year from then
       builder: (context, child) {
         return Theme(
           data: ThemeData.light().copyWith(
             primaryColor: MyColors.color2, // Header background color
             hintColor: MyColors.color2, // Hint text color
-            textTheme: TextTheme(
+            textTheme: const TextTheme(
               headlineMedium: TextStyle( // **Month & Year in header**
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
-              bodyLarge: const TextStyle( // **Selected Date Text**
+              bodyLarge: TextStyle( // **Selected Date Text**
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -124,9 +124,8 @@ class _BookNowScreenState extends State<BookNowScreen> {
               onSurface: MyColors.color1, // Normal text color
             ),
             dialogBackgroundColor: Colors.white, // Background color
-            buttonTheme: ButtonThemeData(
+            buttonTheme: const ButtonThemeData(
               textTheme: ButtonTextTheme.primary,
-              colorScheme: ColorScheme.light(primary: MyColors.color1),
             ),
           ),
           child: child!,
@@ -136,7 +135,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
 
     if (selectedDate != null) {
       setState(() {
-        _selectedDate = selectedDate;
+        _selectedDate = selectedDate; // Update selected date
       });
     }
   }

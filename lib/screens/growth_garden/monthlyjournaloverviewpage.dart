@@ -1,82 +1,74 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class MonthlyJournalOverviewPage extends StatefulWidget {
-  final DateTime? selectedDate; // Accepts date passed from GratitudeJournalWidget
+  final DateTime? selectedDate;
 
   const MonthlyJournalOverviewPage({super.key, this.selectedDate});
 
   @override
-  _MonthlyJournalOverviewPageState createState() => _MonthlyJournalOverviewPageState();
+  _MonthlyJournalOverviewPageState createState() =>
+      _MonthlyJournalOverviewPageState();
 }
 
 class _MonthlyJournalOverviewPageState extends State<MonthlyJournalOverviewPage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   late DateTime selectedMonth;
   late DateTime currentSelectedDate;
 
-  // Journal Entries (Stored in Memory)
-  Map<DateTime, String> journalEntries = {
-    DateTime(2025, 2, 2): "Had a great workout today! Feeling strong. 💪",
-    DateTime(2025, 2, 58): "Work was stressful, but I managed to stay calm.",
-    DateTime(2025, 2,
-        14): "Valentine's Day! Spent time with family and felt loved. ❤️",
-    DateTime(2025, 2, 21): "Started a new book. Excited to read more!",
-    DateTime(2025, 2, 27): "Reflecting on my goals and making progress!",
-  }.map((key, value) => MapEntry(_normalizeDate(key), value));
-
-  static DateTime _normalizeDate(DateTime date) {
-    return DateTime(date.year, date.month, date.day); // Remove time component
-  }
+  Map<DateTime, List<String>> journalEntries = {}; // ✅ Store multiple entries per date
 
   @override
   void initState() {
     super.initState();
     selectedMonth = widget.selectedDate ?? DateTime.now();
     currentSelectedDate = widget.selectedDate ?? DateTime.now();
+    _fetchJournalEntries();
+  }
+
+  /// 🔍 Fetch all journal entries for the selected month from Firestore
+  Future<void> _fetchJournalEntries() async {
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    final firstDay = DateTime(selectedMonth.year, selectedMonth.month, 1);
+    final lastDay = DateTime(selectedMonth.year, selectedMonth.month + 1, 0);
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('Journals')
+        .where('date', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(firstDay))
+        .where('date', isLessThanOrEqualTo: DateFormat('yyyy-MM-dd').format(lastDay))
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      setState(() {
+        journalEntries.clear();
+        for (var doc in snapshot.docs) {
+          DateTime entryDate = DateTime.parse(doc['date']);
+          List<String> notes = List<String>.from(doc['notes'] ?? []);
+          journalEntries[entryDate] = notes; // ✅ Store multiple entries per date
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final daysInMonth = DateUtils.getDaysInMonth(
-        selectedMonth.year, selectedMonth.month);
+    final daysInMonth = DateUtils.getDaysInMonth(selectedMonth.year, selectedMonth.month);
     final firstDay = DateTime(selectedMonth.year, selectedMonth.month, 1);
 
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-
           toolbarHeight: 65,
-          flexibleSpace: Stack(
-            children: [
-
-
-              /// Gradient Bottom Border
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 2, // Border thickness
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.orange, // Start - Orange
-                        Colors.orangeAccent, // Stop 2 - Orange Accent
-                        Colors.green, // Stop 3 - Green
-                        Colors.greenAccent, // Stop 4 - Green Accent
-                      ],
-                      stops: const [0.0, 0.5, 0.5, 1.0],
-                      // Define stops at 50% transition
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
           title: Text(
             DateFormat('MMMM y').format(selectedMonth),
             style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
@@ -97,14 +89,12 @@ class _MonthlyJournalOverviewPageState extends State<MonthlyJournalOverviewPage>
     );
   }
 
-  // 📅 Calendar Grid Showing Journal Entries
-  Widget _buildCalendarGrid(BuildContext context, int daysInMonth,
-      DateTime firstDay) {
+  /// 📅 Build Calendar Grid
+  Widget _buildCalendarGrid(BuildContext context, int daysInMonth, DateTime firstDay) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Journal Calendar', style: GoogleFonts.poppins(
-            fontSize: 18, fontWeight: FontWeight.w600)),
+        Text('Journal Calendar', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
         const SizedBox(height: 16),
         GridView.builder(
           shrinkWrap: true,
@@ -117,16 +107,14 @@ class _MonthlyJournalOverviewPageState extends State<MonthlyJournalOverviewPage>
           itemBuilder: (context, index) {
             if (index < firstDay.weekday - 1) return Container();
             final day = index - firstDay.weekday + 2;
-            final date = _normalizeDate(
-                DateTime(selectedMonth.year, selectedMonth.month, day));
+            final date = DateTime(selectedMonth.year, selectedMonth.month, day);
 
             return GestureDetector(
               onTap: () => _showJournalEntryPopup(context, date),
               child: CalendarDay(
                 day: day,
                 hasEntry: journalEntries.containsKey(date),
-                isSelected: date ==
-                    currentSelectedDate, // Highlight the selected date
+                isSelected: date == currentSelectedDate,
               ),
             );
           },
@@ -135,129 +123,190 @@ class _MonthlyJournalOverviewPageState extends State<MonthlyJournalOverviewPage>
     );
   }
 
-  // 📝 Display Journal Highlights
+  /// 📝 Display Journal Highlights in a List
   Widget _buildJournalHighlights(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Journal History', style: GoogleFonts.poppins(
-            fontSize: 18, fontWeight: FontWeight.w600)),
+        Text('Journal History', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600)),
         const SizedBox(height: 16),
         if (journalEntries.isEmpty)
-          const Text("No journal entries this month.",
-              style: TextStyle(color: Colors.grey))
+          const Text("No journal entries this month.", style: TextStyle(color: Colors.grey))
         else
           ...journalEntries.entries.map((entry) =>
               GestureDetector(
                 onTap: () => _showJournalEntryPopup(context, entry.key),
                 child: JournalHighlightCard(
                   date: entry.key,
-                  preview: entry.value,
+                  preview: entry.value.join("\n"),
                 ),
               )).toList(),
       ],
     );
   }
 
-  // 🔍 Show Journal Entry Popup (With Add & Edit Options)
+  /// 🔍 Show Popup to View or Edit Journal Entry
   void _showJournalEntryPopup(BuildContext context, DateTime date) {
     final bool hasEntry = journalEntries.containsKey(date);
-    final String existingEntry = journalEntries[date] ?? "";
-    TextEditingController journalController = TextEditingController(text: existingEntry);
+    List<String> entries = hasEntry ? List<String>.from(journalEntries[date]!) : [];
+    TextEditingController newEntryController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Rounded dialog
-          titlePadding: const EdgeInsets.all(14),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              title: Text(
                 DateFormat('MMMM dd, y').format(date),
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close, color: Colors.black54, size: 20),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 📜 Styled List of Journal Entries
+                    if (entries.isNotEmpty)
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 250), // ✅ Prevents infinite expansion
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: entries.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.grey.withOpacity(0.5)),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 4,
+                                    offset: const Offset(2, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      entries[index],
+                                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.black87),
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, color: Colors.blue),
+                                        onPressed: () {
+                                          _editJournalEntry(context, date, index, entries, setState);
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete, color: Colors.red),
+                                        onPressed: () {
+                                          setState(() {
+                                            entries.removeAt(index);
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Text(
+                          "No entries yet.",
+                          style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey),
+                        ),
+                      ),
+
+                    // ✍ Input Field for New Entries
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: TextField(
+                        controller: newEntryController,
+                        decoration: InputDecoration(
+                          hintText: "Write a new entry...",
+                          filled: true,
+                          fillColor: Colors.grey[200],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel", style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700])),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (newEntryController.text.trim().isNotEmpty) {
+                      entries.add(newEntryController.text.trim());
+                    }
+                    await _saveJournalEntry(date, entries);
+                    Navigator.pop(context);
+                  },
+                  child: Text("Save", style: GoogleFonts.poppins(fontSize: 14, color: Colors.blue)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  void _editJournalEntry(BuildContext context, DateTime date, int index, List<String> entries, Function setState) {
+    TextEditingController editController = TextEditingController(text: entries[index]);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: Text(
+            "Edit Entry",
+            style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           content: TextField(
-            controller: journalController,
-            maxLines: 4,
+            controller: editController,
             decoration: InputDecoration(
-              hintText: hasEntry ? "Edit your journal entry..." : "Write your journal entry...",
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)), // Rounded input field
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
-          actionsPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           actions: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                children: [
-                  if (hasEntry) // Show delete option if an entry exists
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          journalEntries.remove(date);
-                        });
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: Colors.red.withOpacity(0.1),
-                        ),
-                        child: const Text(
-                          "Delete",
-                          style: TextStyle(color: Colors.red, fontSize: 14, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ),
-                  const Spacer(), // Pushes buttons apart
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        color: Colors.grey.withOpacity(0.2),
-                      ),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8), // Reduced spacing between buttons
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        journalEntries[date] = journalController.text;
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: MyColors.color2,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        hasEntry ? "Save" : "Add",
-                        style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel", style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700])),
+            ),
+            TextButton(
+              onPressed: () async {
+                setState(() {
+                  entries[index] = editController.text.trim();
+                });
+                await _saveJournalEntry(date, entries);
+                Navigator.pop(context);
+              },
+              child: Text("Save", style: GoogleFonts.poppins(fontSize: 14, color: Colors.blue)),
             ),
           ],
         );
@@ -265,8 +314,23 @@ class _MonthlyJournalOverviewPageState extends State<MonthlyJournalOverviewPage>
     );
   }
 
-}
 
+
+
+
+  /// 💾 Save or Update Journal Entry
+  Future<void> _saveJournalEntry(DateTime date, List<String> entries) async {
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null || entries.isEmpty) return;
+
+    await _firestore.collection('users').doc(uid).collection('Journals').doc(DateFormat('yyyy-MM-dd').format(date)).set({
+      'date': DateFormat('yyyy-MM-dd').format(date),
+      'notes': entries, // ✅ Correctly saves as a list
+    }, SetOptions(merge: true));
+
+    _fetchJournalEntries();
+  }
+}
 // 📅 Calendar Day Widget with Journal Indicator (❤️ for entries)
 class CalendarDay extends StatelessWidget {
   final int day;
@@ -324,5 +388,4 @@ class JournalHighlightCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
+  }}

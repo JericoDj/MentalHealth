@@ -7,102 +7,270 @@ class MoodController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final UserStorage _storage = UserStorage();
 
-  var selectedPeriod = "Weekly".obs; // Default selection
-  var moodData = <String, int>{}.obs; // Mood frequency counts
-  var dailyMoods = <String, String>{}.obs; // Mood per day
+  var selectedPeriod = "Weekly".obs;
+  var moodData = <String, int>{}.obs;
+  var dailyMoods = <String, String>{}.obs;
 
   final List<String> _allMoods = ["Happy", "Neutral", "Sad", "Angry", "Anxious"];
 
   @override
   void onInit() {
     super.onInit();
-    fetchUserMoods(); // Fetch data when the controller initializes
+    _loadMoodsFromStorage();
   }
+
+
+
+
+  /// ✅ **Save Mood & Stress Level to Firestore**
+  Future<void> saveMoodTracking(String mood, int stressLevel) async {
+    String? uid = _storage.getUid(); // Get current user UID from local storage
+
+    if (uid == null) {
+      Get.snackbar("Error", "User ID not found. Please log in again.");
+      return;
+    }
+
+    String todayDate = DateTime.now().toIso8601String().split('T')[0]; // YYYY-MM-DD format
+    String moodEmoji = getMoodEmoji(mood); // Convert mood to emoji
+
+
+
+
+    try {
+      await _firestore.collection("users").doc(uid)
+          .collection("moodTracking")
+          .doc(todayDate)
+          .set({
+        "mood": mood,
+        "moodEmoji": moodEmoji, // Store the emoji representation in Firestore
+        "stressLevel": stressLevel,
+        "timestamp": Timestamp.now(),
+      });
+
+      // Update local state to reflect the new mood immediately
+      dailyMoods[todayDate] = moodEmoji; // ✅ Store the emoji instead of text
+      _storage.saveMoods({todayDate: moodEmoji}); // Save to local storage
+
+      Get.snackbar("Success", "Mood tracking saved successfully!");
+    } catch (e) {
+      Get.snackbar("Error", "Failed to save mood tracking: $e");
+    }
+  }
+
+  // ✅ Convert Mood Text to Emoji
+  String getMoodEmoji(String mood) {
+    switch (mood.toLowerCase()) { // Convert to lowercase for consistency
+      case "happy":
+        return "😃";
+      case "neutral":
+        return "😐";
+      case "sad":
+        return "😔";
+      case "angry":
+        return "😡";
+      case "anxious":
+        return "😰";
+      default:
+        return "◽️"; // Default emoji for missing data
+    }
+  }
+
+
+  // ✅ **Get Weekly Moods (latest 7 days)**
+  // ✅ **Get Weekly Moods (latest 7 days)**
+  Future<Map<String?, String?>> getWeeklyMoods() async {
+    String? uid = _storage.getUid();
+    if (uid == null) return {};
+
+    // Fetch moods for the last 7 days
+    DateTime now = DateTime.now();
+    List<String> missingDates = [];
+
+    // Get the 7 most recent dates
+    for (int i = 0; i < 7; i++) {
+      String date = DateFormat('yyyy-MM-dd').format(now.subtract(Duration(days: i)));
+      if (!dailyMoods.containsKey(date)) {
+        missingDates.add(date);
+      }
+    }
+
+    // If there are missing dates, fetch them from Firestore
+    if (missingDates.isNotEmpty) {
+      print("🔍 Fetching missing moods for: $missingDates");
+
+      try {
+        Map<String, String> newMoods = {};
+
+        for (String date in missingDates) {
+          DocumentSnapshot<Map<String, dynamic>> moodDoc = await _firestore
+              .collection("users")
+              .doc(uid)
+              .collection("moodTracking")
+              .doc(date)
+              .get();
+
+          String mood = "⬜"; // Default to empty mood
+          if (moodDoc.exists && moodDoc.data() != null) {
+            // Safely retrieve the mood value and cast it as a String
+            mood = moodDoc.data()!["mood"]?.toString() ?? "⬜"; // Ensure it's a String
+          }
+
+          newMoods[date] = mood;
+          print("📆 Date: $date | Mood: $mood");
+        }
+
+        // Save the fetched moods to local storage
+        dailyMoods.addAll(newMoods);
+        _storage.saveMoods(newMoods);  // ✅ Save to local storage
+        print("✅ Fetched and stored new moods: $newMoods");
+        return newMoods;
+      } catch (e) {
+
+        return {};
+      }
+    } else {
+      print("✅ All weekly moods are already cached in local storage.");
+      return dailyMoods;
+    }
+  }
+
+
+
 
   /// ✅ **Updates Selected Period & Fetches Data**
   void updatePeriod(String period) {
     selectedPeriod.value = period;
-    fetchUserMoods();
+    fetchMissingMoods();
   }
 
-  /// ✅ **Fetch Moods Based on Selected Period**
-  Future<void> fetchUserMoods() async {
+  /// ✅ **Load moods from local storage first, then fetch missing data**
+  void _loadMoodsFromStorage() {
+    Map<String, String>? storedMoods = _storage.getStoredMoods();
+    if (storedMoods != null && storedMoods.isNotEmpty) {
+      dailyMoods.assignAll(storedMoods);
+      print("🔄 Loaded moods from storage: $storedMoods");
+    }
+    fetchMissingMoods();  // Fetch only missing data
+  }
+
+  /// ✅ **Fetch mood counts for the latest X days based on period**
+  Map<String, int> getMoodCounts() {
+    int daysCount = getDaysFromPeriod(selectedPeriod.value);
+    Map<String, int> moodCounts = {for (var mood in _allMoods) mood: 0};
+
+    for (var moodEntry in getLatestMoods(daysCount)) {
+      String mood = moodEntry["mood"] ?? "⬜";
+      if (moodCounts.containsKey(mood)) {
+        moodCounts[mood] = (moodCounts[mood] ?? 0) + 1;
+      }
+    }
+
+    print("📊 Mood Counts for ${selectedPeriod.value}: $moodCounts");
+    return moodCounts;
+  }
+
+  /// ✅ **Fetch moods dynamically based on period**
+  List<Map<String, String>> getLatestMoods(int daysCount) {
+    List<Map<String, String>> days = [];
+    DateTime now = DateTime.now();
+
+    for (int i = 0; i < daysCount; i++) {
+      DateTime day = now.subtract(Duration(days: i));
+      String formattedDay = DateFormat('EEE').format(day);
+      String formattedDate = DateFormat('yyyy-MM-dd').format(day);
+
+      days.add({
+        "day": formattedDay,
+        "date": formattedDate,
+        "mood": dailyMoods[formattedDate] ?? "⬜",
+      });
+    }
+    print("📆 Latest ${selectedPeriod.value} moods: $days");
+    return days.reversed.toList();
+  }
+
+  /// ✅ **Fetch missing moods from Firestore**
+  Future<void> fetchMissingMoods() async {
     String? uid = _storage.getUid();
-    if (uid == null) {
-      print("❌ Error: UID is null");
+    if (uid == null) return;
+
+    List<String> neededDates = _getNeededDates();  // ✅ Get missing dates based on selected period
+
+    if (neededDates.isEmpty) {
+      print("✅ All moods are already cached.");
       return;
     }
 
+    print("🔍 Fetching missing moods for: ${selectedPeriod.value}");
+    print("🗓️ Needed Dates: $neededDates");
+
     try {
-      var snapshot = await _firestore
-          .collection("users")
-          .doc(uid)
-          .collection("moodTracking")
-          .orderBy("timestamp", descending: true)
-          .get();
+      Map<String, String> newMoods = {};
 
-      if (snapshot.docs.isEmpty) {
-        print("⚠️ No mood data found.");
-        _resetMoodCounts(); // Ensures all moods are shown even if empty
-        return;
+      for (String date in neededDates) {
+        DocumentSnapshot<Map<String, dynamic>> moodDoc = await _firestore
+            .collection("users")
+            .doc(uid)
+            .collection("moodTracking")
+            .doc(date)
+            .get();
+
+        String mood = "⬜";
+        if (moodDoc.exists && moodDoc.data() != null) {
+          mood = moodDoc.data()!["mood"] ?? "⬜";
+        }
+
+        newMoods[date] = mood;
+        print("📆 Date: $date | Mood: $mood");
       }
 
-      // ✅ Calculate the Date Range Based on Selected Period
-      DateTime now = DateTime.now();
-      DateTime startDate = _getStartDate(now, selectedPeriod.value);
-
-      Map<String, int> newMoodCounts = {for (var mood in _allMoods) mood: 0}; // Ensure all moods exist
-      Map<String, String> newDailyMoods = {};
-
-      for (var doc in snapshot.docs) {
-        var data = doc.data();
-        String mood = data["mood"] ?? " ";
-        String date = doc.id; // Assuming doc ID is the date
-
-        DateTime moodDate = DateTime.parse(date);
-        if (moodDate.isBefore(startDate)) continue; // Skip old moods
-
-        newDailyMoods[date] = mood;
-        newMoodCounts[mood] = (newMoodCounts[mood] ?? 0) + 1;
-      }
-
-      // ✅ Update UI with complete mood set
-      dailyMoods.assignAll(newDailyMoods);
-      moodData.assignAll(newMoodCounts);
-      moodData.refresh();
-
-      print("✅ Mood Data Loaded: $moodData");
+      dailyMoods.addAll(newMoods);
+      _storage.saveMoods(newMoods);  // ✅ Save fetched moods to local storage
+      print("✅ Fetched and stored new moods: $newMoods");
     } catch (e) {
       print("❌ Firestore Error: $e");
     }
   }
 
-  /// ✅ **Ensures All Moods are Present in Chart, Even If Empty**
-  void _resetMoodCounts() {
-    moodData.assignAll({for (var mood in _allMoods) mood: 0});
-    moodData.refresh();
-  }
-
-  /// ✅ **Returns the Start Date Based on Selected Period**
-  DateTime _getStartDate(DateTime now, String period) {
+  /// ✅ **Determine how many days to fetch based on selected period**
+  int getDaysFromPeriod(String period) {
     switch (period) {
       case "Weekly":
-        return now.subtract(Duration(days: 7));
+        return 7;
       case "Monthly":
-        return DateTime(now.year, now.month - 1, now.day);
+        return 30;
       case "Quarterly":
-        return DateTime(now.year, now.month - 3, now.day);
+        return 90;
       case "Semi-Annual":
-        return DateTime(now.year, now.month - 6, now.day);
+        return 180;
       case "Annual":
-        return DateTime(now.year - 1, now.month, now.day);
+        return 365;
       default:
-        return now.subtract(Duration(days: 7)); // Default to weekly
+        return 7;
     }
   }
 
-  /// ✅ **Get Total Mood Count for Scaling Bars**
-  int getTotalMoodCount() {
-    return moodData.values.fold(0, (sum, count) => sum + count);
+
+  /// ✅ **Determine which dates are missing**
+  List<String> _getNeededDates() {
+    List<String> missingDates = [];
+    int daysToFetch = getDaysFromPeriod(selectedPeriod.value);
+    DateTime now = DateTime.now();
+
+    for (int i = 0; i < daysToFetch; i++) {
+      String date = DateFormat('yyyy-MM-dd').format(now.subtract(Duration(days: i)));
+      if (!dailyMoods.containsKey(date)) {
+        missingDates.add(date);
+      }
+    }
+    return missingDates;
+  }
+
+  /// ✅ **Clear moods from GetStorage (for logout)**
+  void clearStoredMoods() {
+    _storage.clearMoods();
+    dailyMoods.clear();
+    print("🗑️ Cleared stored moods.");
   }
 }

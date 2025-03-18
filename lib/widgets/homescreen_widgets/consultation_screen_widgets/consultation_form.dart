@@ -14,8 +14,7 @@ class ConsultationForm extends StatelessWidget {
   final Function(String) onSelectService;
   final Function(String) onToggleType;
 
-  const ConsultationForm({
-    Key? key,
+  const ConsultationForm({    Key? key,
     required this.selectedConsultationType,
     required this.selectedDate,
     required this.selectedTime,

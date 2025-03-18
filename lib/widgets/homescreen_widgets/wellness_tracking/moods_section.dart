@@ -8,12 +8,12 @@ import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/wel
 import '../../../controllers/moodTrackingController.dart';
 
 final MoodTrackingController moodController = Get.put(MoodTrackingController()); // Inject Controller
-
 Widget buildMoodSection(BuildContext context) {
   moodController.fetchUserMoodDataForCurrentWeek(); // Ensures data is fetched on UI build
 
   return Obx(() {
     final moods = moodController.userMoods;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
@@ -24,25 +24,50 @@ Widget buildMoodSection(BuildContext context) {
       padding: const EdgeInsets.all(10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) {
-          return buildMoodDay(day, moods[day] ?? "◽️", context); // Default to neutral
-        }).toList(),
+        children: List.generate(7, (index) {
+          // Generate day number dynamically
+          String day = getDayOfWeekFromIndex(index); // Get day from index (0 -> Mon, 1 -> Tue, ...)
+          return buildMoodDay(day, moods[day] ?? "◽️", context, index + 1); // Pass day number (1, 2, etc.)
+        }),
       ),
     );
   });
 }
 
+String getDayOfWeekFromIndex(int index) {
+  // This method maps the index to the day (0 -> Mon, 1 -> Tue, ..., 6 -> Sun)
+  switch (index) {
+    case 0:
+      return "Mon";
+    case 1:
+      return "Tue";
+    case 2:
+      return "Wed";
+    case 3:
+      return "Thu";
+    case 4:
+      return "Fri";
+    case 5:
+      return "Sat";
+    case 6:
+      return "Sun";
+    default:
+      return "Unknown";
+  }
+}
 
-
-
-Widget buildMoodDay(String day, String emoji, BuildContext context) {
+Widget buildMoodDay(String day, String emoji, BuildContext context, int dayNumber) {
   return GestureDetector(
     onTap: () {
       showTrackingPopup(context, 'daily_mood', selectedDay: day, mood: emoji);
     },
     child: Column(
       children: [
-        Text(day, style: GoogleFonts.archivo(color: Colors.green.shade600, fontWeight: FontWeight.bold,fontSize: 14)),
+        // Display day and day number (Mon -> 1, Tue -> 2, etc.)
+        Text(
+          '$day $dayNumber',
+          style: GoogleFonts.archivo(color: Colors.green.shade600, fontWeight: FontWeight.bold, fontSize: 14),
+        ),
         const SizedBox(height: 5),
         Text(emoji, style: const TextStyle(fontSize: 24)),
       ],

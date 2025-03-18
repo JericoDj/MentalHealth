@@ -26,25 +26,48 @@ class StressController extends GetxController {
     }
 
     try {
-      var stressRef = _firestore.collection("users").doc(uid).collection("moodTracking");
-      var snapshot = await stressRef.get();
+      // Get stored stress data from local storage
+      Map<String, double> storedStressData = _storage.getStoredStressData();
 
-      if (snapshot.docs.isEmpty) {
-        print("⚠️ No stress data found.");
-        return;
+      // Get the start date based on the selected period
+      DateTime startDate = _getStartDateForPeriod();
+      DateTime endDate = DateTime.now();
+
+      // Generate date range for the selected period
+      List<String> dateRange = _getDateRangeForPeriod(startDate, endDate);
+
+      // Identify missing dates not in local storage
+      List<String> missingDates = dateRange.where((date) => !storedStressData.containsKey(date)).toList();
+
+      // Fetch missing dates from Firestore
+      if (missingDates.isNotEmpty) {
+        var stressRef = _firestore.collection("users").doc(uid).collection("moodTracking");
+        Map<String, double> fetchedData = {};
+
+        for (String date in missingDates) {
+          DocumentSnapshot doc = await stressRef.doc(date).get();
+          if (doc.exists) {
+            // Safely cast doc.data() to Map<String, dynamic>
+            var data = doc.data() as Map<String, dynamic>;
+
+            // Access stressLevel using the map
+            int stress = (data["stressLevel"] ?? 50).toInt();
+            fetchedData[date] = stress.toDouble();
+          }
+        }
+
+        // Save fetched data to local storage
+        _storage.saveStressData(fetchedData);
       }
 
-      // ✅ Get the start date based on selected period
-      DateTime startDate = _getStartDateForPeriod();
+      // Get updated data from local storage (including newly fetched)
+      Map<String, double> updatedStoredData = _storage.getStoredStressData();
+
+      // Collect stress levels for the current period
       List<int> stressLevels = [];
-
-      for (var doc in snapshot.docs) {
-        String dateStr = doc.id; // Firestore doc name is the date
-        DateTime docDate = DateFormat('yyyy-MM-dd').parse(dateStr);
-
-        if (docDate.isAfter(startDate) || docDate.isAtSameMomentAs(startDate)) {
-          int stress = (doc.data()["stressLevel"] ?? 50).toInt(); // Default 50 if missing
-          stressLevels.add(stress);
+      for (String date in dateRange) {
+        if (updatedStoredData.containsKey(date)) {
+          stressLevels.add(updatedStoredData[date]!.toInt());
         }
       }
 
@@ -53,10 +76,11 @@ class StressController extends GetxController {
         return;
       }
 
+      // Update calculations
       calculateStressDistribution(stressLevels);
       calculateAverageStress(stressLevels);
     } catch (e) {
-      print("❌ Firestore Fetch Error: $e");
+      print("❌ Error fetching stress data: $e");
     }
   }
 
@@ -71,7 +95,7 @@ class StressController extends GetxController {
     DateTime now = DateTime.now();
     switch (selectedPeriod.value) {
       case "Weekly":
-        return now.subtract(const Duration(days: 7));
+        return now.subtract(const Duration(days: 6)); // 7 days including today
       case "Monthly":
         return DateTime(now.year, now.month - 1, now.day);
       case "Quarterly":
@@ -85,7 +109,16 @@ class StressController extends GetxController {
     }
   }
 
-
+  // ✅ Generate Date Range for Selected Period
+  List<String> _getDateRangeForPeriod(DateTime startDate, DateTime endDate) {
+    List<String> dates = [];
+    DateTime currentDate = startDate;
+    while (currentDate.isBefore(endDate) || currentDate.isAtSameMomentAs(endDate)) {
+      dates.add(DateFormat('yyyy-MM-dd').format(currentDate));
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
+    return dates;
+  }
 
   // ✅ Calculate Stress Distribution (Low, Moderate, High)
   void calculateStressDistribution(List<int> stressLevels) {

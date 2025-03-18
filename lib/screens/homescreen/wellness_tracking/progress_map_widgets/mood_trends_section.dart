@@ -8,13 +8,13 @@ class MoodSection extends StatelessWidget {
   MoodSection({
     Key? key,
     required List<GlobalKey<State<StatefulWidget>>> sectionKeys,
-    this.selectedDay, // ✅ Added selectedDay
+    this.selectedDay,
   }) : _sectionKeys = sectionKeys, super(key: key);
 
   final List<GlobalKey<State<StatefulWidget>>> _sectionKeys;
   final MoodController _moodController = Get.put(MoodController());
 
-  final String? selectedDay; // ✅ Added selectedDay
+  final String? selectedDay;
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +90,9 @@ class MoodSection extends StatelessWidget {
     });
   }
 
-  // ✅ Mood History (Last 14 Days)
+  /// ✅ **Mood History (Latest 7 Days)**
   Widget _buildDailyMoodRow() {
-    List<Map<String, String>> days = _generatePastDays();
+    List<Map<String, String>> days = _moodController.getLatestMoods(_moodController.getDaysFromPeriod(_moodController.selectedPeriod.value));
 
     return SizedBox(
       height: 100,
@@ -101,7 +101,7 @@ class MoodSection extends StatelessWidget {
         itemCount: days.length,
         itemBuilder: (context, index) {
           final moodEntry = days[index];
-          String moodEmoji = _getMoodEmoji(moodEntry["mood"]!); // ✅ Convert mood to emoji
+          String moodEmoji = _getMoodEmoji(moodEntry["mood"]!);
 
           return GestureDetector(
             onTap: () => _showMoodDetails(moodEntry["date"]!, moodEntry["mood"]!),
@@ -111,7 +111,7 @@ class MoodSection extends StatelessWidget {
                 children: [
                   Text(moodEntry["day"]!, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(moodEmoji, style: const TextStyle(fontSize: 30)), // ✅ Show emoji instead of text
+                  Text(moodEmoji, style: const TextStyle(fontSize: 30)), // ✅ Show emoji
                   const SizedBox(height: 5),
                   Text(DateFormat('MMM d').format(DateTime.parse(moodEntry["date"]!)), style: const TextStyle(fontSize: 12)),
                 ],
@@ -123,7 +123,22 @@ class MoodSection extends StatelessWidget {
     );
   }
 
-// ✅ Mood Mapping Function (Text → Emoji)
+
+
+
+  /// ✅ **Show Mood Details in a Snackbar**
+  void _showMoodDetails(String date, String mood) {
+    Get.snackbar(
+      "Mood Details",
+      "Mood on $date: $mood",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.white,
+      colorText: Colors.black,
+      duration: Duration(seconds: 2),
+    );
+  }
+
+  /// ✅ **Mood Mapping Function (Text → Emoji)**
   String _getMoodEmoji(String mood) {
     const moodEmojis = {
       "Happy": "😊",
@@ -132,49 +147,14 @@ class MoodSection extends StatelessWidget {
       "Angry": "😠",
       "Anxious": "😰",
     };
-
-    return moodEmojis[mood] ?? "⬜"; // ✅ Default to ⬜ if mood is unknown
+    return moodEmojis[mood] ?? "⬜";
   }
 
-
-  // ✅ Generate Mood Data for Past X Days
-  List<Map<String, String>> _generatePastDays({int daysCount = 14}) {
-    List<Map<String, String>> days = [];
-    DateTime now = DateTime.now();
-
-    for (int i = 0; i < daysCount; i++) {
-      DateTime day = now.subtract(Duration(days: i));
-      String formattedDay = DateFormat('EEE').format(day); // Mon, Tue, etc.
-      String formattedDate = DateFormat('yyyy-MM-dd').format(day);
-
-      // Fetch from controller's daily moods
-      days.add({
-        "day": formattedDay,
-        "date": formattedDate,
-        "mood": _moodController.dailyMoods[formattedDate] ?? "⬜",
-      });
-    }
-
-    return days.reversed.toList();
-  }
-
-  // ✅ Show Selected Mood Details
-  void _showMoodDetails(String date, String mood) {
-    print("📝 Selected Mood for $date: $mood");
-    Get.snackbar(
-      "Mood Details",
-      "Mood on $date: $mood",
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.white,
-      colorText: Colors.black,
-    );
-  }
-// ✅ Mood Frequency Chart (Adjusts Based on Selected Period)
+  /// ✅ **Mood Frequency Chart (Now Uses Only Latest 7 Days)**
   Widget _buildMoodBarChart() {
-    final moodData = _moodController.moodData;
+    final moodData = _moodController.getMoodCounts(); // ✅ Fetch moods dynamically
 
-    // ✅ Find the highest mood count for scaling
-    int maxMoodCount = moodData.values.isNotEmpty ? moodData.values.reduce((a, b) => a > b ? a : b) : 1;
+    int maxMoodCount = moodData.isNotEmpty ? moodData.values.reduce((a, b) => a > b ? a : b) : 1;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -186,12 +166,12 @@ class MoodSection extends StatelessWidget {
             Text(entry.key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Container(
-              height: 100, // Max bar height
+              height: 100,
               width: 30,
               decoration: BoxDecoration(color: Colors.black38, borderRadius: BorderRadius.circular(10)),
               alignment: Alignment.bottomCenter,
               child: FractionallySizedBox(
-                heightFactor: heightFactor, // ✅ Scale dynamically based on highest count
+                heightFactor: heightFactor,
                 child: Container(
                   decoration: BoxDecoration(
                     color: _getBarColor(entry.key),
@@ -208,7 +188,7 @@ class MoodSection extends StatelessWidget {
     );
   }
 
-  // ✅ Mood Colors for Chart
+  /// ✅ **Mood Colors for Chart**
   Color _getBarColor(String mood) {
     return {"Happy": Colors.greenAccent, "Neutral": Colors.yellow, "Sad": Colors.red, "Angry": Colors.orange, "Anxious": Colors.blue}[mood] ?? Colors.grey;
   }

@@ -24,71 +24,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
   void initState() {
     super.initState();
     // Add static data to journalEntries
-    _addStaticData();
-  }
 
-  void _addStaticData() {
-    journalEntries = {
-      '2025-02-02': [
-        'I am grateful for my family.',
-        'I am grateful for good health.',
-      ],
-      '2025-02-01': [
-        'I am grateful for the beautiful weather.',
-        'I am grateful for my friends.',
-      ],
-      '2025-01-02': [
-        'I am grateful for my job.',
-        'I am grateful for my pets.',
-      ],
-      '2025-02-04': [
-        'I am grateful for new opportunities.',
-        'I am grateful for my creativity.',
-      ],
-      '2025-02-15': [
-        'I am grateful for my hobbies.',
-        'I am grateful for my home.',
-      ],
-    };
-  }
-
-  // Firestore Saving Logic
-  Future<void> _saveToFirestore(String entry) async {
-    final String? uid = _auth.currentUser?.uid;
-
-    if (uid != null) {
-      await _firestore
-          .collection('users')
-          .doc(uid)
-          .collection('Journals')
-          .doc(currentDate)
-          .set({
-        'date': currentDate,
-        'notes': FieldValue.arrayUnion([entry]),
-      }, SetOptions(merge: true)).catchError((error) {
-        print("Error saving entry: $error");
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error saving entry. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Entry saved successfully!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User not logged in. Unable to save entry.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   @override
@@ -207,42 +143,82 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
   }
 
   Widget _journalListView() {
-    List<String> entries = journalEntries[currentDate] ?? [];
-    if (entries.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Text(
-          'No entries for today.',
-          style: TextStyle(fontSize: 14, color: Colors.black54),
-        ),
-      );
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null) {
+      return Center(child: Text('User not logged in.'));
     }
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: entries.length,
-      itemBuilder: (context, index) =>
-          Dismissible(
-            key: UniqueKey(),
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              child: const Icon(Icons.delete, color: Colors.white),
+
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('Journals')
+          .doc(currentDate) // Fetches journal entries for the selected date
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Text(
+              'No entries for today.',
+              style: TextStyle(fontSize: 14, color: Colors.black54),
             ),
-            direction: DismissDirection.endToStart,
-            confirmDismiss: (direction) async {
-              return await _showDeleteDialog(context);
-            },
-            onDismissed: (direction) {
-              setState(() {
-                entries.removeAt(index);
-              });
-            },
-            child: _journalTile(entries[index], index),
-          ),
+          );
+        }
+
+        List<String> entries = List<String>.from(
+            snapshot.data!.get('notes') ?? []);
+
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: entries.length,
+          itemBuilder: (context, index) =>
+              Dismissible(
+                key: UniqueKey(),
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  child: const Icon(Icons.delete, color: Colors.white),
+                ),
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (direction) async {
+                  return await _showDeleteDialog(context);
+                },
+                onDismissed: (direction) async {
+                  await _deleteJournalEntry(uid, currentDate, entries[index]);
+                },
+                child: _journalTile(entries[index], index),
+              ),
+        );
+      },
     );
   }
+
+  Future<void> _deleteJournalEntry(String uid, String date,
+      String entry) async {
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('Journals')
+        .doc(date)
+        .update({
+      'notes': FieldValue.arrayRemove([entry]),
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting entry: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    });
+  }
+
 
   Widget _buildAddEntryButton() {
     return Padding(
@@ -287,7 +263,9 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), // Rounded corners
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+          // Rounded corners
           titlePadding: const EdgeInsets.all(16),
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -302,12 +280,14 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
               ),
             ],
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          contentPadding: const EdgeInsets.symmetric(
+              horizontal: 20, vertical: 10),
           content: const Text(
             'Are you sure you want to delete this entry?',
             style: TextStyle(fontSize: 16),
           ),
-          actionsPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          actionsPadding: const EdgeInsets.symmetric(
+              horizontal: 12, vertical: 8),
           actions: [
             Padding(
               padding: EdgeInsets.all(10),
@@ -317,14 +297,17 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context, false),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 12),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(6),
                         color: Colors.grey.withOpacity(0.2),
                       ),
                       child: const Text(
                         "Cancel",
-                        style: TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: Colors.black87,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),
@@ -332,7 +315,8 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context, true),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 14),
                       decoration: BoxDecoration(
                         border: Border.all(color: MyColors.color2),
                         color: Colors.transparent,
@@ -340,7 +324,9 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                       ),
                       child: const Text(
                         "Delete",
-                        style: TextStyle(color: MyColors.color2, fontSize: 14, fontWeight: FontWeight.w500),
+                        style: TextStyle(color: MyColors.color2,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),
@@ -355,7 +341,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
 
   Widget _journalTile(String entry, int index) {
     return GestureDetector(
-      onTap: () => _editJournalEntry(context, index),
+      onTap: () => _editJournalEntry(context, index, entry),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
         padding: const EdgeInsets.all(12),
@@ -365,43 +351,34 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
           border: Border.all(color: MyColors.color1.withOpacity(0.5)),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Icon(Icons.favorite, color: Colors.redAccent, size: 20),
-            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 entry,
                 style: const TextStyle(fontSize: 14, color: Colors.black87),
               ),
             ),
+
           ],
         ),
       ),
     );
   }
 
-  void _showJournalDialog(BuildContext context, {int? index}) {
-    TextEditingController _controller = TextEditingController();
-    if (index != null) {
-      _controller.text = journalEntries[currentDate]![index];
-    }
+
+  void _showJournalDialog(BuildContext context,
+      {int? index, String? oldEntry}) {
+    TextEditingController _controller = TextEditingController(
+        text: oldEntry ?? "");
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                index == null ? 'Add Gratitude Entry' : 'Edit Gratitude Entry',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.close, color: Colors.red),
-              ),
-            ],
+          title: Text(
+            index == null ? 'Add Gratitude Entry' : 'Edit Gratitude Entry',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           content: TextField(
             controller: _controller,
@@ -416,61 +393,36 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
               onPressed: () => Navigator.pop(context),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.w600),
+                style: TextStyle(color: Colors.red,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600),
               ),
             ),
-            GestureDetector(
-              onTap: () async {
+            TextButton(
+              onPressed: () async {
                 String entry = _controller.text.trim();
-
                 if (entry.isNotEmpty) {
-                  // Add entry locally
-                  setState(() {
-                    journalEntries[currentDate] ??= [];
-                    if (index == null) {
-                      journalEntries[currentDate]!.add(entry);
-                    } else {
-                      journalEntries[currentDate]![index] = entry;
-                    }
-                  });
-
-                  // Firestore Save Logic
                   final String? uid = FirebaseAuth.instance.currentUser?.uid;
                   if (uid != null) {
-                    await FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(uid)
-                        .collection('Journals')
-                        .doc(currentDate)
-                        .set({
-                      'date': currentDate,
-                      'notes': FieldValue.arrayUnion([entry]),
-                    }, SetOptions(merge: true)).then((_) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Entry saved successfully!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    }).catchError((error) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error saving entry: $error'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    });
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('User not logged in. Unable to save entry.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
+                    if (index == null) {
+                      // Adding a new entry
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(uid)
+                          .collection('Journals')
+                          .doc(currentDate)
+                          .set({
+                        'date': currentDate,
+                        'notes': FieldValue.arrayUnion([entry]),
+                      }, SetOptions(merge: true));
+                    } else {
+                      // Editing an existing entry
+                      await _updateJournalEntry(
+                          uid, currentDate, oldEntry!, entry);
+                    }
 
-                  // Close Dialog
-                  Navigator.pop(context);
+                    Navigator.pop(context);
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -480,34 +432,52 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                   );
                 }
               },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: MyColors.color2,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Text(
-                  'Save',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-              ),
-            )
-
+              child: const Text('Save', style: TextStyle(color: Colors.blue)),
+            ),
           ],
         );
       },
     );
   }
 
-  void _editJournalEntry(BuildContext context, int index) {
-    _showJournalDialog(context, index: index);
-  }
-  Future<void> selectDate(BuildContext context) async {
-    // Ensure static data is loaded
-    _addStaticData();
+  Future<void> _updateJournalEntry(String uid, String date, String oldEntry,
+      String newEntry) async {
+    DocumentReference docRef = _firestore.collection('users')
+        .doc(uid)
+        .collection('Journals')
+        .doc(date);
 
-    // Set selectedMonth to the current month
-    selectedMonth = DateTime.now();
+    await _firestore.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) return;
+
+      List<String> notes = List<String>.from(snapshot.get('notes') ?? []);
+
+      // Replace old entry with the new entry0
+      if (notes.contains(oldEntry)) {
+        notes[notes.indexOf(oldEntry)] = newEntry;
+      }
+
+      // Update Firestore document with new list
+      transaction.update(docRef, {'notes': notes});
+    }).catchError((error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating entry: $error'),
+            backgroundColor: Colors.red),
+      );
+    });
+  }
+
+
+  void _editJournalEntry(BuildContext context, int index, String entry) {
+    _showJournalDialog(context, index: index, oldEntry: entry);
+  }
+
+  Future<void> selectDate(BuildContext context) async {
+    selectedMonth = DateTime.now(); // Set selectedMonth to the current month
+
+    // Fetch Firestore data before opening calendar
+    await fetchMonthlyJournals();
 
     await showModalBottomSheet(
       context: context,
@@ -518,7 +488,7 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
       builder: (BuildContext context) {
         final daysInMonth = DateUtils.getDaysInMonth(selectedMonth.year, selectedMonth.month);
         final firstDay = DateTime(selectedMonth.year, selectedMonth.month, 1);
-        String selectedDate = currentDate; // Store selected date locally for modal updates
+        String selectedDate = currentDate;
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -553,12 +523,12 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
                         return GestureDetector(
                           onTap: () {
                             setState(() {
-                              selectedDate = formattedDate; // Update modal state
+                              selectedDate = formattedDate;
                             });
                           },
                           child: CalendarDay(
                             day: day,
-                            hasEntry: hasEntry,
+                            hasEntry: hasEntry,  // ✅ Firestore data is now correctly checked
                             isSelected: isSelected,
                           ),
                         );
@@ -620,4 +590,33 @@ class _GratitudeJournalWidgetState extends State<GratitudeJournalWidget> {
         );
       },
     );
-  }}
+  }
+
+
+
+  Future<void> fetchMonthlyJournals() async {
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    String startOfMonth = DateFormat('yyyy-MM-01').format(selectedMonth);
+    String endOfMonth = DateFormat('yyyy-MM-dd').format(
+        DateTime(selectedMonth.year, selectedMonth.month + 1, 0));
+
+    QuerySnapshot snapshot = await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('Journals')
+        .where(FieldPath.documentId, isGreaterThanOrEqualTo: startOfMonth)
+        .where(FieldPath.documentId, isLessThanOrEqualTo: endOfMonth)
+        .get();
+
+    setState(() {
+      journalEntries.clear();
+      for (var doc in snapshot.docs) {
+        journalEntries[doc.id] = List<String>.from(doc['notes'] ?? []);
+      }
+    });
+  }
+
+
+}

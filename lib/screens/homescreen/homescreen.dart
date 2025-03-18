@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:llps_mental_app/controllers/MoodController.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
+import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/moods_section.dart';
 
 import '../../controllers/achievements_controller.dart';
 import '../../controllers/home_controller.dart';
@@ -17,9 +19,12 @@ class HomeScreen extends StatelessWidget {
   final ProgressController progressController = Get.put(ProgressController());
   final AchievementsController achievementsController = Get.put(AchievementsController());
   final HomeController homeController = Get.put(HomeController()); // ✅ Inject controller
+  final MoodController moodController = Get.put(MoodController()); // ✅ Inject controller
 
   @override
   Widget build(BuildContext context) {
+
+    moodController.getWeeklyMoods();
     // Fetch check-ins when HomeScreen is loaded
     userProgressController.fetchUserCheckIns();
 

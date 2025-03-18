@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart'; // For Clipboard functionality
+
+import '../../../utils/constants/colors.dart';
 
 void showDetailDialog({
   required BuildContext context,
@@ -37,7 +38,7 @@ void showDetailDialog({
               ),
               const SizedBox(height: 20),
 
-              // Service Type
+              // Service Type (Fully Visible)
               Text(
                 'Service Type: $serviceType',
                 style: const TextStyle(
@@ -45,37 +46,16 @@ void showDetailDialog({
                   fontWeight: FontWeight.w500,
                 ),
               ),
+
               const SizedBox(height: 10),
 
-              // Service ID (Copyable)
-              Row(
-                children: [
-                  Text(
-                    'Service ID: $serviceId',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: serviceId));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Service ID copied to clipboard!'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    child: Icon(
-                      Icons.copy,
-                      size: 20,
-                      color: MyColors.color1,
-                    ),
-                  ),
-                ],
+              // Service ID (Ellipsis + Copyable)
+              _buildCopyableRow(
+                label: 'Service ID:',
+                value: serviceId,
+                context: context,
               ),
+
               const SizedBox(height: 10),
 
               // Status
@@ -131,11 +111,11 @@ void showDetailDialog({
               ),
               const SizedBox(height: 20),
 
-              // Close Button (GestureDetector)
+              // Close Button
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.pop(context); // Close the dialog
+                    Navigator.pop(context);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -176,5 +156,70 @@ void showDetailDialog({
         ),
       );
     },
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// ✅ Utility: Copyable Row with Text Ellipsis (ONLY for Service ID)
+// ─────────────────────────────────────────────────────────────
+Widget _buildCopyableRow({
+  required String label,
+  required String value,
+  required BuildContext context,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Text(
+        '$label ',
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      Expanded(
+        child: Tooltip(
+          message: value, // Show full value on hover (Desktop)
+          child: GestureDetector(
+            onTap: () {
+              Clipboard.setData(ClipboardData(text: value));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Service ID copied to clipboard!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.blue, // Indicate it's copyable
+              ),
+              overflow: TextOverflow.ellipsis, // ✅ Prevents long overflow
+              maxLines: 1,
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(width: 8),
+      GestureDetector(
+        onTap: () {
+          Clipboard.setData(ClipboardData(text: value));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Service ID copied to clipboard!'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        },
+        child: Icon(
+          Icons.copy,
+          size: 20,
+          color: MyColors.color1,
+        ),
+      ),
+    ],
   );
 }

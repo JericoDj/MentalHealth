@@ -1,54 +1,59 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import '../data/consultation data.dart';
 import '../models/consultation_models.dart';
 
 class ConsultationController extends GetxController {
-  var consultations = <Consultation>[].obs;
+  RxList<Consultation> consultations = <Consultation>[].obs;
+  RxList<Consultation> filteredConsultations = <Consultation>[].obs;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void onInit() {
-    fetchConsultations();
     super.onInit();
+    fetchConsultations();
   }
 
-  /// Fetch all consultations
-  void fetchConsultations() {
-    consultations.assignAll([
-      ...getConsultationData(0),
-      ...getConsultationData(1),
-      ...getConsultationData(2),
-    ]);
+  /// **Fetch Real-Time Consultations from Firestore**
+  void fetchConsultations() async {
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
 
-    // Debugging to verify if data is fetched
-    consultations.forEach((item) {
-      print('Fetched: ${item.serviceType} - ${item.status}');
+    _firestore
+        .collection("bookings")
+        .where("user_id", isEqualTo: uid)
+        .snapshots()
+        .listen((snapshot) {
+      final List<Consultation> fetchedConsultations =
+      snapshot.docs.map((doc) => Consultation.fromFirestore(doc)).toList();
+
+      consultations.value = fetchedConsultations;
+      filteredConsultations.value = fetchedConsultations; // Default: show all
+      update(); // Ensures GetX UI updates properly
     });
   }
 
-  /// Calculate pending count dynamically
-  int get calculatePendingCount {
-    fetchConsultations(); // Fetch updated consultations before calculating
-    return consultations
-        .where((item) => item.status.toLowerCase() == "pending")
-        .length;
+  /// **Filter Consultations by Status**
+  void filterConsultations(String status) {
+    filteredConsultations.value = consultations
+        .where((c) => (c.status ?? "").toLowerCase() == status.toLowerCase())
+        .toList();
+    update();
   }
 
-  /// Calculate scheduled count dynamically
-  int get calculateScheduledCount {
-    fetchConsultations(); // Fetch updated consultations before calculating
+  /// **Pending Consultations Count**
+  int get calculatePendingCount => consultations
+      .where((c) => (c.status ?? "").toLowerCase() == "requested")
+      .length;
 
-    return consultations
-        .where((item) => item.status.toLowerCase() == "scheduled")
-        .length;
-  }
+  /// **Scheduled Consultations Count**
+  int get calculateScheduledCount => consultations
+      .where((c) => (c.status ?? "").toLowerCase() == "scheduled")
+      .length;
 
-  /// Calculate finished count dynamically
-  /// Calculate finished count dynamically
-  int get calculateFinishedCount {
-    fetchConsultations(); // Fetch updated consultations before calculating
-    return consultations
-        .where((item) => item.status.toLowerCase() == "completed")
-        .length;
-  }
-
+  /// **Finished Consultations Count**
+  int get calculateFinishedCount => consultations
+      .where((c) => (c.status ?? "").toLowerCase() == "completed")
+      .length;
 }

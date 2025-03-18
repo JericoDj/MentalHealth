@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:llps_mental_app/widgets/accounts_screen/ticket_detail_page.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../utils/constants/colors.dart';
-
 
 class SupportTicketsPage extends StatefulWidget {
   @override
@@ -11,25 +14,59 @@ class SupportTicketsPage extends StatefulWidget {
 class _SupportTicketsPageState extends State<SupportTicketsPage> {
   final TextEditingController _ticketTitleController = TextEditingController();
   final TextEditingController _ticketDetailsController = TextEditingController();
-  List<Map<String, String>> submittedTickets = [
-    {'title': 'Login Issue', 'details': 'Unable to log in to the app since last update.', 'status': 'Open'},
-    {'title': 'App Crash', 'details': 'App crashes when accessing the profile page.', 'status': 'In Progress'},
-    {'title': 'Feature Request', 'details': 'Request to add dark mode feature.', 'status': 'Closed'},
-    {'title': 'Payment Error', 'details': 'Payment not processing for premium plan.', 'status': 'Open'},
-    {'title': 'Feedback', 'details': 'Great app, but more resources on anxiety needed.', 'status': 'Resolved'},
-  ];
 
-  void _submitTicket() {
-    if (_ticketTitleController.text.isNotEmpty && _ticketDetailsController.text.isNotEmpty) {
-      setState(() {
-        submittedTickets.add({
-          'title': _ticketTitleController.text,
-          'details': _ticketDetailsController.text,
-          'status': 'Open',
-        });
-        _ticketTitleController.clear();
-        _ticketDetailsController.clear();
+  /// ✅ Fetch tickets dynamically from Firestore
+  Stream<QuerySnapshot> _getTicketsStream() {
+    String? userId = GetStorage().read("uid");
+    if (userId == null) return Stream.empty();
+
+    return FirebaseFirestore.instance
+        .collection("support").doc(userId)
+        .collection("tickets")
+        .orderBy("created_at", descending: true)
+        .snapshots();
+  }
+
+  /// ✅ Submit ticket to Firestore
+  void _submitTicket() async {
+    String? userId = GetStorage().read("uid");
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("User not found. Please log in.")),
+      );
+      return;
+    }
+
+    if (_ticketTitleController.text.isEmpty || _ticketDetailsController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill in both fields before submitting.")),
+      );
+      return;
+    }
+
+    String ticketId = const Uuid().v4(); // ✅ Generate unique ticket ID
+
+    try {
+      await FirebaseFirestore.instance.collection("support").doc(userId)
+          .collection("tickets").doc(ticketId).set({
+        "ticketId": ticketId,
+        "title": _ticketTitleController.text,
+        "message": _ticketDetailsController.text,
+        "status": "Open",
+        "reply": "",
+        "created_at": FieldValue.serverTimestamp(),
       });
+
+      _ticketTitleController.clear();
+      _ticketDetailsController.clear();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ticket submitted successfully.")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error submitting ticket: $e")),
+      );
     }
   }
 
@@ -38,37 +75,27 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
+          title: const Text('Support Tickets'),
           toolbarHeight: 65,
           flexibleSpace: Stack(
             children: [
               Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      Color(0xFFF8F8F8),
-                      Color(0xFFF1F1F1),
-                    ],
+                    colors: [Color(0xFFF8F8F8), Color(0xFFF1F1F1)],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                 ),
               ),
-              /// Gradient Bottom Border
               Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
+                bottom: 0, left: 0, right: 0,
                 child: Container(
-                  height: 2, // Border thickness
+                  height: 2,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        Colors.orange, // Start - Orange
-                        Colors.orangeAccent, // Stop 2 - Orange Accent
-                        Colors.green, // Stop 3 - Green
-                        Colors.greenAccent, // Stop 4 - Green Accent
-                      ],
-                      stops: const [0.0, 0.5, 0.5, 1.0], // Define stops at 50% transition
+                      colors: [Colors.orange, Colors.orangeAccent, Colors.green, Colors.greenAccent],
+                      stops: const [0.0, 0.5, 0.5, 1.0],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
@@ -77,63 +104,62 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
               ),
             ],
           ),
-          title: const Text('Support Tickets'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Container(
-                height: 350,
-                child: ListView.builder(
-                  itemCount: submittedTickets.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.2),
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _getTicketsStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return const Center(child: Text("No support tickets found."));
+                    }
+
+                    return ListView.builder(
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var ticket = snapshot.data!.docs[index];
+
+                        return Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(color: Colors.grey.withOpacity(0.2), blurRadius: 5, offset: const Offset(0, 3)),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: _getStatusColor(submittedTickets[index]['status']!),
-                          child: const Icon(Icons.support_agent, color: Colors.white),
-                        ),
-                        title: Text(
-                          submittedTickets[index]['title']!,
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-                        ),
-                        subtitle: Text(
-                          'Status: ${submittedTickets[index]['status']}',
-                          style: TextStyle(color: _getStatusColor(submittedTickets[index]['status']!)),
-                        ),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TicketDetailPage(ticket: submittedTickets[index]),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: _getStatusColor(ticket['status']),
+                              child: const Icon(Icons.support_agent, color: Colors.white),
                             ),
-                          );
-                        },
-                      ),
+                            title: Text(ticket['title'], style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+                            subtitle: Text("Status: ${ticket['status']}", style: TextStyle(color: _getStatusColor(ticket['status']))),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TicketDetailPage(ticketId: ticket.id),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
               ),
               const SizedBox(height: 15),
-              const Text(
-                'Submit a Support Ticket',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
+              const Text('Submit a Support Ticket', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87)),
               const SizedBox(height: 15),
               TextField(
                 controller: _ticketTitleController,
@@ -152,25 +178,12 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 36),
                   decoration: BoxDecoration(
                     color: MyColors.color2,
-                    borderRadius: BorderRadius.circular(8), // Add rounded corners
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.3),
-                        blurRadius: 5,
-                        offset: const Offset(0, 3), // Shadow position
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), blurRadius: 5, offset: const Offset(0, 3))],
                   ),
-                  child: const Text(
-                    'Submit',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: const Text('Submit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               )
-
             ],
           ),
         ),
@@ -180,79 +193,12 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'Open':
-        return MyColors.color2;
-      case 'In Progress':
-        return MyColors.color1;
-      case 'Resolved':
-        return Colors.green;
-      case 'Closed':
-        return Colors.grey;
-      default:
-        return Colors.black;
+      case 'Open': return MyColors.color2;
+      case 'In Progress': return MyColors.color1;
+      case 'Resolved': return Colors.green;
+      case 'Closed': return Colors.grey;
+      default: return Colors.black;
     }
   }
 }
 
-class TicketDetailPage extends StatelessWidget {
-  final Map<String, String> ticket;
-
-  const TicketDetailPage({required this.ticket, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        toolbarHeight: 65,
-        flexibleSpace: Stack(
-          children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFF8F8F8),
-                    Color(0xFFF1F1F1),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
-
-            /// Gradient Bottom Border
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                height: 2, // Border thickness
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.orange, // Start - Orange
-                      Colors.orangeAccent, // Stop 2 - Orange Accent
-                      Colors.green, // Stop 3 - Green
-                      Colors.greenAccent, // Stop 4 - Green Accent
-                    ],
-                    stops: const [0.0, 0.5, 0.5, 1.0],
-                    // Define stops at 50% transition
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        title: Text(ticket['title']!, style: TextStyle(
-
-        ),),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(ticket['details']!, style: const TextStyle(color: Colors.black87)),
-      ),
-    );
-  }
-}

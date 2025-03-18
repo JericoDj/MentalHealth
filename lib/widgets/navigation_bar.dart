@@ -42,7 +42,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
       HomeScreen(),
       GrowthGardenScreen(),
       BookNowScreen(),
-      SafeTalksScreen(
+      SafeSpaceScreen(
         onBackToHome: () {
           setState(() {
             _selectedIndex = 0; // Switch to HomeScreen
@@ -236,7 +236,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
                             _buildNavItem(Icons.spa, "Growth Garden", 1),
                             const SizedBox(width: 50),
                             // Space for floating button
-                            _buildNavItem(Icons.group, "Safe Talks", 3),
+                            _buildNavItem(Icons.group, "Safe Space", 3),
                             _buildNavItem(Icons.person, "Account", 4),
                           ],
                         ),

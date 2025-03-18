@@ -74,63 +74,73 @@ class AchievementsSection extends StatelessWidget {
       );
     });
   }
-
-  // ✅ Unlocked Achievements as Badges (Clickable)
+// ✅ Unlocked Achievements as Badges (Scrollable)
   Widget _buildUnlockedBadges(List<Map<String, dynamic>> achievements, BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: achievements.map((achievement) {
-          return GestureDetector(
-            onTap: () => _showAchievementDetails(context, achievement),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFFfcbc1d),
-                        Color(0xFFfd9c33),
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
+      height: 120, // 🔹 Fixed height to prevent layout breaking
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal, // 🔹 Enable horizontal scrolling
+        child: Row(
+          children: achievements.map((achievement) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8), // 🔹 Space between items
+              child: GestureDetector(
+                onTap: () => _showAchievementDetails(context, achievement),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            Color(0xFFfcbc1d),
+                            Color(0xFFfd9c33),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                      child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.emoji_events, color: MyColors.color1, size: 32),
+                      ),
                     ),
-                    child: Icon(Icons.emoji_events, color: MyColors.color1, size: 32),
-                  ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10), // 🔹 Ensure space for full text
+                      child: Text(
+                        achievement["title"],
+                        textAlign: TextAlign.center,
+                        softWrap: true, // 🔹 Allow text wrapping
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  achievement["title"],
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
+
 
   // ✅ Locked Achievements with Progress Bars (Clickable)
   Widget _buildProgressSection(List<Map<String, dynamic>> achievements, BuildContext context) {

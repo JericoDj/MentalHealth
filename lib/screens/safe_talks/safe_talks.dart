@@ -1,50 +1,137 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
 import 'package:flutter/rendering.dart';
 
-class SafeTalksScreen extends StatefulWidget {
+import '../../utils/storage/user_storage.dart';
+
+class SafeSpaceScreen extends StatefulWidget {
   final VoidCallback? onBackToHome;
 
-  const SafeTalksScreen({Key? key, this.onBackToHome}) : super(key: key);
+  const SafeSpaceScreen({Key? key, this.onBackToHome}) : super(key: key);
 
   @override
-  _SafeTalksScreenState createState() => _SafeTalksScreenState();
+  _SafeSpaceScreenState createState() => _SafeSpaceScreenState();
 }
 
-class _SafeTalksScreenState extends State<SafeTalksScreen> {
-  ScrollController _scrollControllerForYou = ScrollController();
-  ScrollController _scrollControllerMyPosts = ScrollController();
-  bool _showSearch = true;
-  List<Map<String, dynamic>> _approvedPosts = [
-    {
-      "username": "Alice",
-      "time": "2 hrs ago",
-      "content": "This is an approved post. Stay positive! 💙",
-      "likes": 10,
-      "comments": List<Map<String, dynamic>>.generate(20, (index) => {"username": "User$index", "comment": "Comment $index"})
-    },
-    {
-      "username": "Bob",
-      "time": "5 hrs ago",
-      "content": "Mental health matters. Take care of yourself. 😊",
-      "likes": 15,
-      "comments": List<Map<String, dynamic>>.generate(20, (index) => {"username": "User$index", "comment": "Comment $index"})
-    }
-  ];
+class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  List<Map<String, dynamic>> _approvedPosts = [];
   List<Map<String, dynamic>> _pendingPosts = [];
   List<Map<String, dynamic>> _myPosts = [];
-
   @override
   void initState() {
     super.initState();
-    _scrollControllerForYou.addListener(() {
-      _handleScroll(_scrollControllerForYou);
-    });
-    _scrollControllerMyPosts.addListener(() {
-      _handleScroll(_scrollControllerMyPosts);
-    });
+
+    _fetchPosts();
+
     _showKeepItCleanDialog();
   }
+
+  void _fetchPosts() {
+    final String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    _firestore.collection('safeSpace').doc('posts').collection('userPosts')
+        .snapshots().listen((snapshot) {
+      List<Map<String, dynamic>> approved = [];
+      List<Map<String, dynamic>> pending = [];
+      List<Map<String, dynamic>> myPosts = [];
+
+      for (var doc in snapshot.docs) {
+        var postData = doc.data();
+        postData['id'] = doc.id;
+        postData['comments'] ??= [];
+
+        if (postData["status"] == "pending") {
+          pending.add(postData);
+        }
+        else if (postData["status"] == "approved") { // 🔹 Ensuring only approved ones are added
+          approved.add(postData);
+        }
+
+        if (postData["userId"] == uid) {
+          myPosts.add(postData);
+        }
+      }
+
+      setState(() {
+        _approvedPosts = approved;
+        _pendingPosts = pending;
+        _myPosts = myPosts;
+      });
+
+      print("Fetched ${_approvedPosts.length} approved posts");  // 🔹 Debugging
+      print("Fetched ${_pendingPosts.length} pending posts");  // 🔹 Debugging
+    });
+  }
+
+
+  // ────────────────────────────────────────────────
+  // 📌 SUBMIT A NEW POST
+  // ────────────────────────────────────────────────
+  void _submitPost(String content) async {
+    String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    String now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+    Map<String, dynamic> post = {
+      "userId": uid,
+      "username": uid, // Update this to display actual usernames
+      "time": now,
+      "content": content,
+      "likes": [], // 🔹 Likes will be a list of UIDs instead of count
+      "comments": [],
+      "status": "pending",
+    };
+
+    try {
+      DocumentReference docRef = await _firestore
+          .collection('safeSpace')
+          .doc('posts')
+          .collection('userPosts')
+          .add(post);
+
+      print('Post submitted successfully with ID: ${docRef.id}');
+    } catch (e) {
+      print('Error submitting post: $e');
+    }
+  }
+
+
+
+  // ────────────────────────────────────────────────
+  // 📌 LIKE A POST
+  // ────────────────────────────────────────────────
+  void _likePost(String postId, List<dynamic> currentLikes) async {
+    String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    DocumentReference postRef = _firestore
+        .collection('safeSpace')
+        .doc('posts')
+        .collection('userPosts')
+        .doc(postId);
+
+    if (currentLikes.contains(uid)) {
+      // If the user has already liked, remove their UID
+      await postRef.update({
+        "likes": FieldValue.arrayRemove([uid])
+      });
+    } else {
+      // If the user hasn't liked, add their UID
+      await postRef.update({
+        "likes": FieldValue.arrayUnion([uid])
+      });
+    }
+  }
+
 
   void _showKeepItCleanDialog() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,7 +146,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
   Widget _buildKeepItCleanDialog(BuildContext context) {
     return AlertDialog(
       title: const Text(
-        "Welcome to Safe Talk!",
+        "Welcome to Safe Space!",
         style: TextStyle(fontWeight: FontWeight.bold, color: MyColors.color1, fontSize: 20),
       ),
       content: Container(
@@ -195,65 +282,54 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
     );
   }
 
-  void _handleScroll(ScrollController controller) {
-    if (controller.position.userScrollDirection == ScrollDirection.reverse) {
-      if (_showSearch) {
-        setState(() {
-          _showSearch = false;
-        });
-      }
-    } else if (controller.position.userScrollDirection == ScrollDirection.forward) {
-      if (!_showSearch) {
-        setState(() {
-          _showSearch = true;
-        });
-      }
+
+
+  void _cancelPendingPost(String postId) async {
+    try {
+      await _firestore
+          .collection('safeSpace')
+          .doc('posts')
+          .collection('userPosts')
+          .doc(postId)
+          .delete();
+
+      print("Pending post deleted: $postId");
+    } catch (e) {
+      print("Error deleting pending post: $e");
     }
   }
 
-  void _submitPost(String content) {
-    setState(() {
-      Map<String, dynamic> post = {
-        "username": "You",
-        "time": "Just now",
-        "content": content,
-        "likes": 0,
-        "comments": [],
-        "pending": true,
-      };
-      _pendingPosts.insert(0, post);
-      _myPosts.insert(0, post);
-    });
+  void _deleteMyPost(String postId) async {
+    try {
+      await _firestore
+          .collection('safeSpace')
+          .doc('posts')
+          .collection('userPosts')
+          .doc(postId)
+          .delete();
+
+      print("Post deleted: $postId");
+    } catch (e) {
+      print("Error deleting post: $e");
+    }
   }
 
-  void _cancelPendingPost(int index) {
-    setState(() {
-      _pendingPosts.removeAt(index);
-      _myPosts.removeWhere((post) => post["pending"] == true);
-    });
-  }
 
-  void _likePost(int index, bool isPending, bool isMyPost) {
-    setState(() {
-      if (isMyPost) {
-        _myPosts[index]["likes"] += 1;
-      } else if (isPending) {
-        _pendingPosts[index]["likes"] += 1;
-      } else {
-        _approvedPosts[index]["likes"] += 1;
-      }
-    });
-  }
+
 
   void openCommentsModal(int index, bool isPending, bool isMyPost) {
-    List<Map<String, dynamic>> comments = isMyPost
-        ? _myPosts[index]["comments"]
-        : isPending
-        ? _pendingPosts[index]["comments"]
-        : _approvedPosts[index]["comments"];
+    String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
 
-    int _visibleComments = 7;
+    // 🔹 Get correct list of comments
+    List<dynamic> comments = isMyPost
+        ? _myPosts[index]["comments"] ?? []
+        : isPending
+        ? _pendingPosts[index]["comments"] ?? []
+        : _approvedPosts[index]["comments"] ?? [];
+
     TextEditingController commentController = TextEditingController();
+    int _visibleComments = 7;
 
     showModalBottomSheet(
       context: context,
@@ -274,6 +350,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // 🔹 Title and Close Button
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 20),
                     child: Row(
@@ -294,6 +371,8 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                     ),
                   ),
                   Divider(height: 1),
+
+                  // 🔹 Comments List
                   Expanded(
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (ScrollNotification scrollInfo) {
@@ -342,12 +421,23 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                               ),
                             );
                           }
+
+                          // 🔹 Display comment
                           return ListTile(
                             leading: CircleAvatar(
                               backgroundImage: AssetImage('assets/avatars/Avatar1.jpeg'),
                             ),
-                            title: Text(comments[index]["username"]),
-                            subtitle: Text(comments[index]["comment"]),
+                            title: Text(comments[index]["uid"] ?? "Unknown"),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(comments[index]["comment"] ?? ""),
+                                Text(
+                                  comments[index]["time"] ?? "",
+                                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                                ),
+                              ],
+                            ),
                             trailing: PopupMenuButton<String>(
                               onSelected: (value) {
                                 if (value == "Report") {
@@ -365,6 +455,8 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                       ),
                     ),
                   ),
+
+                  // 🔹 Input Field for New Comment
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Row(
@@ -385,17 +477,24 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                           ),
                         ),
                         SizedBox(width: 10),
+
+                        // 🔹 Add Comment Button
                         IconButton(
                           icon: Icon(Icons.send, color: MyColors.color2),
                           onPressed: () {
                             if (commentController.text.isNotEmpty) {
+                              _addComment(
+                                postId: _approvedPosts[index]["id"],
+                                comment: commentController.text,
+                              );
                               setState(() {
                                 comments.insert(0, {
-                                  "username": "You",
+                                  "uid": uid,
+                                  "time": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
                                   "comment": commentController.text,
                                 });
-                                commentController.clear();
                               });
+                              commentController.clear();
                             }
                           },
                         ),
@@ -412,6 +511,31 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
     );
   }
 
+  void _addComment({required String postId, required String comment}) async {
+    String? uid = _auth.currentUser?.uid;
+    if (uid == null) return;
+
+    String now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+    Map<String, dynamic> newComment = {
+      "uid": uid,
+      "time": now,
+      "comment": comment,
+    };
+
+    try {
+      await _firestore.collection('safeSpace').doc('posts').collection('userPosts').doc(postId).update({
+        "comments": FieldValue.arrayUnion([newComment]),
+      });
+
+      print("Comment added: $comment");
+    } catch (e) {
+      print("Error adding comment: $e");
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -422,26 +546,7 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                height: _showSearch ? 60 : 0,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    ),
-                  ),
-                ),
-              ),
+
               const TabBar(
                 labelColor: MyColors.color1,
                 unselectedLabelColor: Colors.black54,
@@ -465,7 +570,6 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
       ),
     );
   }
-
   Widget _buildPostFeed() {
     return ListView(
       children: [
@@ -479,7 +583,11 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
   Widget _buildMyPostsFeed() {
     return ListView(
       children: [
-        ..._myPosts.map((post) => buildPostItem(post, post["pending"], true)),
+        ..._myPosts.map((post) => buildPostItem(
+          post,
+          post["status"] == "pending", // 🔹 Properly checking "status" instead of "pending"
+          true,
+        )),
       ],
     );
   }
@@ -520,7 +628,13 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
   }
 
   Widget buildPostItem(Map<String, dynamic> post, bool pending, bool isMyPost) {
-    int index = isMyPost ? _myPosts.indexOf(post) : pending ? _pendingPosts.indexOf(post) : _approvedPosts.indexOf(post);
+    String? uid = _auth.currentUser?.uid;
+
+    // 🔹 Ensure "likes" is always a list
+    List<dynamic> likes = (post["likes"] is List) ? post["likes"] : [];
+
+    bool hasLiked = likes.contains(uid); // ✅ Check if user has already liked
+
     return Card(
       elevation: 10,
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -536,12 +650,14 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
             children: [
               ListTile(
                 leading: const CircleAvatar(backgroundImage: AssetImage('assets/avatars/Avatar1.jpeg')),
-                title: Text(post["username"]),
-                subtitle: Text(post["time"]),
+                title: Text(post["username"] ?? "Anonymous"),
+                subtitle: Text(post["time"] ?? "Unknown time"),
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == "Report") {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Post reported.")));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Post reported.")),
+                      );
                     }
                   },
                   itemBuilder: (context) => [
@@ -549,16 +665,46 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
                   ],
                 ),
               ),
-              Text(post["content"]),
-              if (pending) const Text("Pending Approval", style: TextStyle(color: Colors.redAccent)),
+              Text(post["content"] ?? ""),
+              if (pending)
+                const Text("Pending Approval", style: TextStyle(color: Colors.redAccent)),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  IconButton(icon: const Icon(Icons.favorite_border), onPressed: () => _likePost(index, pending, isMyPost)),
-                  Text(post["likes"].toString()),
-                  IconButton(icon: const Icon(Icons.comment), onPressed: () => openCommentsModal(index, pending, isMyPost)),
-                  Text(post["comments"].length.toString()),
-                  if (pending && isMyPost) TextButton(onPressed: () => _cancelPendingPost(index), child: const Text("Cancel")),
+                  // 🔹 Like Button with Toggle Feature
+                  IconButton(
+                    icon: Icon(
+                      hasLiked ? Icons.favorite : Icons.favorite_border,
+                      color: hasLiked ? Colors.red : null, // ✅ Highlight if liked
+                    ),
+                    onPressed: () => _likePost(post["id"] ?? "", likes),
+                  ),
+                  Text(likes.length.toString()), // ✅ Show total likes
+
+                  // 🔹 Comments Section
+                  IconButton(
+                    icon: const Icon(Icons.comment),
+                    onPressed: () => openCommentsModal(
+                      isMyPost ? _myPosts.indexOf(post) : pending ? _pendingPosts.indexOf(post) : _approvedPosts.indexOf(post),
+                      pending,
+                      isMyPost,
+                    ),
+                  ),
+                  Text((post["comments"] ?? []).length.toString()),
+
+                  // 🔹 Delete (if it's my post)
+                  if (isMyPost)
+                    TextButton(
+                      onPressed: () => _deleteMyPost(post["id"]),
+                      child: const Text("Delete"),
+                    ),
+
+                  // 🔹 Cancel (only for pending posts)
+                  if (pending && isMyPost)
+                    TextButton(
+                      onPressed: () => _cancelPendingPost(post["id"]),
+                      child: const Text("Cancel"),
+                    ),
                 ],
               ),
             ],
@@ -567,4 +713,5 @@ class _SafeTalksScreenState extends State<SafeTalksScreen> {
       ),
     );
   }
+
 }

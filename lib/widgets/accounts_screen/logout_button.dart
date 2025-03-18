@@ -21,7 +21,7 @@ class LogoutButton extends StatelessWidget {
           backgroundColor: Colors.white, // Button background
         ),
         onPressed: () {
-          loginController.logout(); // ✅ Call logout function from controller
+          _showLogoutDialog(context, loginController);
         },
         child: Text(
           'Log Out',
@@ -31,6 +31,44 @@ class LogoutButton extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
+      ),
+    );
+  }
+
+  // ────────────────────────────────────────────────
+  // 📌 SHOW LOGOUT CONFIRMATION DIALOG
+  // ────────────────────────────────────────────────
+  void _showLogoutDialog(BuildContext context, LoginController loginController) {
+    Get.dialog(
+      AlertDialog(
+        title: const Text(
+          "Confirm Logout",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        content: const Text(
+          "Are you sure you want to log out?",
+          style: TextStyle(fontSize: 16),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(), // Close dialog
+            child: const Text(
+              "Cancel",
+              style: TextStyle(fontSize: 16, color: Colors.black54),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back(); // Close dialog
+              loginController.logout(); // ✅ Perform logout
+            },
+            child: Text(
+              "Log Out",
+              style: TextStyle(fontSize: 16, color: Colors.redAccent, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
       ),
     );
   }

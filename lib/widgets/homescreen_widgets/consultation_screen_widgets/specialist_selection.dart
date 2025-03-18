@@ -26,14 +26,14 @@ class SpecialistSelection extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: selectedService == null
-                  ? [Colors.black45, Colors.black54] // Black gradient when no service is selected
-                  : [MyColors.color1, MyColors.color2], // Custom gradient when service is selected
+                  ? [Colors.black45, Colors.black54]
+                  : [MyColors.color1, MyColors.color2],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
-          padding: const EdgeInsets.all(2), // Creates the gradient border effect
+          padding: const EdgeInsets.all(2),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
@@ -49,7 +49,7 @@ class SpecialistSelection extends StatelessWidget {
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: selectedService == null
-                        ? Colors.black45.withAlpha(180) // Faded text when not selected
+                        ? Colors.black45.withAlpha(180)
                         : Colors.black87,
                   ),
                 ),
@@ -61,6 +61,7 @@ class SpecialistSelection extends StatelessWidget {
                         context,
                         selectedService!,
                         _getServiceDescription(selectedService!),
+                        _getServiceImage(selectedService!),
                       );
                     },
                     child: Tooltip(
@@ -115,6 +116,7 @@ class SpecialistSelection extends StatelessWidget {
                     context,
                     _specialists[index],
                     _getServiceDescription(_specialists[index]),
+                    _getServiceImage(_specialists[index]),
                   );
                 },
                 child: Tooltip(
@@ -133,37 +135,63 @@ class SpecialistSelection extends StatelessWidget {
   String _getServiceDescription(String service) {
     const Map<String, String> _serviceDetails = {
       "Psychological Assessment":
-      "Use of integrative tools such as testing, interviews, and observation, or other assessment tools to a comprehensive understanding of the client's system, concern or condition depending on their needs and purpose(e.g. school, employment, diagnosis, legal requirement, emotional support animal)",
+      "Use of integrative tools such as testing, interviews, and observation, or other assessment tools to understand the client's concerns depending on their needs (e.g., school, employment, diagnosis, legal requirements, emotional support animals).",
       "Consultation":
-      "A session where you can freely express, share, and consult your mental health concerns, experiences, thoughts and emotions. A recommendation or established therapeutic goals will be given at the end of this session.\n\n"
+      "A session where you can freely express and discuss your mental health concerns, thoughts, and emotions. Recommendations or therapeutic goals will be provided at the end.\n\n"
           "A. Psychiatric Consultation – With a psychiatrist.\n"
           "B. Adult Psychological Consultation – For adults.\n"
           "C. Child and Adolescent Consultation – For children and teens.",
       "Couple Therapy/Counseling":
-      "An intervention that aims to help the couple build a healthy relationship and facilitate conflict resolutions that hinder a satisfying relationship",
+      "An intervention to help couples build a healthy relationship and resolve conflicts affecting their relationship satisfaction.",
       "Counseling and Psychotherapy":
-      "A therapeutic session with a psychologist to help a client towards healing, intervention, or recovery from his/her concern, experiences, trauma, or any psychological and mental health challenges.",
+      "A therapeutic session with a psychologist to assist with healing, intervention, or recovery from mental health challenges, trauma, or personal concerns.",
     };
 
     return _serviceDetails[service] ?? "No description available.";
   }
 
-  void _showServiceDetails(BuildContext context, String service, String description) {
+  String _getServiceImage(String service) {
+    const Map<String, String> _serviceImages = {
+      "Psychological Assessment": "assets/images/homescreen/PsychologicalAssessment.jpg",
+      "Consultation": "assets/images/homescreen/Consultation.jpg",
+      "Couple Therapy/Counseling": "assets/images/homescreen/CoupleTherapy.jpg",
+      "Counseling and Psychotherapy": "assets/images/homescreen/Counselling.jpg",
+    };
+
+    return _serviceImages[service] ?? "assets/images/default.png";
+  }
+
+  void _showServiceDetails(BuildContext context, String service, String description, String imagePath) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        title: Text(
-          service,
-          style: TextStyle(color: MyColors.color1, fontWeight: FontWeight.bold),
+        title: Column(
+          children: [
+            Text(
+              service,
+              style: TextStyle(color: MyColors.color1, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                imagePath,
+                width: 250,
+                height: 150,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 80, color: Colors.grey),
+              ),
+            ),
+          ],
         ),
         content: Text(description),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text("Close", style: TextStyle(color: MyColors.color1,fontSize: 14, )),
+            child: Text("Close", style: TextStyle(color: MyColors.color1, fontSize: 14)),
           ),
         ],
       ),

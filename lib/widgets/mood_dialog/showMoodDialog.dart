@@ -103,8 +103,6 @@ void showMoodDialog(BuildContext context) {
 
                       await moodController.saveMoodTracking(_selectedMood, _stressLevel.toInt());
 
-                      // ✅ Fetch the latest mood data
-                      await moodController.fetchUserMoodDataForCurrentWeek();
 
                       // ✅ Fetch latest daily check-ins
                       await userProgressController.fetchUserCheckIns();
