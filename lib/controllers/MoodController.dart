@@ -19,6 +19,24 @@ class MoodController extends GetxController {
     _loadMoodsFromStorage();
   }
 
+  // 🆕 Get dominant mood calculation
+  String getDominantMood() {
+    final counts = getMoodCounts();
+    if (counts.isEmpty) return "No data";
+
+    String dominant = "";
+    int maxCount = 0;
+
+    counts.forEach((mood, count) {
+      if (count > maxCount) {
+        maxCount = count;
+        dominant = mood;
+      }
+    });
+
+    return dominant.isNotEmpty ? dominant : "Neutral";
+  }
+
 
 
 
@@ -134,6 +152,10 @@ class MoodController extends GetxController {
       return dailyMoods;
     }
   }
+
+
+
+
 
 
 
@@ -274,3 +296,5 @@ class MoodController extends GetxController {
     print("🗑️ Cleared stored moods.");
   }
 }
+
+

@@ -49,7 +49,7 @@ class AuthenticationRepository extends GetxController {
         Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
       } else {
         // No user logged in, redirect to LoginScreen
-        Get.offAll(() => LoginScreen());
+        Get.offAll(() => OnBoardingScreen());
       }
     }
   }

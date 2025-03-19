@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class Consultation {
   final String serviceType;
@@ -8,6 +9,8 @@ class Consultation {
   final String bookedTime;
   final String createdDate;
   final String createdTime;
+  final String? meetingLink; // ✅ Added optional field
+  final String? specialist; // ✅ Added optional field
 
   Consultation({
     required this.serviceType,
@@ -17,11 +20,23 @@ class Consultation {
     required this.bookedTime,
     required this.createdDate,
     required this.createdTime,
+    this.meetingLink, // ✅ Optional
+    this.specialist, // ✅ Optional
   });
 
-  /// **🔥 Create `Consultation` Object from Firestore Document**
+  /// **🔥 Convert Firestore Document to `Consultation` Object**
   factory Consultation.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+    // ✅ Extract created_at and format Date & Time properly
+    String formattedDate = "N/A";
+    String formattedTime = "Unknown Time";
+
+    if (data['created_at'] != null) {
+      DateTime createdAt = (data['created_at'] as Timestamp).toDate();
+      formattedDate = DateFormat('yyyy-MM-dd').format(createdAt); // Extract Date
+      formattedTime = DateFormat.jm().format(createdAt); // Extract Time in AM/PM format
+    }
 
     return Consultation(
       serviceType: data['service'] ?? 'Unknown Service',
@@ -29,10 +44,10 @@ class Consultation {
       status: data['status'] ?? 'Unknown',
       bookedDate: data['date_requested'] ?? 'N/A',
       bookedTime: data['time'] ?? 'N/A',
-      createdDate: (data['created_at'] != null)
-          ? (data['created_at'] as Timestamp).toDate().toString()
-          : 'N/A',
-      createdTime: '', // Can add logic for formatting time
+      createdDate: formattedDate, // ✅ Properly formatted created date
+      createdTime: formattedTime, // ✅ Properly formatted created time
+      meetingLink: data.containsKey('meeting_link') ? data['meeting_link'] : null, // ✅ Check if exists
+      specialist: data.containsKey('specialist') ? data['specialist'] : null, // ✅ Check if exists
     );
   }
 }

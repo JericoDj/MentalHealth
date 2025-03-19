@@ -90,6 +90,9 @@ class MoodSection extends StatelessWidget {
     });
   }
 
+
+
+
   /// ✅ **Mood History (Latest 7 Days)**
   Widget _buildDailyMoodRow() {
     List<Map<String, String>> days = _moodController.getLatestMoods(_moodController.getDaysFromPeriod(_moodController.selectedPeriod.value));

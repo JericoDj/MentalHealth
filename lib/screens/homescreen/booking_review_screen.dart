@@ -522,7 +522,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
         "date_requested": widget.selectedDate,
         "time": widget.selectedTime,
         "service": widget.service,
-        "status": "requested",
+        "status": "Requested",
         "signature_url": signatureUrl,
         "created_at": FieldValue.serverTimestamp(),
       });

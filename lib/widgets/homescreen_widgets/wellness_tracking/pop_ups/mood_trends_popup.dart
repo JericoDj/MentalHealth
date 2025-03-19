@@ -32,7 +32,6 @@ class MoodTrendsPopup extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 10),
 
             // ✅ Mood Summary (Dynamically Updated)
@@ -45,21 +44,16 @@ class MoodTrendsPopup extends StatelessWidget {
                 );
               }
 
-              // ✅ Get the most frequently recorded mood
-              String dominantMood = moodController.moodData.entries
-                  .reduce((a, b) => a.value > b.value ? a : b)
-                  .key;
-
-              // ✅ Get emoji for dominant mood
+              // ✅ Get the most frequent mood
+              String dominantMood = moodController.getDominantMood();
               String moodEmoji = getMoodEmoji(dominantMood);
 
               return Column(
                 children: [
                   Text(
-                    moodEmoji, // ✅ Display emoji properly
-                    style: const TextStyle(fontSize: 36), // ✅ Large emoji size
+                    moodEmoji, // ✅ Display emoji
+                    style: const TextStyle(fontSize: 36),
                   ),
-
                   Text(
                     "Your dominant mood for the past week: $dominantMood",
                     textAlign: TextAlign.center,
@@ -68,8 +62,6 @@ class MoodTrendsPopup extends StatelessWidget {
                   const SizedBox(height: 10),
                   _getMoodRecommendation(dominantMood),
                 ],
-
-
               );
             }),
             const SizedBox(height: 20),

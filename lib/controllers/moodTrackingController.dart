@@ -36,11 +36,14 @@ class MoodTrackingController extends GetxController {
         "timestamp": Timestamp.now(),
       });
 
-      // Update local state to reflect the new mood immediately
-      userMoods[todayDate] = moodEmoji; // Store the emoji for that specific day
+      // ✅ Update local state to reflect the new mood immediately
+      userMoods[getDayOfWeek(todayDate)] = moodEmoji;
 
-      // Store the updated mood data in local storage
+      // ✅ Store the updated mood data in local storage
       _localStorage.write("userMoods", userMoods);
+
+      // ✅ Fetch latest moods again to ensure UI consistency
+      await fetchUserMoodDataForCurrentWeek();
 
       Get.snackbar("Success", "Mood tracking saved successfully!");
     } catch (e) {
@@ -50,17 +53,12 @@ class MoodTrackingController extends GetxController {
     }
   }
 
+
   Future<void> fetchUserMoodDataForCurrentWeek() async {
     String? uid = _storage.getUid();
     if (uid == null) return;
 
-    // First, try to get data from local storage
-    if (_localStorage.hasData("userMoods")) {
-      // If data is available in local storage, load it directly
-      userMoods.assignAll(Map<String, String>.from(_localStorage.read("userMoods")));
-      print("DEBUG: Loaded moods from local storage -> $userMoods");
-      return;
-    }
+
 
     try {
       DateTime now = DateTime.now();
@@ -68,19 +66,19 @@ class MoodTrackingController extends GetxController {
       // Dynamically calculate the number of days to fetch based on the current day.
       int daysToFetch;
       if (now.weekday == DateTime.monday) {
-        daysToFetch = 1;
+        daysToFetch = 0;
       } else if (now.weekday == DateTime.tuesday) {
-        daysToFetch = 2;
+        daysToFetch = 1;
       } else if (now.weekday == DateTime.wednesday) {
-        daysToFetch = 3;
+        daysToFetch = 2;
       } else if (now.weekday == DateTime.thursday) {
-        daysToFetch = 4;
+        daysToFetch = 3;
       } else if (now.weekday == DateTime.friday) {
-        daysToFetch = 5;
+        daysToFetch = 4;
       } else if (now.weekday == DateTime.saturday) {
-        daysToFetch = 6;
+        daysToFetch = 5;
       } else if (now.weekday == DateTime.sunday) {
-        daysToFetch = 7;
+        daysToFetch = 6;
       } else {
         daysToFetch = 3;
       }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:llps_mental_app/screens/loginscreen.dart';
+import 'package:llps_mental_app/utils/constants/colors.dart';
 
 class OnBoardingScreen extends StatefulWidget {
   @override
@@ -13,16 +14,19 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
 
   final List<Map<String, String>> onboardingData = [
     {
-      'title': 'Welcome to App',
-      'description': 'Discover features that help you grow and connect.'
+      'image': 'assets/images/IMG_8289.JPG',
+      'title': 'Welcome to Light Level App',
+      'description': 'Your journey to better mental health starts here. Find support, track progress, and build resilience.'
     },
     {
-      'title': 'Easy to Use',
-      'description': 'Our intuitive design makes it easy for everyone.'
+      'image': 'assets/images/IMG_8246.JPG',
+      'title': 'You Are Not Alone',
+      'description': 'Find support through guided exercises, self-care tools, and a compassionate community.'
     },
     {
-      'title': 'Get Started Now',
-      'description': 'Let’s dive right in and get you onboard!'
+      'image': 'assets/images/IMG_8310.JPG',
+      'title': 'We’re Here for You',
+      'description': 'Whenever you need help, our resources and experts are just a tap away.'
     },
   ];
 
@@ -50,6 +54,7 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
               },
               itemCount: onboardingData.length,
               itemBuilder: (context, index) => OnboardingContent(
+                image: onboardingData[index]['image']!,
                 title: onboardingData[index]['title']!,
                 description: onboardingData[index]['description']!,
               ),
@@ -63,17 +68,28 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
             ),
           ),
           SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
+          GestureDetector(
+            onTap: () {
               if (currentPage == onboardingData.length - 1) {
-                Get.to(() =>  LoginScreen());
+                Get.to(() => LoginScreen());
               } else {
                 nextPage();
               }
             },
-            child: Text(currentPage == onboardingData.length - 1 ? "Get Started" : "Next"),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              decoration: BoxDecoration(
+                color: MyColors.color2, // Background color
+                borderRadius: BorderRadius.circular(8), // Optional rounded corners
+              ),
+              child: Text(
+                currentPage == onboardingData.length - 1 ? "Get Started" : "Next",
+                style: const TextStyle(
+                  color: Colors.white, // Text color
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
           SizedBox(height: 40),
@@ -89,7 +105,7 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
       height: 12,
       width: currentPage == index ? 24 : 12,
       decoration: BoxDecoration(
-        color: currentPage == index ? Colors.blue : Colors.grey,
+        color: currentPage == index ? MyColors.color2 : Colors.grey,
         borderRadius: BorderRadius.circular(6),
       ),
     );
@@ -97,10 +113,11 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
 }
 
 class OnboardingContent extends StatelessWidget {
-  final String title, description;
+  final String image, title, description;
 
   const OnboardingContent({
     Key? key,
+    required this.image,
     required this.title,
     required this.description,
   }) : super(key: key);
@@ -112,19 +129,27 @@ class OnboardingContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Empty Container or Placeholder Box (no images)
-          SizedBox(
-            height: 250,
-            child: Center(
-              child: Text(
-                'No Image',
-                style: TextStyle(color: Colors.grey, fontSize: 16),
+          // Image with Border
+          Container(
+            height: 400,
+            decoration: BoxDecoration(
+              border: Border.all(color: MyColors.color2, width: 3), // Border around image
+              borderRadius: BorderRadius.circular(10), // Rounded corners
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8), // Same as the container for consistency
+              child: Image.asset(
+                image,
+                fit: BoxFit.cover,
               ),
             ),
           ),
           SizedBox(height: 30),
+
+          // Centered Title
           Text(
             title,
+            textAlign: TextAlign.center, // Center text
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
@@ -132,6 +157,8 @@ class OnboardingContent extends StatelessWidget {
             ),
           ),
           SizedBox(height: 15),
+
+          // Description
           Text(
             description,
             textAlign: TextAlign.center,

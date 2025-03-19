@@ -51,7 +51,7 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
           .collection("tickets").doc(ticketId).set({
         "ticketId": ticketId,
         "title": _ticketTitleController.text,
-        "message": _ticketDetailsController.text,
+        "concern": _ticketDetailsController.text,
         "status": "Open",
         "reply": "",
         "created_at": FieldValue.serverTimestamp(),

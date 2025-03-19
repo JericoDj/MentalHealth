@@ -19,7 +19,8 @@ class ConsultationStatusWidget extends StatelessWidget {
       bookedDate: consultation.bookedDate,
       bookedTime: consultation.bookedTime,
       createdDate: consultation.createdDate,
-      createdTime: consultation.createdTime,
+      meetingLink: consultation.meetingLink, // ✅ Now passing meeting link
+      specialist: consultation.specialist, // ✅ Now passing specialist
     );
   }
 
@@ -40,10 +41,7 @@ class ConsultationStatusWidget extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Colors.white30,
-              Colors.white24
-            ],
+            colors: [Colors.white30, Colors.white24],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

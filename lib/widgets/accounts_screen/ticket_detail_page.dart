@@ -75,7 +75,7 @@ class _TicketDetailPageState extends State<TicketDetailPage> {
                     children: [
                       Text("Title: ${ticket["title"]}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 10),
-                      Text("Message: ${ticket["message"]}", style: const TextStyle(fontSize: 16)),
+                      Text("Concern: ${ticket["concern"]}", style: const TextStyle(fontSize: 16)),
                       const SizedBox(height: 20),
                       Text("Status: ${ticket["status"]}", style: TextStyle(fontSize: 16, color: _getStatusColor(ticket["status"]))),
                       const Divider(),

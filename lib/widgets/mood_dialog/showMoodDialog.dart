@@ -12,7 +12,7 @@ void showMoodDialog(BuildContext context) {
 
   showDialog(
     context: context,
-    barrierDismissible: false,
+    barrierDismissible: false, // Prevents accidental dismissal
     builder: (dialogContext) {
       double _stressLevel = 50.0;
       String _selectedMood = "";
@@ -37,7 +37,10 @@ void showMoodDialog(BuildContext context) {
                       ),
                       IconButton(
                         icon: const Icon(Icons.close, color: Colors.red, size: 24),
-                        onPressed: () => Navigator.pop(dialogContext),
+                        onPressed: () async {
+                          // ✅ Always refresh mood data before closing
+                          await _saveMoodAndClose(dialogContext, _moodTemp, _stressLevel, moodController, userProgressController, homeController, forceFetch: true);
+                        },
                       ),
                     ],
                   ),
@@ -95,37 +98,10 @@ void showMoodDialog(BuildContext context) {
                 ),
                 const SizedBox(height: 20),
 
-                // Confirm GestureDetector
+                // Confirm Button
                 GestureDetector(
                   onTap: () async {
-                    if (_moodTemp.isNotEmpty) {
-                      _selectedMood = _moodTemp;
-
-                      await moodController.saveMoodTracking(_selectedMood, _stressLevel.toInt());
-
-
-                      // ✅ Fetch latest daily check-ins
-                      await userProgressController.fetchUserCheckIns();
-
-                      // ✅ Refresh HomeScreen
-                      homeController.update();
-
-                      ScaffoldMessenger.of(dialogContext).showSnackBar(
-                        SnackBar(
-                          content: Text("You selected: $_selectedMood with Stress Level: ${_stressLevel.toStringAsFixed(0)}%"),
-                          duration: const Duration(seconds: 3),
-                        ),
-                      );
-
-                      Navigator.pop(dialogContext); // ✅ Close dialog
-                    } else {
-                      ScaffoldMessenger.of(dialogContext).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please select a mood first!"),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    }
+                    await _saveMoodAndClose(dialogContext, _moodTemp, _stressLevel, moodController, userProgressController, homeController, forceFetch: false);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
@@ -149,6 +125,41 @@ void showMoodDialog(BuildContext context) {
       );
     },
   );
+}
+
+// ✅ Function to Save Mood and Close Dialog
+Future<void> _saveMoodAndClose(
+    BuildContext dialogContext,
+    String mood,
+    double stressLevel,
+    MoodTrackingController moodController,
+    UserProgressController userProgressController,
+    HomeController homeController,
+    {bool forceFetch = false}) async {
+
+  if (mood.isNotEmpty) {
+    await moodController.saveMoodTracking(mood, stressLevel.toInt());
+
+    // ✅ Fetch latest daily check-ins
+    await userProgressController.fetchUserCheckIns();
+
+    // ✅ Refresh HomeScreen
+    homeController.update();
+
+    ScaffoldMessenger.of(dialogContext).showSnackBar(
+      SnackBar(
+        content: Text("You selected: $mood with Stress Level: ${stressLevel.toStringAsFixed(0)}%"),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
+  // ✅ Always fetch mood data when closing
+  if (forceFetch || mood.isNotEmpty) {
+    await moodController.fetchUserMoodDataForCurrentWeek();
+  }
+
+  Navigator.pop(dialogContext); // ✅ Close dialog after saving or refreshing
 }
 
 // Mood Emoji Selection
