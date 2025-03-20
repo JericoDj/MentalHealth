@@ -191,7 +191,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
 
               /// Bottom Navigation Bar
               Container(
-                height: 65,
+                height: 70,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                 ),

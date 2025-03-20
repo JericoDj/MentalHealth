@@ -15,15 +15,18 @@ import '../../widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({Key? key}) : super(key: key);
 
-  final UserProgressController userProgressController = Get.put(UserProgressController());
+  final UserProgressController userProgressController = Get.put(
+      UserProgressController());
   final ProgressController progressController = Get.put(ProgressController());
-  final AchievementsController achievementsController = Get.put(AchievementsController());
-  final HomeController homeController = Get.put(HomeController()); // ✅ Inject controller
-  final MoodController moodController = Get.put(MoodController()); // ✅ Inject controller
+  final AchievementsController achievementsController = Get.put(
+      AchievementsController());
+  final HomeController homeController = Get.put(
+      HomeController()); // ✅ Inject controller
+  final MoodController moodController = Get.put(
+      MoodController()); // ✅ Inject controller
 
   @override
   Widget build(BuildContext context) {
-
     moodController.getWeeklyMoods();
     // Fetch check-ins when HomeScreen is loaded
     userProgressController.fetchUserCheckIns();
@@ -44,27 +47,35 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               SafeTalkButton(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Carousel Slider Section
-              CarouselSlider(
-                items: [
-                  _buildCarouselItem("assets/images/homescreen/Consultation.jpg", "Consultation"),
-                  _buildCarouselItem("assets/images/homescreen/Counselling.jpg", "Counselling"),
-                  _buildCarouselItem("assets/images/homescreen/CoupleTherapy.jpg", "Couple Therapy"),
-                  _buildCarouselItem("assets/images/homescreen/PsychologicalAssessment.jpg", "Psychological Assessment")
-                ],
-                options: CarouselOptions(
-                  height: 290.0, // Increased height to accommodate text
-                  enlargeCenterPage: true,
-                  autoPlay: true,
-                  aspectRatio: 16 / 9,
-                  autoPlayCurve: Curves.easeInOut,
-                  enableInfiniteScroll: true,
-                  autoPlayAnimationDuration: const Duration(seconds: 1),
-                  viewportFraction: 0.8,
+              // Wrap in a SizedBox to prevent overflow
+              SizedBox(
+                height: 280, // Adjust height to fit properly
+                child: CarouselSlider(
+                  items: [
+                    _buildCarouselItem(
+                        "assets/images/homescreen/Consultation.jpg", "Consultation"),
+                    _buildCarouselItem(
+                        "assets/images/homescreen/CoupleTherapy.jpg", "Couple Therapy"),
+                    _buildCarouselItem(
+                        "assets/images/homescreen/Counselling.jpg", "Counselling"),
+                    _buildCarouselItem("assets/images/homescreen/Psychotherapy.jpg",
+                        "Psychological Assessment")
+                  ],
+                  options: CarouselOptions(
+                    enlargeCenterPage: true,
+                    autoPlay: true,
+                    aspectRatio: 16 / 9,
+                    autoPlayCurve: Curves.easeInOut,
+                    enableInfiniteScroll: true,
+                    autoPlayAnimationDuration: const Duration(seconds: 1),
+                    viewportFraction: 0.8,
+                  ),
                 ),
               ),
+
 
               const SizedBox(height: 20),
             ],
@@ -76,51 +87,50 @@ class HomeScreen extends StatelessWidget {
 
   // Helper Method for Carousel Items
   Widget _buildCarouselItem(String imagePath, String title) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(width: 2, color: Colors.transparent),
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFfcbc1d),
-                Color(0xFFfd9c33),
-                Color(0xFFFFD700),
-                Color(0xFFFFA500)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+    return SizedBox(
+      height: 250, // Ensures item does not exceed the available height
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // Prevent Column from expanding unnecessarily
+        children: [
+          Expanded( // Ensures the image container takes available space
             child: Container(
-              padding: EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(width: 2, color: Colors.transparent),
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFfcbc1d),
+                    Color(0xFFfd9c33),
+                    Color(0xFFFFD700),
+                    Color(0xFFFFA500)
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.fill,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(
+                  imagePath,
+                  fit: BoxFit.cover,
+                  width: double.infinity, // Ensures proper scaling
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(height: 8),  // Space between image and text
-
-        // Text below the image
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+          const SizedBox(height: 15), // Space between image and text
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+        ],
+      ),
     );
   }
+
 }
