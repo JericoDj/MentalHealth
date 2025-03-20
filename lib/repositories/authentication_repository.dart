@@ -46,7 +46,7 @@ class AuthenticationRepository extends GetxController {
       // If not first time, check for user authentication
       if (_auth.currentUser != null) {
         // User is logged in, redirect to HomeScreen
-        Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
+        Get.offAll(() => OnBoardingScreen());
       } else {
         // No user logged in, redirect to LoginScreen
         Get.offAll(() => OnBoardingScreen());

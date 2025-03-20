@@ -51,7 +51,21 @@ class SignUpController extends GetxController {
         }
         print("✅ [SUCCESS] Company ID '$companyId' found in Firestore!");
 
-        // **Check if User Already Exists in Authentication**
+        // **Check if the Email Exists in the Users Sub-Collection of the Company**
+        var usersRef = _firestore.collection("companies").doc(companyId).collection("users");
+        var userSnapshot = await usersRef.where('email', isEqualTo: email).get();
+
+        if (userSnapshot.docs.isEmpty) {
+          // **User does NOT exist in the company's users collection → DENY SIGNUP**
+          print("❌ [ERROR] Email '$email' is NOT registered under company '$companyId'!");
+          Get.snackbar("Error", "Your email is not registered under this company.",
+              backgroundColor: Colors.red, colorText: Colors.white);
+          return;
+        }
+
+        print("✅ [SUCCESS] User email '$email' is verified under company '$companyId'.");
+
+        // **Check if User Already Exists in Firebase Authentication**
         User? existingUser;
         try {
           var signInMethods = await _auth.fetchSignInMethodsForEmail(email);
@@ -80,15 +94,15 @@ class SignUpController extends GetxController {
         // ✅ Store UID Locally
         UserStorage().saveUid(uid);
 
-        // ✅ Save User Data in Firestore (Skip if Already Exists)
-        await _firestore.collection("users").doc(uid).set({
+        // ✅ Update User Data in Firestore (Merges data if exists)
+        await usersRef.doc(uid).set({
           "uid": uid,
           "email": email,
           "username": usernameController.text.trim(),
           "fullName": fullNameController.text.trim(),
           "companyId": companyId,
           "24/7_access": false,
-        }, SetOptions(merge: true)); // ✅ Merges data if document already exists
+        }, SetOptions(merge: true));
 
         print("✅ [SUCCESS] User successfully saved in Firestore");
 
@@ -105,4 +119,5 @@ class SignUpController extends GetxController {
       }
     }
   }
+
 }
