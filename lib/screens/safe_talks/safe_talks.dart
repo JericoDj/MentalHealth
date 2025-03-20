@@ -146,7 +146,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
   Widget _buildKeepItCleanDialog(BuildContext context) {
     return AlertDialog(
       title: const Text(
-        "Welcome to Safe Space!",
+        "Welcome to Safe Community!",
         style: TextStyle(fontWeight: FontWeight.bold, color: MyColors.color1, fontSize: 20),
       ),
       content: Container(
@@ -155,7 +155,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
           children: [
 
             Text(
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
               "All together, let's create a warm and supportive mental health community.\n\n"
                   "Share your thoughts, helpful quotes, and motivational words to help inspire and uplift fellow community members. "
                   "Let's cultivate a space where we can all feel safe, heard, and understood.\n",

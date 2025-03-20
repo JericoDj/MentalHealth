@@ -107,7 +107,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
             backgroundColor: Colors.white,
 
 
-            toolbarHeight: 65,
+            toolbarHeight: 70,
             flexibleSpace: Stack(
               children: [
 
@@ -225,23 +225,24 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
                     ),
 
                     /// Navigation Row
+                    /// Navigation Row
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.only(bottom: 5, left: 10, right: 10), // Adjust padding for better alignment
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround, // Ensures even spacing around elements
                           children: [
                             _buildNavItem(Icons.home, "Home", 0),
-                            _buildNavItem(Icons.spa, "Growth Garden", 1),
-                            const SizedBox(width: 50),
-                            // Space for floating button
-                            _buildNavItem(Icons.group, "Safe Space", 3),
+                            _buildNavItem(Icons.spa, "Growth Garden", 1), // \n for line break
+                            const SizedBox(width: 65), // Space for floating button (increased for balance)
+                            _buildNavItem(Icons.group, "Safe\nCommunity", 3),
                             _buildNavItem(Icons.person, "Account", 4),
                           ],
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ),
@@ -316,6 +317,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
                 .shade600,
           ),
           Text(
+            textAlign: TextAlign.center,
             label,
             style: TextStyle(
               letterSpacing: -0.5,

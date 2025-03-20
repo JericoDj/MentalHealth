@@ -51,7 +51,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Welcome to Consultation Touchpoint",
+                "Welcome to Safe Space",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -61,7 +61,7 @@ class _BookNowScreenState extends State<BookNowScreen> {
               ),
               const SizedBox(height: 15),
               Text(
-                "Connect with a mental health specialist or professional for support.",
+                "Connect with a mental health professional for support.",
                 style: TextStyle(fontSize: 14, color: Colors.black87),
                 textAlign: TextAlign.center,
               ),

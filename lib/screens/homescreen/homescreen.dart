@@ -55,7 +55,7 @@ class HomeScreen extends StatelessWidget {
                   _buildCarouselItem("assets/images/homescreen/PsychologicalAssessment.jpg", "Psychological Assessment")
                 ],
                 options: CarouselOptions(
-                  height: 280.0, // Increased height to accommodate text
+                  height: 290.0, // Increased height to accommodate text
                   enlargeCenterPage: true,
                   autoPlay: true,
                   aspectRatio: 16 / 9,

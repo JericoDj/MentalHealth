@@ -50,7 +50,7 @@ class MindHubButton extends StatelessWidget {
               Icon(Icons.lightbulb, size: 36, color: Colors.grey[800]),
               const SizedBox(height: 8),
               const Text(
-                'Mind Hub',
+                'Safe Space Hub',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),

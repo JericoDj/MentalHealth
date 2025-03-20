@@ -216,7 +216,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
     if (!_hasViewedContract) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please view the E-Contract before agreeing."),
+          content: Text("Please view the Informed Consent before agreeing."),
           behavior: SnackBarBehavior.floating,
           backgroundColor: Colors.redAccent,
         ),
@@ -317,7 +317,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                     decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8)),
-                    child: const Text("Tap to view the full e-contract.",
+                    child: const Text("Tap to view the full Informed Consent.",
                         style: TextStyle(fontSize: 14)),
                   ),
                 ),
@@ -330,7 +330,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
                     value: _isContractChecked,
                     onChanged: _toggleAgreement,
                   ),
-                  const Text("I agree to the e-contract.",
+                  const Text("I agree to the Informed Consent.",
                       style: TextStyle(
                           color: Colors.black, fontWeight: FontWeight.bold)),
                 ],
