@@ -98,6 +98,7 @@ class MoodController extends GetxController {
   // ✅ **Get Weekly Moods (latest 7 days)**
   // ✅ **Get Weekly Moods (latest 7 days)**
   Future<Map<String?, String?>> getWeeklyMoods() async {
+    print("running");
     String? uid = _storage.getUid();
     if (uid == null) return {};
 
@@ -150,6 +151,106 @@ class MoodController extends GetxController {
     } else {
       print("✅ All weekly moods are already cached in local storage.");
       return dailyMoods;
+    }
+  }
+
+
+  // ✅ Calculate average mood for the last 7 days
+  // ✅ Calculate most frequent mood for the last 7 days (with local storage priority)
+  Future<String> getAverageMoodLast7Days() async {
+    String? uid = _storage.getUid();
+    if (uid == null) return "No User";
+
+    DateTime now = DateTime.now();
+    Map<String, int> moodCounts = {
+      "happy": 0,
+      "neutral": 0,
+      "anxious": 0,
+      "angry": 0,
+      "sad": 0,
+    };
+
+    String latestMood = "neutral";  // Default latest mood
+    DateTime latestTimestamp = DateTime.fromMillisecondsSinceEpoch(0);
+
+    // ✅ Step 1: Load moods from local storage
+    Map<String, String> storedMoods = _storage.getStoredMoods();
+    List<String> missingDates = [];
+
+    // ✅ Step 2: Check today's mood in local storage & track missing dates
+    for (int i = 0; i < 7; i++) {
+      String date = DateFormat('yyyy-MM-dd').format(now.subtract(Duration(days: i)));
+
+      if (storedMoods.containsKey(date)) {
+        String mood = storedMoods[date]!;
+        moodCounts[mood] = (moodCounts[mood] ?? 0) + 1;
+        latestMood = mood;  // Treat as the latest mood if stored locally
+      } else {
+        missingDates.add(date);  // Identify dates missing in local storage
+      }
+    }
+
+    // ✅ Step 3: Fetch missing moods from Firestore if needed
+    if (missingDates.isNotEmpty) {
+      print("🔍 Fetching missing moods for: $missingDates");
+
+      try {
+        Map<String, String> newMoods = {};
+
+        for (String date in missingDates) {
+          DocumentSnapshot<Map<String, dynamic>> moodDoc = await _firestore
+              .collection("users")
+              .doc(uid)
+              .collection("moodTracking")
+              .doc(date)
+              .get();
+
+          if (moodDoc.exists && moodDoc.data() != null) {
+            String mood = moodDoc.data()!["mood"]?.toString().toLowerCase() ?? "neutral";
+            Timestamp? timestamp = moodDoc.data()?['timestamp'];
+
+            // ✅ Track frequency
+            if (moodCounts.containsKey(mood)) {
+              moodCounts[mood] = (moodCounts[mood] ?? 0) + 1;
+            }
+
+            // ✅ Track the most recent mood
+            if (timestamp != null && timestamp.toDate().isAfter(latestTimestamp)) {
+              latestMood = mood;
+              latestTimestamp = timestamp.toDate();
+            }
+
+            newMoods[date] = mood;
+          }
+        }
+
+        // ✅ Save fetched moods to local storage
+        _storage.saveMoods(newMoods);
+
+      } catch (e) {
+        print("🔥 Error fetching missing moods from Firestore: $e");
+      }
+    }
+
+    // ✅ Step 4: Determine most frequent mood
+    if (moodCounts.values.every((count) => count == 0)) {
+      return "No mood data";
+    }
+
+    String mostFrequentMood = moodCounts.entries
+        .reduce((a, b) => a.value > b.value ? a : b)
+        .key;
+
+    // ✅ Step 5: Handle ties - if tied, use the latest mood
+    List<String> tiedMoods = moodCounts.entries
+        .where((entry) => entry.value == moodCounts[mostFrequentMood])
+        .map((entry) => entry.key)
+        .toList();
+
+    if (tiedMoods.length > 1) {
+      return latestMood;
+    } else {
+      return mostFrequentMood;
     }
   }
 
