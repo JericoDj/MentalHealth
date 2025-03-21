@@ -21,7 +21,27 @@ class UserStorage {
     deletePlanDetails();
     clearCompanyId(); // ✅ Also clear company ID
     clearSafeCommunityAccess();
+    clearUsername(); // Also clear username
   }
+
+  // ✅ Save username locally
+  void saveUsername(String username) {
+    _storage.write("username", username);
+  }
+
+  // ✅ Retrieve username
+  String? getUsername() {
+    return _storage.read("username");
+  }
+
+  // ✅ Clear username on logout
+  void clearUsername() {
+    _storage.remove("username");
+  }
+
+
+
+
   // ✅ Save company ID locally
   void saveCompanyId(String companyId) {
     _storage.write("company_id", companyId);

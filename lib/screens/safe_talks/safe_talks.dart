@@ -20,6 +20,9 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final UserStorage _userStorage = UserStorage(); // Instantiate UserStorage here
+
+
 
   List<Map<String, dynamic>> _approvedPosts = [];
   List<Map<String, dynamic>> _pendingPosts = [];
@@ -34,8 +37,8 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
   }
 
   void _fetchPosts() {
-    final String? uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    final String? username = _userStorage.getUsername(); // Retrieve username from local storage
+    if (username == null) return; // If there's no username, exit early
 
     _firestore.collection('safeSpace').doc('posts').collection('userPosts')
         .snapshots().listen((snapshot) {
@@ -48,14 +51,16 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
         postData['id'] = doc.id;
         postData['comments'] ??= [];
 
+        // Compare username instead of userId
         if (postData["status"] == "pending") {
           pending.add(postData);
         }
-        else if (postData["status"] == "approved") { // 🔹 Ensuring only approved ones are added
+        else if (postData["status"] == "approved") {
           approved.add(postData);
         }
 
-        if (postData["userId"] == uid) {
+        // Check if the username matches the current user's username
+        if (postData["username"] == username) {
           myPosts.add(postData);
         }
       }
@@ -66,10 +71,11 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
         _myPosts = myPosts;
       });
 
-      print("Fetched ${_approvedPosts.length} approved posts");  // 🔹 Debugging
-      print("Fetched ${_pendingPosts.length} pending posts");  // 🔹 Debugging
+      print("Fetched ${_approvedPosts.length} approved posts");
+      print("Fetched ${_pendingPosts.length} pending posts");
     });
   }
+
 
 
   // ────────────────────────────────────────────────
@@ -81,12 +87,19 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
 
     String now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
+    // Retrieve username from local storage
+    String? username = _userStorage.getUsername();
+
+    if (username == null || username.isEmpty) {
+      username = "Anonymous";  // Fallback in case username is not found
+    }
+
     Map<String, dynamic> post = {
       "userId": uid,
-      "username": uid, // Update this to display actual usernames
+      "username": username, // Use the local username
       "time": now,
       "content": content,
-      "likes": [], // 🔹 Likes will be a list of UIDs instead of count
+      "likes": [], // Likes will be a list of UIDs instead of count
       "comments": [],
       "status": "pending",
     };
@@ -106,12 +119,13 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
 
 
 
+
   // ────────────────────────────────────────────────
-  // 📌 LIKE A POST
-  // ────────────────────────────────────────────────
+// 📌 LIKE A POST
+// ────────────────────────────────────────────────
   void _likePost(String postId, List<dynamic> currentLikes) async {
-    String? uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    String? uid = _auth.currentUser?.uid; // Get the UID of the logged-in user
+    if (uid == null) return; // If no UID, exit early
 
     DocumentReference postRef = _firestore
         .collection('safeSpace')
@@ -122,12 +136,12 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     if (currentLikes.contains(uid)) {
       // If the user has already liked, remove their UID
       await postRef.update({
-        "likes": FieldValue.arrayRemove([uid])
+        "likes": FieldValue.arrayRemove([uid]) // Remove the UID from likes array
       });
     } else {
       // If the user hasn't liked, add their UID
       await postRef.update({
-        "likes": FieldValue.arrayUnion([uid])
+        "likes": FieldValue.arrayUnion([uid]) // Add the UID to likes array
       });
     }
   }
@@ -318,8 +332,8 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
 
 
   void openCommentsModal(int index, bool isPending, bool isMyPost) {
-    String? uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    String? username = _userStorage.getUsername(); // Get username from local storage
+    if (username == null) return;
 
     // 🔹 Get correct list of comments
     List<dynamic> comments = isMyPost
@@ -427,7 +441,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
                             leading: CircleAvatar(
                               backgroundImage: AssetImage('assets/avatars/Avatar1.jpeg'),
                             ),
-                            title: Text(comments[index]["uid"] ?? "Unknown"),
+                            title: Text(comments[index]["username"] ?? "Unknown"), // Use username
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -489,7 +503,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
                               );
                               setState(() {
                                 comments.insert(0, {
-                                  "uid": uid,
+                                  "username": username, // Save username instead of uid
                                   "time": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
                                   "comment": commentController.text,
                                 });
@@ -511,14 +525,15 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     );
   }
 
+
   void _addComment({required String postId, required String comment}) async {
-    String? uid = _auth.currentUser?.uid;
-    if (uid == null) return;
+    String? username = _userStorage.getUsername(); // Get username from local storage
+    if (username == null) return;
 
     String now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
     Map<String, dynamic> newComment = {
-      "uid": uid,
+      "username": username, // Use username instead of uid
       "time": now,
       "comment": comment,
     };
@@ -533,6 +548,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
       print("Error adding comment: $e");
     }
   }
+
 
 
 
@@ -628,12 +644,12 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
   }
 
   Widget buildPostItem(Map<String, dynamic> post, bool pending, bool isMyPost) {
-    String? uid = _auth.currentUser?.uid;
+    String? username = post["username"]; // Use username from the post data
 
     // 🔹 Ensure "likes" is always a list
     List<dynamic> likes = (post["likes"] is List) ? post["likes"] : [];
 
-    bool hasLiked = likes.contains(uid); // ✅ Check if user has already liked
+    bool hasLiked = likes.contains(username); // ✅ Check if user has already liked using username
 
     return Card(
       elevation: 10,
@@ -650,7 +666,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
             children: [
               ListTile(
                 leading: const CircleAvatar(backgroundImage: AssetImage('assets/avatars/Avatar1.jpeg')),
-                title: Text(post["username"] ?? "Anonymous"),
+                title: Text(username ?? "Anonymous"), // Display username instead of uid
                 subtitle: Text(post["time"] ?? "Unknown time"),
                 trailing: PopupMenuButton<String>(
                   onSelected: (value) {

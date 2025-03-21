@@ -93,12 +93,22 @@ class LoginController extends GetxController {
       _userStorage.clearUid(); // Clears UID and related data
       _userStorage.saveUid(uid);
 
+
       if (userData.containsKey('companyId')) {
         String companyId = userData['companyId'];
         _userStorage.saveCompanyId(companyId);
         print("🏢 Company ID saved: $companyId");
       } else {
         print("⚠️ No company_id found in user profile.");
+      }
+
+      // Save username to local storage
+      if (userData.containsKey('username')) {
+        String username = userData['username'];
+        _userStorage.saveUsername(username);
+        print("👤 Username saved: $username");
+      } else {
+        print("⚠️ No username found in user profile.");
       }
 
 
