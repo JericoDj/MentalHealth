@@ -19,7 +19,41 @@ class UserStorage {
     clearMoods();
     clearStressLevels();
     deletePlanDetails();
+    clearCompanyId(); // ✅ Also clear company ID
+    clearSafeCommunityAccess();
   }
+  // ✅ Save company ID locally
+  void saveCompanyId(String companyId) {
+    _storage.write("company_id", companyId);
+  }
+
+// ✅ Retrieve company ID
+  String? getCompanyId() {
+    return _storage.read("company_id");
+  }
+
+// ✅ Clear company ID
+  void clearCompanyId() {
+    _storage.remove("company_id");
+  }
+
+
+  // ✅ Save safeCommunityAccess flag
+  void saveSafeCommunityAccess(bool value) {
+    _storage.write("safeCommunityAccess", value);
+  }
+
+// ✅ Read safeCommunityAccess from local storage
+  bool? getSafeCommunityAccess() {
+    return _storage.read("safeCommunityAccess");
+  }
+
+// ✅ Clear safeCommunityAccess on logout
+  void clearSafeCommunityAccess() {
+    _storage.remove("safeCommunityAccess");
+  }
+
+
 
   // ✅ Store stress levels locally
   void saveStressLevels(Map<String, int> newStressLevels) {
@@ -106,3 +140,5 @@ class UserStorage {
     return 0;
   }
 }
+
+

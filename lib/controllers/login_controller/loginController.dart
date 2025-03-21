@@ -21,6 +21,39 @@ class LoginController extends GetxController {
     isPasswordVisible.value = !isPasswordVisible.value;
   }
 
+
+  Future<void> checkAndStoreSafeCommunityAccess() async {
+    final bool? localAccess = _userStorage.getSafeCommunityAccess();
+
+    if (localAccess != null) {
+      print("✅ safeCommunityAccess loaded from local storage: $localAccess");
+      return;
+    }
+
+    // 🔐 Get the saved companyId from local storage
+    final String? companyId = _userStorage.getCompanyId();
+
+    if (companyId == null) {
+      print("⚠️ No companyId found in local storage.");
+      return;
+    }
+
+    try {
+      final doc = await FirebaseFirestore.instance.collection("companies").doc(companyId).get();
+
+      if (doc.exists && doc.data()!.containsKey("safeCommunityAccess")) {
+        bool safeAccess = doc["safeCommunityAccess"] == true;
+        _userStorage.saveSafeCommunityAccess(safeAccess);
+        print("📥 safeCommunityAccess fetched from Firestore: $safeAccess");
+      } else {
+        print("⚠️ No 'safeCommunityAccess' field found for companyId: $companyId.");
+      }
+    } catch (e) {
+      print("❌ Error fetching safeCommunityAccess for companyId $companyId: $e");
+    }
+  }
+
+
   Future<void> login() async {
     String email = emailController.text.trim().toLowerCase();
     String password = passwordController.text.trim();
@@ -56,11 +89,23 @@ class LoginController extends GetxController {
       var userData = userDoc.data() as Map<String, dynamic>;
       print("📌 Firestore User Data: $userData");
 
-      // ✅ Step 3: Save UID in Local Storage
-      _userStorage.clearUid();
+// ✅ Step 3: Save UID and Company ID in Local Storage
+      _userStorage.clearUid(); // Clears UID and related data
       _userStorage.saveUid(uid);
 
-      // ✅ Step 4: Navigate to Dashboard
+      if (userData.containsKey('companyId')) {
+        String companyId = userData['companyId'];
+        _userStorage.saveCompanyId(companyId);
+        print("🏢 Company ID saved: $companyId");
+      } else {
+        print("⚠️ No company_id found in user profile.");
+      }
+
+
+// ✅ Step 4: Check for safeCommunityAccess
+      await checkAndStoreSafeCommunityAccess();
+
+      // ✅ Step 5: Navigate to Dashboard
       Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
 
       Get.snackbar("Success", "Login successful!",

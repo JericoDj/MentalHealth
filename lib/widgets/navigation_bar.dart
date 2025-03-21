@@ -9,6 +9,7 @@ import '../screens/growth_garden/growth_garden.dart';
 import '../screens/homescreen/homescreen.dart';
 import '../screens/safe_talks/safe_talks.dart';
 import '../utils/constants/colors.dart';
+import '../utils/storage/user_storage.dart';
 import 'accounts_screen/TIcket_Popup_widget.dart';
 import 'curved clipper.dart';
 import 'mood_dialog/showMoodDialog.dart';
@@ -60,10 +61,41 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
   }
 
   void _onItemTapped(int index) {
+    final userStorage = UserStorage();
+
+    // 🟢 Check if accessing Safe Community
+    if (index == 3) {
+      final access = userStorage.getSafeCommunityAccess() ?? false;
+
+      if (!access) {
+        // ❌ Not allowed, show dialog
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text("Access Restricted"),
+            content: const Text("Sorry, this feature is not available for your account."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+        return; // ⛔️ Prevent navigation
+      }
+    }
+
     setState(() {
       _selectedIndex = index;
     });
   }
+
+
+
+
+
+
 
   // Handle back button press
   Future<bool> _onWillPop() async {
