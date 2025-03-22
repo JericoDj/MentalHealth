@@ -58,29 +58,23 @@ class _CallPageState extends State<CallPage> {
 
   /// ✅ **Function to Save Room ID to Firestore**
   Future<void> _saveRoomToFirestore(String roomId) async {
-    if (widget.sessionType == null || widget.userId == null) {
+    if ((widget.sessionType ?? "").isEmpty || (widget.userId ?? "").isEmpty) {  // ✅ Null-safe check
       print("❌ ERROR: Missing sessionType or userId. Cannot save room.");
       return;
     }
 
-    String collectionPath = widget.sessionType == "Chat"
-        ? "safe_talk/chat/queue"
-        : "safe_talk/talk/queue";
+    if (widget.sessionType?.toLowerCase() != "talk") return; // ✅ Only save room for talk sessions
 
-    try {
-      await FirebaseFirestore.instance.collection(collectionPath).doc(widget.userId).set({
-        'sessionType': widget.sessionType,
-        'userId': widget.userId,
-        'roomId': roomId, // ✅ Save the generated room ID here
-        'status': 'waiting',
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+    String collectionPath = "safe_talk/talk/queue"; // ✅ Always talk queue
 
-      print("🔥 Room ID Saved in Firestore: $roomId");
-    } catch (e) {
-      print("❌ Error saving room ID: $e");
-    }
+    await FirebaseFirestore.instance
+        .collection(collectionPath)
+        .doc(widget.userId)
+        .set({"callRoom": roomId}, SetOptions(merge: true));
+
+    print("✅ Room ID added to Firestore for admin panel access");
   }
+
 
   @override
   Widget build(BuildContext context) {

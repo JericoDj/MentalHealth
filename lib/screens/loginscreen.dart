@@ -50,7 +50,7 @@ class LoginScreen extends StatelessWidget {
                     color: Colors.black87,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 8,),
 
                 // Subtitle
                 const Text(
