@@ -122,25 +122,28 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(
                   height: 60,
                   width: double.infinity,
-                  child: Obx(() => ElevatedButton(
-                    onPressed: controller.isLoading.value ? null : controller.login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: MyColors.color2,
-                      shape: RoundedRectangleBorder(
+                  child: Obx(() => GestureDetector(
+                    onTap: controller.isLoading.value ? null : controller.login,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: controller.isLoading.value ? Colors.grey : MyColors.color2,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                    ),
-                    child: controller.isLoading.value
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                      "Sign In",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      child: controller.isLoading.value
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                        "Sign In",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   )),
+
                 ),
 
                 // Create Account

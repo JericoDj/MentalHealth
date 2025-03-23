@@ -2,5 +2,5 @@ flutter_native_splash:
   android: true
   ios: true
 
-  backgroundimage: "assets/icons/android-chrome-512x512.png"
-  dart run flutter_native_splash:create --path=native_splash.yaml
+  background_image: "assets/images/logo/blank_white.jpg"
+  image: "assets/icons/android-chrome-512x512.png"
