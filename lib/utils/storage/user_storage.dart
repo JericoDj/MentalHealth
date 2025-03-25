@@ -1,7 +1,13 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_storage/get_storage.dart';
 
 class UserStorage {
   final GetStorage _storage = GetStorage();
+  static const String _apnTokenKey = 'apnsToken';
+  static const String _fcmTokenKey = 'fcmToken';
 
   // ✅ Save UID locally
   void saveUid(String uid) {
@@ -12,6 +18,71 @@ class UserStorage {
   String? getUid() {
     return _storage.read("uid");
   }
+
+  Future<void> saveFCMToken() async {
+    try {
+      // 🔒 Request permission first
+      await FirebaseMessaging.instance.requestPermission();
+
+      if (Platform.isIOS) {
+        String? apnsToken;
+        int retryCount = 0;
+
+        // ⏳ Wait for APNs token to be set (up to 5 seconds)
+        while (apnsToken == null && retryCount < 5) {
+          apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+          print("⏳ Waiting for APNs token... attempt ${retryCount + 1}");
+          await Future.delayed(Duration(seconds: 1));
+          retryCount++;
+        }
+
+        if (apnsToken == null) {
+          print("⚠️ APNs Token still null after retries. Delaying FCM token registration.");
+          return;
+        }
+
+        await _storage.write(_apnTokenKey, apnsToken);
+        print("📱 APNs Token saved locally: $apnsToken");
+      }
+
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken == null) {
+        print("❌ FCM Token is null even after APNs. Double-check Firebase setup.");
+        return;
+      }
+
+      // 🔍 Get user ID (assuming you have a way to retrieve it)
+      final String? uid = _storage.read("uid"); // ✅ Fixed: Specify the correct key // Update this based on how you store user ID
+
+      if (uid == null) {
+        print("❌ No user logged in. Cannot save FCM token.");
+        return;
+      }
+
+      // 🔄 Check the stored token in Firestore before updating
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final storedToken = userDoc.data()?['fcmToken'];
+
+      if (storedToken != fcmToken) {
+        // ✅ Only update Firestore if the token has changed
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'fcmToken': fcmToken,
+        });
+        print("✅ FCM Token updated in Firebase: $fcmToken");
+      } else {
+        print("🔄 FCM Token is already up-to-date.");
+      }
+
+      // Save token locally as well
+      await _storage.write(_fcmTokenKey, fcmToken);
+      print("✅ FCM Token saved locally: $fcmToken");
+
+    } catch (e) {
+      print("❌ Error saving FCM/APNs token: $e");
+    }
+  }
+
+
 
   // ✅ Clear UID on logout
   void clearUid() {

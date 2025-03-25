@@ -91,7 +91,8 @@ dependencies:
   timezone: ^0.10.0
 
 
-
+  firebase_messaging: ^15.2.4
+  googleapis_auth: ^1.6.0
 
 
 

@@ -17,7 +17,7 @@
     <application
         android:label="llps_mental_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"1>
+        android:icon="@mipmap/launcher_icon">
 `````
         <activity
             android:name=".MainActivity"

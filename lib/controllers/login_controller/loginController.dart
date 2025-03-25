@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -90,6 +93,8 @@ class LoginController extends GetxController {
       print("📌 Firestore User Data: $userData");
 
 // ✅ Step 3: Save UID and Company ID in Local Storage
+
+      _userStorage.saveFCMToken();
       _userStorage.clearUid(); // Clears UID and related data
       _userStorage.saveUid(uid);
 
@@ -139,6 +144,8 @@ class LoginController extends GetxController {
       isLoading.value = false;
     }
   }
+
+
 
   /// **✅ Logout Function**
   void logout() {

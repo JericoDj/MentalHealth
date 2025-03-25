@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -8,6 +9,7 @@ import 'package:llps_mental_app/repositories/authentication_repository.dart';
 import 'package:llps_mental_app/screens/loginscreen.dart';
 import 'package:llps_mental_app/test/test/services/webrtc_service.dart';
 import 'package:llps_mental_app/test/test/test.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'controllers/achievements_controller.dart';
@@ -17,9 +19,96 @@ import 'controllers/user_progress_controller.dart';
 import 'firebase_options.dart';
 import 'App.dart';
 
-// Notification Plugin Instance
+// ✅ Initialize Local Notifications
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
+
+/// ✅ Background message handler (Must be a top-level function)
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint("✅ Background Message: \${message.notification?.title}");
+}
+
+/// ✅ Initialize Firebase Messaging and Notifications
+Future<void> _initializeNotifications() async {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  // ✅ Request notification permissions
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    debugPrint("✅ Notifications enabled.");
+  } else {
+    debugPrint("❌ Notifications denied.");
+  }
+
+  // ✅ Initialize Local Notifications for Android & iOS
+  const AndroidInitializationSettings androidInitializationSettings =
+  AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const DarwinInitializationSettings iosInitializationSettings =
+  DarwinInitializationSettings(
+    requestAlertPermission: true,
+    requestBadgePermission: true,
+    requestSoundPermission: true,
+  );
+
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: androidInitializationSettings,
+    iOS: iosInitializationSettings,
+  );
+
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: (NotificationResponse response) {
+      debugPrint("🔔 Notification Clicked: \${response.payload}");
+    },
+  );
+
+  // ✅ Listen for foreground messages
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    debugPrint("✅ Foreground Message: \${message.notification?.title}");
+    _showNotification(message);
+  });
+
+  // ✅ Handle background messages
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // ✅ Ensure APNS token is fetched for iOS
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+    if (apnsToken != null) {
+      debugPrint("✅ APNS Token: \$apnsToken");
+    } else {
+      debugPrint("❌ Failed to fetch APNS token.");
+    }
+  }
+}
+
+/// ✅ Show local notification
+Future<void> _showNotification(RemoteMessage message) async {
+  AndroidNotificationDetails androidPlatformChannelSpecifics =
+  const AndroidNotificationDetails(
+    'default_channel', 'Default Channel',
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: false,
+  );
+
+  NotificationDetails platformChannelSpecifics =
+  NotificationDetails(android: androidPlatformChannelSpecifics);
+
+  await flutterLocalNotificationsPlugin.show(
+    0,
+    message.notification?.title ?? "New Notification",
+    message.notification?.body ?? "You have a new message",
+    platformChannelSpecifics,
+  );
+}
+
 
 // Helper function to catch invalid icons
 Icon validateIcon(IconData iconData) {
@@ -32,6 +121,7 @@ Icon validateIcon(IconData iconData) {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
 
   tz.initializeTimeZones();
 
@@ -58,6 +148,13 @@ Future<void> main() async {
       debugPrint('Notification tapped with payload: ${response.payload}');
     },
   );
+
+
+  // ✅ Ensure this is a top-level function
+  @pragma('vm:entry-point')
+  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    print("🔔 Handling a background message: ${message.messageId}");
+  }
   // Ensure Notification Permissions for Android 13+
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
@@ -76,6 +173,19 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     ).then((FirebaseApp value) => Get.put(AuthenticationRepository()));
 
+
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+    // ✅ Initialize notifications
+    await _initializeNotifications();
+
+    // ✅ Request necessary permissions
+    await _requestPermissions();
+
+
+
+
+
     Get.put(WebRtcService());
     Get.put(UserProgressController());
     Get.put(LoginController());
@@ -91,6 +201,25 @@ Future<void> main() async {
     );
   }
 }
+
+
+/// ✅ Request Permissions for Android & iOS
+Future<void> _requestPermissions() async {
+
+    await [
+      Permission.camera,
+      Permission.microphone,
+      Permission.storage,
+      Permission.manageExternalStorage,
+      Permission.photos,
+    ].request();
+
+    // ✅ Request Notification Permission Separately
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+  }
+
 
 class WebApp extends StatelessWidget {
   @override
