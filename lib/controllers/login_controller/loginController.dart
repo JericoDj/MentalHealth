@@ -91,14 +91,27 @@ class LoginController extends GetxController {
 
       var userData = userDoc.data() as Map<String, dynamic>;
       print("📌 Firestore User Data: $userData");
+      _userStorage.clearUid(); // Clears UID and related data
+      _userStorage.saveFCMToken();
 
 // ✅ Step 3: Save UID and Company ID in Local Storage
+      // ✅ Save fullName to local storage
+      if (userData.containsKey('fullName')) {
+        String fullName = userData['fullName'];
+        _userStorage.saveFullName(fullName);
+        print("📝 Full Name saved: $fullName");
+      } else {
+        print("⚠️ No fullName found in user profile.");
 
-      _userStorage.saveFCMToken();
-      _userStorage.clearUid(); // Clears UID and related data
+      }
+
+      _userStorage.getPhoneNumber();
+
+
+
       _userStorage.saveUid(uid);
 
-
+// Save company ID
       if (userData.containsKey('companyId')) {
         String companyId = userData['companyId'];
         _userStorage.saveCompanyId(companyId);
@@ -107,7 +120,7 @@ class LoginController extends GetxController {
         print("⚠️ No company_id found in user profile.");
       }
 
-      // Save username to local storage
+// Save username
       if (userData.containsKey('username')) {
         String username = userData['username'];
         _userStorage.saveUsername(username);

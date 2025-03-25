@@ -19,6 +19,50 @@ class UserStorage {
     return _storage.read("uid");
   }
 
+  // ✅ Save phone number
+  void savePhoneNumber(String phoneNumber) {
+    _storage.write("phoneNumber", phoneNumber);
+  }
+  Future<String?> getPhoneNumber() async {
+    String? phone = _storage.read("phoneNumber");
+
+    if (phone != null && phone.isNotEmpty) {
+      return phone;
+    }
+
+    // 🔍 Try fetching from Firestore if not found locally
+    String? uid = getUid();
+    if (uid == null) {
+      print("❌ No UID available. Cannot fetch phone number.");
+      return null;
+    }
+
+    try {
+      DocumentSnapshot userDoc =
+      await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (userDoc.exists && userDoc.data() != null) {
+        final data = userDoc.data() as Map<String, dynamic>;
+        if (data.containsKey('phone')) {
+          phone = data['phone'];
+          // ✅ Save it locally for future use
+          _storage.write("phoneNumber", phone);
+          print("📞 Phone number fetched from Firestore: $phone");
+          return phone;
+        }
+      }
+    } catch (e) {
+      print("❌ Error fetching phone number from Firestore: $e");
+    }
+
+    return null; // Fallback if everything fails
+  }
+
+// ✅ Clear phone number
+  void clearPhoneNumber() {
+    _storage.remove("phoneNumber");
+  }
+
   Future<void> saveFCMToken() async {
     try {
       // 🔒 Request permission first
@@ -83,6 +127,22 @@ class UserStorage {
   }
 
 
+  // ✅ Save full name
+  void saveFullName(String fullName) {
+    _storage.write("fullName", fullName);
+  }
+
+// ✅ Retrieve full name
+  String? getFullName() {
+    return _storage.read("fullName");
+  }
+
+// ✅ Clear full name
+  void clearFullName() {
+    _storage.remove("fullName");
+  }
+
+
 
   // ✅ Clear UID on logout
   void clearUid() {
@@ -93,6 +153,8 @@ class UserStorage {
     clearCompanyId(); // ✅ Also clear company ID
     clearSafeCommunityAccess();
     clearUsername(); // Also clear username
+    clearFullName();
+    clearPhoneNumber(); // ✅ Added this
   }
 
   // ✅ Save username locally

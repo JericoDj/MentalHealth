@@ -488,7 +488,11 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
   }
 
   Future<void> _saveBookingToFirebase() async {
-    String? userId = UserStorage().getUid(); // ✅ Retrieve UID from GetStorage
+    String? userId = UserStorage().getUid();
+    String? username = UserStorage().getUsername();
+    String? companyId = UserStorage().getCompanyId();
+    String? fullName = await UserStorage().getFullName(); // ✅ Use async version
+    String? phone = await UserStorage().getPhoneNumber(); // ✅ Also async
 
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -504,20 +508,24 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
         FirebaseFirestore.instance.collection('bookings').doc().id;
 
     try {
-      // Upload signature to Firebase Storage
+      // ✅ Upload signature to Firebase Storage
       String filePath = "consultations/$consultationId/sign.jpg";
       Reference storageRef = FirebaseStorage.instance.ref().child(filePath);
       UploadTask uploadTask = storageRef.putData(_signatureImage!);
       TaskSnapshot storageSnapshot = await uploadTask;
       String signatureUrl = await storageSnapshot.ref.getDownloadURL();
 
-      // Save booking details to Firestore
+      // ✅ Save booking details to Firestore
       await FirebaseFirestore.instance
           .collection("bookings")
           .doc(consultationId)
           .set({
         "consultation_id": consultationId,
         "user_id": userId,
+        "username": username ?? "",
+        "full_name": fullName ?? "",
+        "phone": phone ?? "", // ✅ Save phone number
+        "company_id": companyId ?? "",
         "consultation_type": widget.consultationType,
         "date_requested": widget.selectedDate,
         "time": widget.selectedTime,
@@ -526,6 +534,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
         "signature_url": signatureUrl,
         "created_at": FieldValue.serverTimestamp(),
       });
+
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -535,4 +544,7 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       );
     }
   }
+
+
+
 }

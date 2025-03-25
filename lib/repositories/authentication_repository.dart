@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/homescreen/homescreen.dart';
 import '../screens/loginscreen.dart';
 import '../screens/onboardingscreen.dart';
+import '../utils/storage/user_storage.dart';
 
 
 
@@ -34,6 +35,7 @@ class AuthenticationRepository extends GetxController {
   // Function to check first-time open and redirect accordingly
   Future<void> _screenRedirect() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final UserStorage userStorage = UserStorage(); // Instance of UserStorage
 
     // Check if it's the first time the app is opened
     bool isFirstTime = prefs.getBool('isFirstTime') ?? true;
@@ -44,7 +46,9 @@ class AuthenticationRepository extends GetxController {
       Get.offAll(() => OnBoardingScreen());
     } else {
       // If not first time, check for user authentication
-      if (_auth.currentUser != null) {
+      String? uid = userStorage.getUid(); // Get UID from UserStorage
+
+      if (uid != null) {
         // User is logged in, redirect to HomeScreen
         Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
       } else {
@@ -53,6 +57,7 @@ class AuthenticationRepository extends GetxController {
       }
     }
   }
+
 
   Future<void> signUp({
     required String email,

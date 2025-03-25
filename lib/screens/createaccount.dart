@@ -7,6 +7,8 @@ import '../version.dart';
 class SignUpScreen extends StatelessWidget {
   final controller = Get.put(SignUpController());
 
+
+
   SignUpScreen({super.key});
 
   @override
@@ -125,6 +127,30 @@ class SignUpScreen extends StatelessWidget {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 15),
+
+                  // Phone Number Field
+                  TextFormField(
+                    controller: controller.phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: "Phone Number",
+                      prefixIcon: const Icon(Icons.phone),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      if (value.length < 10) {
+                        return 'Enter a valid phone number';
+                      }
+                      return null;
+                    },
+                  ),
+
                   const SizedBox(height: 15),
 
                   // Password Field

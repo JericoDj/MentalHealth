@@ -119,8 +119,28 @@ Icon validateIcon(IconData iconData) {
   return Icon(iconData);
 }
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Permission.notification.request();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  ).then((FirebaseApp value) => Get.put(AuthenticationRepository()));
+
+
+  // ✅ Request necessary permissions
+  await _requestPermissions();
+
+
+
+  await FirebaseMessaging.instance.requestPermission();
+  String? token = await FirebaseMessaging.instance.getToken();
+  if (token != null) {
+    print("FCM Token: $token");
+  } else {
+    print("FCM Token is null. Check Firebase setup.");
+  }
 
 
   tz.initializeTimeZones();
@@ -169,19 +189,12 @@ Future<void> main() async {
     final WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    ).then((FirebaseApp value) => Get.put(AuthenticationRepository()));
 
 
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     // ✅ Initialize notifications
     await _initializeNotifications();
-
-    // ✅ Request necessary permissions
-    await _requestPermissions();
-
 
 
 

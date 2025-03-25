@@ -11,6 +11,8 @@ class SignUpController extends GetxController {
 
   final formKey = GlobalKey<FormState>();
 
+
+  final phoneController = TextEditingController();
   final emailController = TextEditingController();
   final usernameController = TextEditingController();
   final fullNameController = TextEditingController();
@@ -95,11 +97,13 @@ class SignUpController extends GetxController {
         UserStorage().saveUid(uid);
 
         // ✅ Update User Data in Firestore (Merges data if exists)
+        // ✅ Update User Data in Firestore (Merges data if exists)
         await usersRef.doc(uid).set({
           "uid": uid,
           "email": email,
           "username": usernameController.text.trim(),
           "fullName": fullNameController.text.trim(),
+          "phone": phoneController.text.trim(), // ✅ Add this line
           "companyId": companyId,
           "24/7_access": false,
         }, SetOptions(merge: true));

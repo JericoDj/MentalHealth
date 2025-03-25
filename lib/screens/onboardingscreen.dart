@@ -15,7 +15,7 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
   final List<Map<String, String>> onboardingData = [
     {
       'image': 'assets/images/IMG_8289.JPG',
-      'title': 'Welcome to Light Level App',
+      'title': 'Welcome to Luminara',
       'description': 'Your journey to better mental health starts here. Find support, track progress, and build resilience.'
     },
     {
@@ -24,7 +24,7 @@ class _OnboardingScreenState extends State<OnBoardingScreen> {
       'description': 'Find support through guided exercises, self-care tools, and a compassionate community.'
     },
     {
-      'image': 'assets/images/IMG_8310.JPG',
+      'image': 'assets/images/homescreen/Psychotherapy.jpg',
       'title': 'We’re Here for You',
       'description': 'Whenever you need help, our resources and experts are just a tap away.'
     },
