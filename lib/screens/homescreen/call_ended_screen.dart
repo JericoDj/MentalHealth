@@ -29,11 +29,25 @@ class CallEndedScreen extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => Get.offAll(() => NavigationBarMenu(dailyCheckIn: false)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-              child: const Text("Back to Home"),
-            ),
+            GestureDetector(
+              onTap: () => Get.offAll(() => NavigationBarMenu(dailyCheckIn: false)),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  "Back to Home",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            )
+
           ],
         ),
       ),

@@ -42,6 +42,8 @@ class CallPageWidget extends StatefulWidget {
 }
 
 class _CallPageWidgetState extends State<CallPageWidget> {
+  bool isMicMuted = false;
+  bool isSpeakerOn = true; // Speaker initially ON
   StreamSubscription<DocumentSnapshot>? _statusSubscription;
 
   @override
@@ -89,94 +91,140 @@ class _CallPageWidgetState extends State<CallPageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Avatar, Title, Call Status
+            Column(
+              children: [
+                const CircleAvatar(
+                  radius: 60,
+                  backgroundImage: AssetImage("assets/avatars/Avatar1.jpeg"),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  "Customer Support",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  widget.connectingLoading
+                      ? "Waiting for available agent..."
+                      : "In Call",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
+            ),
 
-    return SafeArea(
-      child: Stack(
-        alignment: AlignmentDirectional.bottomEnd,
-        children: [
-          if (!widget.connectingLoading)
-            SizedBox(
-              height: size.height,
-              width: size.width,
-              child: RTCVideoView(widget.remoteVideo, mirror: true),
-            )
-          else if (widget.isCaller)
-            Container(
-              padding: const EdgeInsets.only(left: 20, right: 10),
-              height: size.height,
-              width: size.width,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            // Action Buttons
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    const Text(
-                      "Waiting for participant...",
-                      style: TextStyle(fontSize: 16.0, color: Colors.white),
+                    // Mic Button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isMicMuted = !isMicMuted;
+                        });
+                        widget.toggleMic(); // Call passed-in toggle function
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade700, width: 2),
+                            ),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                isMicMuted ? Icons.mic_off : Icons.mic,
+                                color: Colors.grey.shade700,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(isMicMuted ? "Unmute" : "Mute"),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "Share your room ID.",
-                      style: TextStyle(fontSize: 17.0, color: Colors.white),
-                    ),
-                    const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      alignment: Alignment.center,
-                      color: Colors.grey,
-                      height: 48,
-                      width: size.width - 30,
-                      child: Text(
-                        widget.roomId,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 17.4,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+
+                    // Speaker Button
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isSpeakerOn = !isSpeakerOn;
+                        });
+                        widget.toggleCamera(); // Repurposed for speaker toggle
+                      },
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.grey.shade700, width: 2),
+                            ),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                                color: Colors.grey.shade700,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(isSpeakerOn ? "Speaker On" : "Speaker Off"),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: SizedBox(
-              height: size.height / 4.76,
-              width: size.width / 4,
-              child: RTCVideoView(widget.localVideo, mirror: true),
-            ),
-          ),
-          Positioned(
-            bottom: 12,
-            left: 10,
-            child: Row(
-              children: [
-                _buildButton(Icons.call_end, Colors.red, widget.leaveCall),
-                const SizedBox(width: 16),
-                _buildButton(Icons.switch_camera, Colors.grey.shade700, widget.switchCamera),
-                const SizedBox(width: 8),
-                _buildButton(
-                  widget.isVideoOn ? Icons.videocam : Icons.videocam_off,
-                  widget.isVideoOn ? Colors.grey.shade700 : Colors.white,
-                  widget.toggleCamera,
+
+                const SizedBox(height: 30),
+
+                // End Call Button
+                GestureDetector(
+                  onTap: widget.leaveCall,
+                  child: const CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.redAccent,
+                    child: Icon(
+                      Icons.call_end,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 8),
-                _buildButton(
-                  widget.isAudioOn ? Icons.mic : Icons.mic_off,
-                  widget.isAudioOn ? Colors.grey.shade700 : Colors.white,
-                  widget.toggleMic,
-                ),
+                const SizedBox(height: 10),
+                const Text("End Call"),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
 
   Widget _buildButton(IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
