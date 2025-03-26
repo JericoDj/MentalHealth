@@ -127,7 +127,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Chat Session with ${widget.userId}"),
+        title: Text("Chat Session with Specialist"),
         actions: [
           IconButton(
             icon: const Icon(Icons.exit_to_app, color: Colors.white),

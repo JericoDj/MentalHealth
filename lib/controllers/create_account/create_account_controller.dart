@@ -98,7 +98,9 @@ class SignUpController extends GetxController {
 
         // ✅ Update User Data in Firestore (Merges data if exists)
         // ✅ Update User Data in Firestore (Merges data if exists)
-        await usersRef.doc(uid).set({
+         await _firestore.collection("users").doc(uid).set({
+          // your data here
+
           "uid": uid,
           "email": email,
           "username": usernameController.text.trim(),

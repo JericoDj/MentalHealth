@@ -215,20 +215,22 @@ class SignUpScreen extends StatelessWidget {
                   SizedBox(
                     height: 55,
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: controller.signUp,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MyColors.color2,
-                        shape: RoundedRectangleBorder(
+                    child: GestureDetector(
+                      onTap: controller.signUp, // Call the signUp function when tapped
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: MyColors.color2,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                      ),
-                      child: const Text(
-                        "Sign Up",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        child: const Text(
+                          "Sign Up",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
                       ),
                     ),
                   ),
+
 
                   const SizedBox(height: 20),
 

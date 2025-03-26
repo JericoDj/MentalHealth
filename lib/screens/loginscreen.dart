@@ -31,6 +31,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
 
+
                 // App Name
                 const Text(
                   textAlign: TextAlign.center,
