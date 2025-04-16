@@ -28,11 +28,13 @@ class AuthenticationRepository extends GetxController {
     // Remove the splash screen
     FlutterNativeSplash.remove();
 
+    // Debugging: Check the state of firebaseUser
+    print("Current user: ${firebaseUser.value}");
+
     // Redirect to the appropriate screen
     await _screenRedirect();
   }
 
-  // Function to check first-time open and redirect accordingly
   Future<void> _screenRedirect() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final UserStorage userStorage = UserStorage(); // Instance of UserStorage
@@ -46,9 +48,7 @@ class AuthenticationRepository extends GetxController {
       Get.offAll(() => OnBoardingScreen());
     } else {
       // If not first time, check for user authentication
-      String? uid = userStorage.getUid(); // Get UID from UserStorage
-
-      if (uid != null) {
+      if (firebaseUser.value != null) {
         // User is logged in, redirect to HomeScreen
         Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
       } else {
@@ -57,6 +57,8 @@ class AuthenticationRepository extends GetxController {
       }
     }
   }
+
+
 
 
   Future<void> signUp({

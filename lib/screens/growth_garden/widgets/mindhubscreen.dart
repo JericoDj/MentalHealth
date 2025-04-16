@@ -33,7 +33,7 @@ class _MindHubScreenState extends State<MindHubScreen> {
   Widget _getCategoryScreen(String category) {
     switch (category) {
       case 'Articles':
-        return const MindHubArticlesScreen();
+        return  SafeSpaceHubArticles();
       case 'Videos':
         return const MindHubVideosScreen();
       case 'Ebooks':

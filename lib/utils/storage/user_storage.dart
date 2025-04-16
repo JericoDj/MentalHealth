@@ -4,14 +4,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_storage/get_storage.dart';
 
+import '../../models/carousel_item_model.dart';
+
 class UserStorage {
   final GetStorage _storage = GetStorage();
   static const String _apnTokenKey = 'apnsToken';
   static const String _fcmTokenKey = 'fcmToken';
 
   // ✅ Save UID locally
-  void saveUid(String uid) {
-    _storage.write("uid", uid);
+  Future<void> saveUid(String uid) async {
+    await _storage.write("uid", uid);
   }
 
   // ✅ Retrieve UID
@@ -292,6 +294,25 @@ class UserStorage {
     if (value is String) return int.tryParse(value) ?? 0;
     return 0;
   }
+
+
+  // ✅ Store carousel items locally
+  void saveCarouselItems(List<CarouselItemModel> items) {
+    final encoded = items.map((item) => item.toMap()).toList();
+    _storage.write('carouselItems', encoded);
+  }
+
+// ✅ Retrieve carousel items
+  List<CarouselItemModel> getCarouselItems() {
+    final rawList = _storage.read('carouselItems') as List<dynamic>? ?? [];
+    return rawList.map((e) => CarouselItemModel.fromMap(Map<String, dynamic>.from(e))).toList();
+  }
+
+// ✅ Clear carousel items
+  void clearCarouselItems() {
+    _storage.remove('carouselItems');
+  }
+
 }
 
 

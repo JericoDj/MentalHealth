@@ -25,6 +25,8 @@ class LoginController extends GetxController {
   }
 
 
+
+
   Future<void> checkAndStoreSafeCommunityAccess() async {
     final bool? localAccess = _userStorage.getSafeCommunityAccess();
 
@@ -63,7 +65,9 @@ class LoginController extends GetxController {
 
     if (email.isEmpty || password.isEmpty) {
       Get.snackbar("Error", "Please enter both email and password",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
       return;
     }
 
@@ -80,47 +84,44 @@ class LoginController extends GetxController {
       print("✅ Firebase Auth UID: $uid");
 
       // ✅ Step 2: Retrieve user profile from Firestore
-      DocumentSnapshot userDoc = await _firestore.collection("users").doc(uid).get();
+      DocumentSnapshot userDoc =
+      await _firestore.collection("users").doc(uid).get();
 
       if (!userDoc.exists) {
         Get.snackbar("Error", "User profile not found. Please contact support.",
-            snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white);
         isLoading.value = false;
         return;
       }
 
       var userData = userDoc.data() as Map<String, dynamic>;
       print("📌 Firestore User Data: $userData");
-      _userStorage.clearUid(); // Clears UID and related data
-      _userStorage.saveFCMToken();
 
-// ✅ Step 3: Save UID and Company ID in Local Storage
-      // ✅ Save fullName to local storage
+      // ✅ Clear any old login data
+      _userStorage.clearUid();
+
+      // ✅ Save UID immediately
+      await _userStorage.saveUid(uid); // Make sure this is `await` if async
+
+      // ✅ Save other user details
       if (userData.containsKey('fullName')) {
         String fullName = userData['fullName'];
         _userStorage.saveFullName(fullName);
         print("📝 Full Name saved: $fullName");
       } else {
         print("⚠️ No fullName found in user profile.");
-
       }
 
-      _userStorage.getPhoneNumber();
-
-
-
-      _userStorage.saveUid(uid);
-
-// Save company ID
       if (userData.containsKey('companyId')) {
         String companyId = userData['companyId'];
         _userStorage.saveCompanyId(companyId);
         print("🏢 Company ID saved: $companyId");
       } else {
-        print("⚠️ No company_id found in user profile.");
+        print("⚠️ No companyId found in user profile.");
       }
 
-// Save username
       if (userData.containsKey('username')) {
         String username = userData['username'];
         _userStorage.saveUsername(username);
@@ -129,17 +130,23 @@ class LoginController extends GetxController {
         print("⚠️ No username found in user profile.");
       }
 
+      _userStorage.getPhoneNumber(); // Optional depending on app logic
 
-// ✅ Step 4: Check for safeCommunityAccess
+      // ✅ Step 3: Save FCM Token after UID is safely stored
+      await Future.delayed(Duration(milliseconds: 300));
+      await _userStorage.saveFCMToken();
+
+      // ✅ Step 4: Check access rights
       await checkAndStoreSafeCommunityAccess();
 
-      // ✅ Step 5: Navigate to Dashboard
+      // ✅ Step 5: Navigate to dashboard
       Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
 
       Get.snackbar("Success", "Login successful!",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white);
     } on FirebaseAuthException catch (e) {
-      // Handle Firebase Auth errors
       String errorMessage = "Login failed. Please try again.";
       if (e.code == 'user-not-found') {
         errorMessage = "No user found with this email.";
@@ -148,15 +155,20 @@ class LoginController extends GetxController {
       }
 
       Get.snackbar("Error", errorMessage,
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
     } catch (e) {
       print("❌ Login Error: $e");
       Get.snackbar("Error", "Something went wrong: ${e.toString()}",
-          snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white);
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
+
 
 
 

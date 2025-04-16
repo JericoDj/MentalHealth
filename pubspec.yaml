@@ -106,7 +106,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icons/android-chrome-512x512.png"
+  image_path: "assets/icons/android-chrome-512x512.jpg"
 
 
 

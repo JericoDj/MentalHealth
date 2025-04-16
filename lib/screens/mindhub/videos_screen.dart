@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
-
 class VideoItem {
   final String title;
   final String description;
   final String thumbnail;
   final String videoUrl;
   final bool isYouTube;
+  final int order; // Add order field
 
   const VideoItem({
     required this.title,
@@ -16,38 +17,55 @@ class VideoItem {
     required this.thumbnail,
     required this.videoUrl,
     required this.isYouTube,
+    required this.order,
   });
-}
 
-final List<VideoItem> videos = const [
-  VideoItem(
-    title: "What is Mental Health?",
-    description: "One in four adults experiences a diagnosable mental health problem each year. "
-        "Recognizing stress is key to managing mental health issues effectively.",
-    thumbnail: "https://source.unsplash.com/600x400/?mentalhealth",
-    videoUrl: "https://www.youtube.com/watch?v=G0zJGDokyWQ",
-    isYouTube: true,
-  ),
-  VideoItem(
-    title: "7 Signs You Need a Mental Wellness Check",
-    description: "Recognizing early signs of declining mental health can prevent severe issues. "
-        "This video explains the warning signs to watch for.",
-    thumbnail: "https://source.unsplash.com/600x400/?doctor,mentalhealth",
-    videoUrl: "https://www.youtube.com/watch?v=ekHyJcML5N4",
-    isYouTube: true,
-  ),
-  VideoItem(
-    title: "How to Cope with Anxiety | TEDx",
-    description: "Anxiety affects 1 in 14 people worldwide. Olivia Remes shares strategies for managing "
-        "and treating anxiety through self-care and resilience.",
-    thumbnail: "https://source.unsplash.com/600x400/?anxiety,stress",
-    videoUrl: "https://www.youtube.com/watch?v=WWloIAQpMcQ",
-    isYouTube: true,
-  ),
-];
+  factory VideoItem.fromMap(Map<String, dynamic> map) {
+    return VideoItem(
+      title: map['title'] ?? 'Untitled',
+      description: map['description'] ?? 'No description',
+      thumbnail: map['thumbnail'] ?? '',
+      videoUrl: map['videoUrl'] ?? '',
+      isYouTube: _isYouTubeUrl(map['videoUrl'] ?? ''),
+      order: map['order'] ?? 0,
+    );
+  }
+
+  static bool _isYouTubeUrl(String url) {
+    return url.contains('youtube.com') || url.contains('youtu.be');
+  }
+}
 
 class MindHubVideosScreen extends StatelessWidget {
   const MindHubVideosScreen({Key? key}) : super(key: key);
+
+  Future<List<VideoItem>> _fetchVideosFromFirestore() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('contents')
+          .doc('videos')
+          .get();
+
+      if (!doc.exists) return [];
+
+      final data = doc.data()!;
+      final List<VideoItem> videos = [];
+
+      data.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          videos.add(VideoItem.fromMap(value));
+        }
+      });
+
+      // Sort videos by order field
+      videos.sort((a, b) => a.order.compareTo(b.order));
+      return videos;
+    } catch (e) {
+      print('Error fetching videos: $e');
+      return [];
+    }
+  }
+
 
   void _showVideoDialog(BuildContext context, VideoItem video) {
     showDialog(
@@ -59,79 +77,103 @@ class MindHubVideosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: videos.length,
-        itemBuilder: (context, index) {
-          final video = videos[index];
-          return Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 4,
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            child: InkWell(
-              onTap: () => _showVideoDialog(context, video),
-              borderRadius: BorderRadius.circular(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(12),
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      height: 200,
-                      color: Colors.grey[300],
-                      // Background color for the container
-                      child: Center(
-                        child: Text(
-                          "Thumbnail here",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
+
+      body: FutureBuilder<List<VideoItem>>(
+        future: _fetchVideosFromFirestore(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No videos found.'));
+          }
+
+          final videos = snapshot.data!;
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: videos.length,
+            itemBuilder: (context, index) {
+              final video = videos[index];
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: InkWell(
+                  onTap: () => _showVideoDialog(context, video),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(12)),
+                        child: Image.network(
+                          video.thumbnail,
+
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (_, child, progress) {
+                            if (progress == null) return child;
+                            return Container(
+
+                              color: Colors.grey[200],
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  value: progress.expectedTotalBytes != null
+                                      ? progress.cumulativeBytesLoaded /
+                                      progress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (_, __, ___) => Container(
+
+                            color: Colors.grey[200],
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.error, color: Colors.red),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          video.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(video.title,
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Text(
+                              video.description,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.black87),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          video.description,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 }
-
 class VideoPlayerDialog extends StatefulWidget {
   final VideoItem video;
 
@@ -143,13 +185,14 @@ class VideoPlayerDialog extends StatefulWidget {
 
 class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
   late YoutubePlayerController _youtubeController;
-  late VideoPlayerController _localController;
+  VideoPlayerController? _localController;
   late bool _isYouTube;
 
   @override
   void initState() {
     super.initState();
     _isYouTube = widget.video.isYouTube;
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.landscapeLeft,
@@ -157,17 +200,35 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
     ]);
 
     if (_isYouTube) {
-      _youtubeController = YoutubePlayerController(
-        initialVideoId: YoutubePlayer.convertUrlToId(widget.video.videoUrl)!,
-        flags: const YoutubePlayerFlags(
-          autoPlay: true,
-          mute: false,
-          enableCaption: true,
-        ),
-      );
+      final videoId = YoutubePlayer.convertUrlToId(widget.video.videoUrl);
+      if (videoId != null && videoId.isNotEmpty) {
+        _youtubeController = YoutubePlayerController(
+          initialVideoId: videoId,
+          flags: const YoutubePlayerFlags(
+            autoPlay: true,
+            mute: false,
+            enableCaption: true,
+          ),
+        );
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Invalid YouTube video link.")),
+          );
+          Navigator.of(context).pop(); // Close dialog
+        });
+      }
+
     } else {
-      _localController = VideoPlayerController.network(widget.video.videoUrl)
-        ..initialize().then((_) => setState(() {}));
+      _localController = VideoPlayerController.network(widget.video.videoUrl);
+      _localController!
+          .initialize()
+          .then((_) => setState(() {}))
+          .catchError((e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("This video can't be played on your device")),
+        );
+      });
     }
   }
 
@@ -177,14 +238,13 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
     if (_isYouTube) {
       _youtubeController.dispose();
     } else {
-      _localController.dispose();
+      _localController?.dispose();
     }
     super.dispose();
   }
 
   Widget _buildVideoPlayer(BuildContext context) {
-    final orientation = MediaQuery.of(context).orientation;
-    final isLandscape = orientation == Orientation.landscape;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Stack(
       children: [
@@ -196,78 +256,62 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
             ),
             builder: (context, player) => player,
           )
-        else
-          _localController.value.isInitialized
-              ? AspectRatio(
-            aspectRatio: isLandscape
-                ? _localController.value.aspectRatio
-                : 16 / 9,
-            child: VideoPlayer(_localController),
+        else if (_localController != null && _localController!.value.isInitialized)
+          AspectRatio(
+            aspectRatio: _localController!.value.aspectRatio,
+            child: VideoPlayer(_localController!),
           )
-              : const Center(child: CircularProgressIndicator()),
+        else
+          const Center(child: CircularProgressIndicator()),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    final orientation = MediaQuery.of(context).orientation;
-    final isLandscape = orientation == Orientation.landscape;
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         width: 600,
-        height: isLandscape ? MediaQuery.of(context).size.height : 400,
+
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Video Player
             Expanded(
-              flex: 3,
+
+              flex: 1,
               child: Stack(
                 children: [
                   _buildVideoPlayer(context),
-                  // Show 'X' button only in portrait mode
                   if (!isLandscape)
                     Positioned(
                       top: 8,
                       right: 8,
                       child: IconButton(
-                        icon: Icon(Icons.close, color: Colors.white, size: 28),
+                        icon: const Icon(Icons.close, color: Colors.white, size: 28),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                     ),
                 ],
               ),
             ),
-
-            // Show Text Only in Portrait Mode
             if (!isLandscape)
               Expanded(
                 flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        widget.video.title,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                child: SingleChildScrollView(
+                  child: Padding(
+
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Text(widget.video.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 10),
+                        Text(widget.video.description, style: const TextStyle(fontSize: 16)),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        widget.video.description,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
           ],
@@ -275,5 +319,4 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog> {
       ),
     );
   }
-  }
-
+}

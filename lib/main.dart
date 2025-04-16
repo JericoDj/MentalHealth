@@ -135,12 +135,19 @@ void main() async {
 
 
   await FirebaseMessaging.instance.requestPermission();
-  String? token = await FirebaseMessaging.instance.getToken();
-  if (token != null) {
-    print("FCM Token: $token");
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+    if (apnsToken != null) {
+      String? token = await FirebaseMessaging.instance.getToken();
+      debugPrint("✅ FCM Token (iOS): $token");
+    } else {
+      debugPrint("⚠️ APNs token not ready yet.");
+    }
   } else {
-    print("FCM Token is null. Check Firebase setup.");
+    String? token = await FirebaseMessaging.instance.getToken();
+    debugPrint("✅ FCM Token (Android): $token");
   }
+
 
 
   tz.initializeTimeZones();

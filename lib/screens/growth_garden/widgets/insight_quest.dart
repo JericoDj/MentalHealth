@@ -160,9 +160,9 @@ class InsightQuestScreen extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         if (category == "Mindfulness" || category == "Resilience") {
-          Get.to(() => QuizScreen(category: category, isPersonalityBased: true));
+          Get.to(() => QuizScreen(category: category,));
         } else {
-          Get.to(() => QuizScreen(category: category, isPersonalityBased: false));
+          Get.to(() => QuizScreen(category: category,));
         }
       },
       child: AnimatedContainer(
@@ -270,7 +270,7 @@ class InsightQuestScreen extends StatelessWidget {
           child: InkWell(
             onTap: () {
               String selectedCategory = quizData.containsKey(title) ? title : "Mindfulness"; // ✅ Prevent crashes
-              Get.to(() => QuizScreen(category: selectedCategory, isPersonalityBased: true));
+              Get.to(() => QuizScreen(category: selectedCategory, ));
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -1,39 +1,73 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:llps_mental_app/controllers/MoodController.dart';
-import 'package:llps_mental_app/utils/constants/colors.dart';
-import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/moods_section.dart';
+import 'package:llps_mental_app/controllers/achievements_controller.dart';
+import 'package:llps_mental_app/controllers/home_controller.dart';
+import 'package:llps_mental_app/controllers/progress_controller.dart';
+import 'package:llps_mental_app/controllers/user_progress_controller.dart';
+import 'package:llps_mental_app/widgets/homescreen_widgets/safe_talk_button.dart';
+import 'package:llps_mental_app/widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
 
-import '../../controllers/achievements_controller.dart';
-import '../../controllers/home_controller.dart';
-import '../../controllers/progress_controller.dart';
-import '../../controllers/user_progress_controller.dart';
-import '../../widgets/homescreen_widgets/safe_talk_button.dart';
-import '../../widgets/homescreen_widgets/wellness_tracking/wellness_map.dart';
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({Key? key}) : super(key: key);
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
 
-  final UserProgressController userProgressController = Get.put(
-      UserProgressController());
+class _HomeScreenState extends State<HomeScreen> {
+  final UserProgressController userProgressController = Get.put(UserProgressController());
   final ProgressController progressController = Get.put(ProgressController());
-  final AchievementsController achievementsController = Get.put(
-      AchievementsController());
-  final HomeController homeController = Get.put(
-      HomeController()); // ✅ Inject controller
-  final MoodController moodController = Get.put(
-      MoodController()); // ✅ Inject controller
+  final AchievementsController achievementsController = Get.put(AchievementsController());
+  final HomeController homeController = Get.put(HomeController());
+  final MoodController moodController = Get.put(MoodController());
+
+  late Future<List<Map<String, dynamic>>> _carouselImages;
+
+  @override
+  void initState() {
+    super.initState();
+    moodController.getWeeklyMoods();
+    userProgressController.fetchUserCheckIns();
+    achievementsController.fetchUserAchievements();
+
+    // Fetch the carousel images from Firestore
+    _carouselImages = fetchCarouselImages();
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCarouselImages() async {
+    try {
+      // Fetch the images from Firestore
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance.collection('contents').doc('homescreen').get();
+      var data = snapshot.data() as Map<String, dynamic>;
+
+      List<Map<String, dynamic>> allImages = [];
+
+      // Loop through the keys in the document to find all image fields (image3, image4, etc.)
+      data.forEach((key, value) {
+        if (key.startsWith('image')) {
+          // Add the image data to the list if it's an image field
+          allImages.add(value);
+        }
+      });
+
+      // Print the results to the console for debugging
+      print("Fetched Carousel Images: $allImages");
+
+      // Return the combined list of all images
+      return allImages;
+    } catch (e) {
+      print("Error fetching carousel images: $e");
+      return []; // If error occurs, return empty list
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    moodController.getWeeklyMoods();
-    // Fetch check-ins when HomeScreen is loaded
-    userProgressController.fetchUserCheckIns();
-
-    // ✅ Fetch achievements whenever HomeScreen is opened
-    achievementsController.fetchUserAchievements();
-
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -42,41 +76,43 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Progress Dashboard
               ProgressDashboardCard(),
               const SizedBox(height: 20),
-
               SafeTalkButton(),
               const SizedBox(height: 10),
+              FutureBuilder<List<Map<String, dynamic>>>(
+                future: _carouselImages,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
 
-              // Carousel Slider Section
-              // Wrap in a SizedBox to prevent overflow
-              SizedBox(
-                height: 280, // Adjust height to fit properly
-                child: CarouselSlider(
-                  items: [
-                    _buildCarouselItem(
-                        "assets/images/homescreen/Consultation.jpg", "Consultation"),
-                    _buildCarouselItem(
-                        "assets/images/homescreen/CoupleTherapy.jpg", "Couple Therapy"),
-                    _buildCarouselItem(
-                        "assets/images/homescreen/Counselling.jpg", "Counselling"),
-                    _buildCarouselItem("assets/images/homescreen/Psychotherapy.jpg",
-                        "Psychological Assessment")
-                  ],
-                  options: CarouselOptions(
-                    enlargeCenterPage: true,
-                    autoPlay: true,
-                    aspectRatio: 16 / 9,
-                    autoPlayCurve: Curves.easeInOut,
-                    enableInfiniteScroll: true,
-                    autoPlayAnimationDuration: const Duration(seconds: 1),
-                    viewportFraction: 0.8,
-                  ),
-                ),
+                  final images = snapshot.data ?? [];
+
+                  if (images.isEmpty) {
+                    return Text('No images available');
+                  }
+
+                  return SizedBox(
+                    height: 280,
+                    child: CarouselSlider(
+                      items: images.map((image) => _buildCarouselItem(image)).toList(),
+                      options: CarouselOptions(
+                        enlargeCenterPage: true,
+                        autoPlay: true,
+                        aspectRatio: 16 / 9,
+                        autoPlayCurve: Curves.easeInOut,
+                        enableInfiniteScroll: true,
+                        autoPlayAnimationDuration: const Duration(seconds: 1),
+                        viewportFraction: 0.8,
+                      ),
+                    ),
+                  );
+                },
               ),
-
-
               const SizedBox(height: 20),
             ],
           ),
@@ -85,14 +121,16 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Helper Method for Carousel Items
-  Widget _buildCarouselItem(String imagePath, String title) {
+  Widget _buildCarouselItem(Map<String, dynamic> item) {
+    String imagePath = item['url']; // Fetch URL from Firestore
+    String title = item['title'];
+
     return SizedBox(
-      height: 250, // Ensures item does not exceed the available height
+      height: 250,
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Prevent Column from expanding unnecessarily
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded( // Ensures the image container takes available space
+          Expanded(
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
@@ -110,15 +148,15 @@ class HomeScreen extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
+                child: Image.network(
                   imagePath,
                   fit: BoxFit.cover,
-                  width: double.infinity, // Ensures proper scaling
+                  width: double.infinity,
                 ),
               ),
             ),
           ),
-          const SizedBox(height: 15), // Space between image and text
+          const SizedBox(height: 15),
           Text(
             title,
             style: TextStyle(
@@ -132,5 +170,4 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
 }

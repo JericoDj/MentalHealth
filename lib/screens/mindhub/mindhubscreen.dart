@@ -83,7 +83,7 @@ class MindHubCategoriesScreen extends StatelessWidget {
               color: item.color,
               onTap: () {
                 if (item.category == 'Articles') {
-                  Get.to(() => const MindHubArticlesScreen());
+                  Get.to(() => SafeSpaceHubArticles());
                 } else if (item.category == 'Videos') {
                   Get.to(() => const MindHubVideosScreen());
                 } else if (item.category == 'Ebooks') {

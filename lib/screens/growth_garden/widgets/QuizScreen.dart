@@ -1,16 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
-import '../../../data/quiz_data.dart';
+import '../../../models/quiz_model.dart';
 
 class QuizScreen extends StatefulWidget {
   final String category;
-  final bool isPersonalityBased;
+
 
   const QuizScreen({
     super.key,
     required this.category,
-    required this.isPersonalityBased,
   });
 
   @override
@@ -21,93 +21,204 @@ class _QuizScreenState extends State<QuizScreen> {
   int currentQuestionIndex = 0;
   int totalScore = 0;
   bool quizCompleted = false;
+  late Future<Quiz> _quizFuture;
 
   @override
-  Widget build(BuildContext context) {
-    final quiz = quizData[widget.category];
+  void initState() {
+    super.initState();
+    _quizFuture = _fetchQuizFromFirestore();
+  }
 
-    if (quiz == null) {
-      return Scaffold(
-        appBar: _buildAppBar("Quiz Not Found"),
-        body: const Center(
-          child: Text(
-            "Error: Quiz data not available. Please check the category name.",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red),
-          ),
-        ),
+  Future<Quiz> _fetchQuizFromFirestore() async {
+    print('🟡 Starting to fetch quiz for category: ${widget.category}');
+
+    try {
+      final quizCollection = await FirebaseFirestore.instance
+          .collection('quizzes')
+          .doc(widget.category)
+          .collection('quizzes')
+          .get();
+
+      final allDocs = quizCollection.docs;
+
+      if (allDocs.isEmpty) {
+        throw Exception('No quizzes found in category ${widget.category}');
+      }
+
+      // Pick one at random
+      final randomDoc = (allDocs..shuffle()).first;
+      final data = randomDoc.data();
+      print('🎯 Picked random quiz ID: ${randomDoc.id}');
+      print('📄 Raw Firestore data: $data');
+
+      // Validation
+      if (data['questions'] == null ||
+          data['category'] == null ||
+          data['isPersonalityBased'] == null) {
+        print('🔴 Error: Missing required fields in quiz data');
+        print('Found fields: ${data.keys.join(', ')}');
+        throw Exception('Invalid quiz format');
+      }
+
+      // Convert questions
+      final questions = (data['questions'] as List).map((q) {
+        if (q is! Map<String, dynamic> ||
+            q['answers'] == null ||
+            (q['question'] == null && q['questionText'] == null)) {
+          throw Exception('Invalid question format');
+        }
+
+        final answers = (q['answers'] as List).map((a) {
+          if (a is! Map<String, dynamic> ||
+              a['text'] == null ||
+              a['score'] == null) {
+            throw Exception('Invalid answer format');
+          }
+
+          return QuizAnswer(
+            text: a['text'],
+            score: a['score'],
+            isCorrect: a['isCorrect'] ?? false,
+          );
+        }).toList();
+
+        return QuizQuestion(
+          question: q['question'] ?? q['questionText'],
+          answers: answers,
+        );
+      }).toList();
+
+      if (questions.isEmpty) {
+        throw Exception('Quiz contains no valid questions');
+      }
+
+      final quiz = Quiz(
+        category: data['category'],
+        isPersonalityBased: data['isPersonalityBased'],
+        questions: questions,
       );
+
+      print('🎉 Successfully created Quiz object: ${quiz.questions.length} questions');
+      return quiz;
+    } catch (e) {
+      print('🔴 Error in _fetchQuizFromFirestore: $e');
+      rethrow;
     }
+  }
 
-    final isPersonalityBased = quiz["isPersonalityBased"];
-    final questions = quiz["questions"];
 
-    if (quizCompleted) {
-      return _buildResultsScreen();
-    }
-
+  Widget _buildLoadingScreen() {
     return Scaffold(
-      appBar: _buildAppBar('${widget.category} Quiz'),
+      appBar: _buildAppBar('Loading...'),
+      body: const Center(child: CircularProgressIndicator()),
+    );
+  }
+
+  Widget _buildErrorScreen(String error) {
+    return Scaffold(
+      appBar: _buildAppBar('Error'),
+      body: Center(
+        child: Text(
+          'Error: $error',
+          style: const TextStyle(color: Colors.red),
+        ),
+      ),
+    );
+  }
+
+  // Add the required build method
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Quiz>(
+      future: _quizFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingScreen();
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorScreen(snapshot.error.toString());
+        }
+
+        final quiz = snapshot.data!;
+
+        // Add validation for empty questions
+        if (quiz.questions.isEmpty) {
+          return _buildErrorScreen('No questions found in this quiz');
+        }
+
+        if (quizCompleted) {
+          return _buildResultsScreen(quiz);
+        }
+
+        return _buildQuizScreen(quiz);
+      },
+    );
+  }
+
+
+  Widget _buildQuizScreen(Quiz quiz) {
+    final currentQuestion = quiz.questions[currentQuestionIndex];
+    return Scaffold(
+      appBar: _buildAppBar('${quiz.category} Quiz'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             LinearProgressIndicator(
-              value: (currentQuestionIndex + 1) / questions.length,
+              value: (currentQuestionIndex + 1) / quiz.questions.length,
               color: MyColors.color2,
               backgroundColor: Colors.grey[300],
             ),
             const SizedBox(height: 20),
             Text(
-              questions[currentQuestionIndex]["question"],
+              currentQuestion.question,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            ..._buildAnswerButtons(questions[currentQuestionIndex], isPersonalityBased),
+            ..._buildAnswerButtons(currentQuestion, quiz.isPersonalityBased),
           ],
         ),
       ),
     );
   }
 
-  /// 🎯 Builds Answer Buttons using GestureDetector with a Colored Border
-  List<Widget> _buildAnswerButtons(Map<String, dynamic> question, bool isPersonalityBased) {
-    return (question["answers"] as List).map<Widget>((answer) {
-      return GestureDetector(
-        onTap: () => _onAnswerSelected(answer, isPersonalityBased),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white, // ✅ White background
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: MyColors.color2, width: 2), // ✅ Border color 2
-          ),
-          child: Center(
-            child: Text(
-              answer["text"],
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: MyColors.color2),
+  List<Widget> _buildAnswerButtons(QuizQuestion question, bool isPersonalityBased) {
+    return question.answers.map((answer) => GestureDetector(
+      onTap: () => _onAnswerSelected(answer, isPersonalityBased, question.answers.length),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: MyColors.color2, width: 2),
+        ),
+        child: Center(
+          child: Text(
+            answer.text,
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: MyColors.color2
             ),
           ),
         ),
-      );
-    }).toList();
+      ),
+    )).toList();
   }
 
-  /// 📌 Handles Answer Selection
-  void _onAnswerSelected(Map<String, dynamic> answer, bool isPersonalityBased) {
+  void _onAnswerSelected(QuizAnswer answer, bool isPersonalityBased, int totalQuestions) {
     setState(() {
       if (isPersonalityBased) {
-        totalScore += answer["score"] as int;
-      } else {
-        if (answer["isCorrect"] as bool) {
-          totalScore += 1;
-        }
+        totalScore += answer.score;
+      } else if (answer.isCorrect) {
+        totalScore += 1;
       }
 
-      if (currentQuestionIndex + 1 < quizData[widget.category]["questions"].length) {
+      if (currentQuestionIndex + 1 < totalQuestions) {
         currentQuestionIndex++;
       } else {
         quizCompleted = true;
@@ -115,12 +226,9 @@ class _QuizScreenState extends State<QuizScreen> {
     });
   }
 
-  /// 🏆 Generates Results Based on Personality Quiz Scores
-  Widget _buildResultsScreen() {
-    String resultMessage = _getPersonalityResult();
-
+  Widget _buildResultsScreen(Quiz quiz) {
     return Scaffold(
-      appBar: _buildAppBar('${widget.category} Quiz Results'),
+      appBar: _buildAppBar('${quiz.category} Quiz Results'),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -130,7 +238,7 @@ class _QuizScreenState extends State<QuizScreen> {
               const Icon(Icons.emoji_events, size: 80, color: MyColors.color2),
               const SizedBox(height: 20),
               Text(
-                resultMessage,
+                _getResultMessage(quiz),
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
@@ -146,7 +254,11 @@ class _QuizScreenState extends State<QuizScreen> {
                   ),
                   child: Text(
                     "Back to Quizzes",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: MyColors.color1),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: MyColors.color1
+                    ),
                   ),
                 ),
               ),
@@ -157,32 +269,40 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  /// 🔥 Defines Outcome Messages Based on Score
-  String _getPersonalityResult() {
-    if (totalScore >= 5) {
-      return "🌿 You have high mindfulness and great self-awareness!";
-    } else if (totalScore >= 3) {
-      return "✨ You are somewhat mindful, but could benefit from small habits like daily meditation.";
+  String _getResultMessage(Quiz quiz) {
+    if (quiz.isPersonalityBased) {
+      return _getPersonalityResult(quiz);
+    }
+    return 'You scored $totalScore out of ${quiz.questions.length}';
+  }
+
+  String _getPersonalityResult(Quiz quiz) {
+    final maxScore = quiz.questions.length * 3;
+    final percentage = (totalScore / maxScore) * 100;
+
+    if (percentage >= 75) {
+      return "🌿 Excellent! You've shown great mastery in this area!";
+    } else if (percentage >= 50) {
+      return "✨ Good job! There's still room for improvement.";
     } else {
-      return "⏳ You might struggle with mindfulness. Try setting reminders to take deep breaths throughout the day.";
+      return "⏳ Keep practicing! Consider exploring our resources to improve.";
     }
   }
 
-  /// 🎨 Reusable Gradient AppBar
   PreferredSizeWidget _buildAppBar(String title) {
     return AppBar(
       toolbarHeight: 65,
       flexibleSpace: Stack(
         children: [
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFFF8F8F8),
-                  Color(0xFFF1F1F1),
-                ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
+                colors: [
+                  const Color(0xFFF8F8F8),
+                  const Color(0xFFF1F1F1),
+                ],
               ),
             ),
           ),
