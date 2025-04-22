@@ -250,6 +250,8 @@ class WebApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'llps_mental_app',
       theme: ThemeData(primarySwatch: Colors.blue),
+      themeMode: ThemeMode.light,
+
       home: Scaffold(
         body: Center(
           child: Container(

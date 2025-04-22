@@ -19,9 +19,10 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.light,
       theme: MyTheme.lightTheme,
       darkTheme: MyTheme.darkTheme,
+
       initialBinding: GeneralBindings(),
       getPages: AppRoutes.pages,
       /// Show Loader or Circular progress indicator meanwhile Authentication repository is deciding to show relevant screen.
