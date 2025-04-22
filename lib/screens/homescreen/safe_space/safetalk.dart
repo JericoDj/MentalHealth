@@ -214,7 +214,7 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
                   children: [
                     _buildActionButton("chat", "Chat with Specialist"),
                     const SizedBox(height: 15),
-                    _buildActionButton("call", "Call to Specialist"),
+                    _buildActionButton("call", "Call a Specialist"),
                   ],
                 ),
 

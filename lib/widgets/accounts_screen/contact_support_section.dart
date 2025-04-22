@@ -61,9 +61,9 @@ class ContactSupportSection extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 20),
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Center(
                   child: Text(
                     'Contact our support team for assistance.',
@@ -71,7 +71,7 @@ class ContactSupportSection extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              /*const SizedBox(height: 20),
 
               // Phone Number Section
               Padding(
@@ -115,7 +115,7 @@ class ContactSupportSection extends StatelessWidget {
                   ],
                 ),
               ),
-
+*/
 
               // Submit Ticket Button
               Padding(

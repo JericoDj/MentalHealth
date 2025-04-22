@@ -107,7 +107,7 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Customer Support",
+                  "Mental Health Specialist",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -117,8 +117,9 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                 const SizedBox(height: 10),
                 Text(
                   widget.connectingLoading
-                      ? "Waiting for available agent..."
+                      ? "Waiting for available Mental Health Specialist..."
                       : "In Call",
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w400,

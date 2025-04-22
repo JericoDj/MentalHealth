@@ -273,9 +273,9 @@ class ConsultationForm extends StatelessWidget {
                       mainAxisSpacing: 14,
                       childAspectRatio: 3, // **Wider Buttons**
                     ),
-                    itemCount: 10,
+                    itemCount: 12,
                     itemBuilder: (context, index) {
-                      final time = TimeOfDay(hour: 8 + index, minute: 0);
+                      final time = TimeOfDay(hour: 9 + index, minute: 0);
                       return GestureDetector(
                         onTap: () {
                           onPickTime(time);

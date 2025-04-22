@@ -243,6 +243,29 @@ class _QuizScreenState extends State<QuizScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Container(
+                  decoration: BoxDecoration(border: Border.all(width: 1,color: Colors.black54,), borderRadius: BorderRadius.all(Radius.circular(5))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: const Text(
+                      "Disclaimer:\n\n"
+                          "This quiz is intended for informational and self-reflection purposes only. "
+                          "It is not a diagnostic tool and should not replace professional mental health advice or assessment. "
+                          "If you find the results concerning or emotionally distressing, we encourage you to reach out to our mental health specialist "
+                          "through the Luminara app to further explore and process your experience.",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: () => Get.back(),
                 child: Container(
@@ -255,9 +278,9 @@ class _QuizScreenState extends State<QuizScreen> {
                   child: Text(
                     "Back to Quizzes",
                     style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: MyColors.color1
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: MyColors.color1,
                     ),
                   ),
                 ),
@@ -268,6 +291,7 @@ class _QuizScreenState extends State<QuizScreen> {
       ),
     );
   }
+
 
   String _getResultMessage(Quiz quiz) {
     if (quiz.isPersonalityBased) {
@@ -281,11 +305,11 @@ class _QuizScreenState extends State<QuizScreen> {
     final percentage = (totalScore / maxScore) * 100;
 
     if (percentage >= 75) {
-      return "🌿 Excellent! You've shown great mastery in this area!";
+      return "🌿\nExcellent! You've shown great mastery in this area!";
     } else if (percentage >= 50) {
-      return "✨ Good job! There's still room for improvement.";
+      return "✨\nGood job! There's still room for improvement.";
     } else {
-      return "⏳ Keep practicing! Consider exploring our resources to improve.";
+      return "⏳\nKeep practicing! Consider exploring our resources to improve.";
     }
   }
 

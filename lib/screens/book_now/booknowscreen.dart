@@ -91,54 +91,108 @@ class _BookNowScreenState extends State<BookNowScreen> {
     );
   }
 
-  void _pickDate() async {
+  void _pickDate() {
     DateTime today = DateTime.now();
-    DateTime firstSelectableDate = today.add(const Duration(days: 2)); // Allow selection only from 2 days ahead
-    DateTime lastSelectableDate = firstSelectableDate.add(const Duration(days: 365)); // Allow up to 1 year from then
+    DateTime firstSelectableDate = today.add(const Duration(days: 2));
+    DateTime lastSelectableDate = firstSelectableDate.add(const Duration(days: 365));
 
-    final DateTime? selectedDate = await showDatePicker(
+    showModalBottomSheet(
       context: context,
-      initialDate: firstSelectableDate, // Default to 2 days from now
-      firstDate: firstSelectableDate, // Prevent selection of today or tomorrow
-      lastDate: lastSelectableDate, // Limit selection up to 1 year from then
-      builder: (context, child) {
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      builder: (context) {
         return Theme(
           data: ThemeData.light().copyWith(
-            primaryColor: MyColors.color2, // Header background color
-            hintColor: MyColors.color2, // Hint text color
+            primaryColor: MyColors.color2,
+            hintColor: MyColors.color2,
             textTheme: const TextTheme(
-              headlineMedium: TextStyle( // **Month & Year in header**
+              headlineMedium: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
-              bodyLarge: TextStyle( // **Selected Date Text**
+              bodyLarge: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
             colorScheme: ColorScheme.light(
-              primary: MyColors.color2, // Selected date color
-              onPrimary: Colors.white70, // Selected date text color
-              onSurface: MyColors.color1, // Normal text color
+              primary: MyColors.color2,
+              onPrimary: Colors.white70,
+              onSurface: MyColors.color1,
             ),
-            dialogBackgroundColor: Colors.white, // Background color
+            dialogBackgroundColor: Colors.white,
             buttonTheme: const ButtonThemeData(
               textTheme: ButtonTextTheme.primary,
             ),
           ),
-          child: child!,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              children: [
+                const Text(
+                  "Choose a Date",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                CalendarDatePicker(
+                  initialDate: firstSelectableDate,
+                  firstDate: firstSelectableDate,
+                  lastDate: lastSelectableDate,
+                  onDateChanged: (DateTime newDate) {
+                    Navigator.pop(context);
+                    setState(() {
+                      _selectedDate = newDate;
+                    });
+                  },
+                ),
+                const SizedBox(height: 12),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Text(
+                    "Note: Choose your preferred date. Please note that the final schedule may be adjusted based on our professional’s availability.",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black87,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 60),
+                Center(
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.redAccent),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "Cancel",
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
+          ),
         );
       },
     );
-
-    if (selectedDate != null) {
-      setState(() {
-        _selectedDate = selectedDate; // Update selected date
-      });
-    }
   }
+
 
   void _pickTime(TimeOfDay time) {
     setState(() {

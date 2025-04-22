@@ -453,30 +453,53 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Appointment Submitted",
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          content: const Text(
-            "Your request has been submitted. A representative will contact you within 24 hours.",
-            style: TextStyle(fontSize: 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text(
+            "Appointment Submitted",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Text(
+                "Your request has been submitted. A representative will contact you within 24 hours to finalize your booking through your registered mobile number.",
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.justify,
+              ),
+              SizedBox(height: 16),
+              Text(
+                "Make sure that your contact number is active. Please note that the final schedule may be adjusted based on our professional’s availability.",
+                style: TextStyle(fontSize: 14),
+                textAlign: TextAlign.justify,
+              ),
+            ],
           ),
           actions: [
-            GestureDetector(
-              onTap: () {
-                Get.offAll(() => NavigationBarMenu(dailyCheckIn: false));
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                decoration: BoxDecoration(
-                  color: MyColors.color2,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  "OK",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Get.offAll(() => NavigationBarMenu(dailyCheckIn: false));
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      color: MyColors.color2,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -486,6 +509,8 @@ class _BookingReviewScreenState extends State<BookingReviewScreen> {
       },
     );
   }
+
+
 
   Future<void> _saveBookingToFirebase() async {
     String? userId = UserStorage().getUid();

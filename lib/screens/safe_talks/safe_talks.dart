@@ -171,7 +171,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
             Text(
               textAlign: TextAlign.start,
               "All together, let's create a warm and supportive mental health community.\n\n"
-                  "Share your thoughts, helpful quotes, and motivational words to help inspire and uplift fellow community members. "
+                  "Share your thoughts, helpful quotes, and motivational words to help inspire and luminara fellow community members. "
                   "Let's cultivate a space where we can all feel safe, heard, and understood.\n",
               style: TextStyle(fontSize: 14),
             ),

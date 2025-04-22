@@ -29,28 +29,44 @@ class LoginScreen extends StatelessWidget {
                   width: 150,
                   height: 150,
                 ),
-                const SizedBox(height: 20),
+
+                const SizedBox(height: 10),
 
 
                 // App Name
                 const Text(
                   textAlign: TextAlign.center,
-                  "Light Level",
+                  "LUMINARA",
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: MyColors.color2,
                   ),
                 ),
+                const SizedBox(height: 5),
                 const Text(
                   textAlign: TextAlign.center,
-                  "Psychological Solutions",
+                  "by",
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
                 ),
+
+
+
+                // App Name
+                const Text(
+                  textAlign: TextAlign.center,
+                  "Light Level Psychological Solutions",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+
                 const SizedBox(height: 8,),
 
                 // Subtitle

@@ -284,7 +284,7 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                   connectingLoading
                       ? (_waitingCount > 0
                       ? "$_waitingCount waiting in queue..."
-                      : "Waiting for available agent...")
+                      : " Waiting for available agent...")
                       : "Duration: $formattedCallDuration",
                   style: const TextStyle(
                     fontSize: 18,

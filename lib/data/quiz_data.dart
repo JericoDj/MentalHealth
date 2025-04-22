@@ -45,7 +45,7 @@ final Map<String, dynamic> quizData = {
         "question": "Are you able to focus on the present without distraction?",
         "answers": [
           {"text": "Yes, most of the time", "score": 3},
-          {"text": "Sometimes", "score": 2},
+            {"text": "Sometimes", "score": 2},
           {"text": "Rarely", "score": 1},
           {"text": "I get distracted easily", "score": 0},
         ]
