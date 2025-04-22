@@ -19,6 +19,9 @@ Widget ProgressButtons(BuildContext context) {
 
   final userProgressController = progressController.userProgressController;
 
+  // ✅ Make sure stress data is loaded
+  stressController.fetchStressData(); // This ensures up-to-date average stress
+
   return Obx(() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
