@@ -286,8 +286,8 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
                     .of(context)
                     .size
                     .width > 510)
-                    ? (510 / 2) -
-                    27.5 // Use fixed width when screen is wider than 500px (desktop web)
+                    ? (MediaQuery.of(context).size.width / 2) -
+                    30 // Use fixed width when screen is wider than 500px (desktop web)
                     : (MediaQuery
                     .of(context)
                     .size

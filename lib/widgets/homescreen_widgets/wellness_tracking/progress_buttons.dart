@@ -10,6 +10,7 @@ import '../../../controllers/progress_controller.dart';
 import '../../../controllers/achievements_controller.dart';
 import '../../../controllers/stress_controller.dart'; // ✅ Import StressController
 import '../../../utils/constants/colors.dart';
+import '../../../utils/storage/user_storage.dart';
 
 Widget ProgressButtons(BuildContext context) {
   final ProgressController progressController = Get.put(ProgressController());
@@ -155,10 +156,12 @@ void showTrackingPopup(BuildContext context, String mode,
       );
       break;
     case 'stress_level':
-      showDialog(
-        context: context,
-        builder: (context) => const StressLevelPopup(),
-      );
+      getAverageStressLevelMessage().then((message) {
+        showDialog(
+          context: context,
+          builder: (context) => StressLevelPopup(message: message),
+        );
+      });
       break;
     case 'achievement':
       showDialog(
@@ -179,3 +182,32 @@ void showTrackingPopup(BuildContext context, String mode,
       break;
   }
 }
+
+Future<String> getAverageStressLevelMessage() async {
+  final userStorage = UserStorage();
+  final stressData = userStorage.getStoredStressData();
+
+  double total = 0.0;
+  int count = 0;
+  final now = DateTime.now();
+
+  for (int i = 0; i < 7; i++) {
+    final date = now.subtract(Duration(days: i));
+    final key = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+
+    double value = stressData[key] ?? 0.0;
+    total += value;
+    count++;
+  }
+
+  final average = total / count;
+
+  if (average < 30) {
+    return "Current Stress Level: Low\n\nRecommendation:\n- Keep doing what you're doing!\n- Stay mindful and balanced.";
+  } else if (average < 70) {
+    return "Current Stress Level: Moderate\n\nRecommendation:\n- Try breathing exercises\n- Take a short walk\n- Listen to relaxing music.";
+  } else {
+    return "Current Stress Level: High\n\nRecommendation:\n- Consider journaling or talking to a specialist\n- Prioritize rest\n- Reduce screen time and stress triggers\n- *Please consider reaching out to a mental health specialist or professional for further support.*";
+  }
+}
+

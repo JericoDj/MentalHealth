@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart'; // ✅ Import for date formatting
+import 'package:url_launcher/url_launcher.dart';
 import '../../../utils/constants/colors.dart';
 
 void showDetailDialog({
@@ -60,9 +61,9 @@ void showDetailDialog({
 
               // 🔹 Display Meeting Link & Specialist ONLY if status is "Scheduled"
               if (status.toLowerCase() == 'scheduled') ...[
-                _buildCopyableRow(
+                _buildLinkRow(
                   label: 'Meeting Link:',
-                  value: meetingLink ?? "Not Provided",
+                  url: meetingLink ?? "https://meet.google.com/",
                   context: context,
                 ),
                 _buildDetailRow(
@@ -152,6 +153,37 @@ Widget _buildCopyableRow({required String label, required String value, required
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('$label copied to clipboard')),
             );
+          },
+        ),
+      ],
+    ),
+  );
+}
+
+/// ✅ Helper Method: Build a Row that opens a Google Meet link
+Widget _buildLinkRow({required String label, required String url, required BuildContext context}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            '$label ${url.length > 25 ? '${url.substring(0, 22)}...' : url}', // Truncate if too long
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.open_in_new, color: MyColors.color1, size: 20),
+          onPressed: () async {
+            final uri = Uri.parse(url);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Could not open the link')),
+              );
+            }
           },
         ),
       ],

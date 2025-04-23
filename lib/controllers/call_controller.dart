@@ -19,7 +19,7 @@ class CallController {
   MediaStream? localStream;
 
   bool isAudioOn = true;
-  // bool isVideoOn = true;
+  bool isVideoOn = true;
   bool isFrontCameraSelected = true;
   bool _isNavigating = false; // ✅ Added flag to prevent multiple exits
 
@@ -58,13 +58,14 @@ class CallController {
     }
   }
 
+
   Future<void> openCamera() async {
     await localVideo.initialize();
     peerConnection = await fbCallService.createPeer();
 
     final Map<String, dynamic> mediaConstraints = {
       'audio': isAudioOn,
-      // 'video': isVideoOn,
+      'video': isVideoOn,
     };
 
     // Get user media (camera and microphone)
@@ -107,13 +108,13 @@ class CallController {
   }
 
 
-  //
-  // void toggleCamera() {
-  //   isVideoOn = !isVideoOn;
-  //   localStream?.getVideoTracks().forEach((track) {
-  //     track.enabled = isVideoOn;
-  //   });
-  // }
+
+  void toggleCamera() {
+    isVideoOn = !isVideoOn;
+    localStream?.getVideoTracks().forEach((track) {
+      track.enabled = isVideoOn;
+    });
+  }
 
   void switchCamera() {
     isFrontCameraSelected = !isFrontCameraSelected;

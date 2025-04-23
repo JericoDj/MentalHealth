@@ -152,7 +152,7 @@ class SpecialistSelection extends StatelessWidget {
 
   String _getServiceImage(String service) {
     const Map<String, String> _serviceImages = {
-      "Psychological Assessment": "assets/images/homescreen/PsychologicalAssessment.jpg",
+      "Psychological Assessment": "assets/images/homescreen/Psychotherapy.jpg",
       "Consultation": "assets/images/homescreen/Consultation.jpg",
       "Couple Therapy/Counseling": "assets/images/homescreen/CoupleTherapy.jpg",
       "Counseling and Psychotherapy": "assets/images/homescreen/Counselling.jpg",

@@ -100,10 +100,10 @@ class _CallPageState extends State<CallPage> {
           sessionType: widget.sessionType,
         ),
         switchCamera: _callController.switchCamera,
-        // toggleCamera: _callController.toggleCamera,
+        toggleCamera: _callController.toggleCamera,
         toggleMic: _callController.toggleMic,
         isAudioOn: _callController.isAudioOn,
-        // isVideoOn: _callController.isVideoOn,
+        isVideoOn: _callController.isVideoOn,
         isCaller: widget.isCaller,
       ),
     );

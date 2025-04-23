@@ -66,7 +66,7 @@ Widget buildMoodDay(String day, String emoji, BuildContext context, int dayNumbe
 
   return GestureDetector(
     onTap: () {
-      showTrackingPopup(context, 'daily_mood', selectedDay: day, mood: emoji);
+        showTrackingPopup(context, 'daily_mood', selectedDay: day, mood: emoji);
     },
     child: Column(
       children: [

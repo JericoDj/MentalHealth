@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
 import 'package:flutter/rendering.dart';
+import 'package:profanity_filter/profanity_filter.dart';
 
 import '../../utils/storage/user_storage.dart';
 
@@ -19,7 +20,24 @@ class SafeSpaceScreen extends StatefulWidget {
 class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool _hasAgreedToEULA = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ProfanityFilter _profanityFilter = ProfanityFilter.filterAdditionally([
+    'tanga', 'gago', 'ulol', 'putangina', 'bwisit', 'lintik', 'bobo', 'siraulo',
+    'tarantado', 'leche', 'punyeta', 'hayop', 'dede', 'mamatay', 'death', 'die',
+    'kill', 'pussy', 'fuck', 'fucking', 'asshole', 'bitch', 'whore', 'slut',
+    'shit', 'crap', 'dick', 'cock', 'nipple', 'nudes', 'patay', 'patayin', 'pakyu',
+    'pakyu', 'hindot', 'kantot', 'libog', 'jakol', 'jakulan', 'burat', 'pekpek',
+    'titi', 'tite', 'inutil', 'lapastangan', 'maniac', 'molest', 'rape', 'sumbong',
+    'sampalin', 'sapakin', 'sampal', 'bugbog', 'baril', 'barilin', 'bomb', 'terorista',
+    'terorismo', 'terrorist', 'terrorism', 'drugs', 'droga', 'adik', 'adiktus',
+    'snort', 'sniff', 'high', 'malibog', 'malandi', 'malaswa', 'hubad', 'huthot',
+    'sipsip', 'suso', 'pwet', 'pwet', 'ipis', 'hayop ka', 'animal ka', 'demonic',
+    'satanic', 'satanas', 'demonyo', 'peste', 'gunggong', 'hindot ka', 'putcha',
+    'kupal', 'yawa', 'yawa ka', 'pisti', 'pisot', 'supot', 'abnoy', 'abnormal',
+    'ugok', 'buwisit', 'walang hiya', 'walang kwenta', 'walang silbi', 'tangina mo', 'tirahin', 'fucker', 'pornstar', 'puta','idiot'
+  ]);
+
   final UserStorage _userStorage = UserStorage(); // Instantiate UserStorage here
 
 
@@ -36,12 +54,26 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     _showKeepItCleanDialog();
   }
 
-  void _fetchPosts() {
-    final String? username = _userStorage.getUsername(); // Retrieve username from local storage
-    if (username == null) return; // If there's no username, exit early
+  void _fetchPosts() async {
+    final String? username = _userStorage.getUsername();
+    final String? currentUserId = _auth.currentUser?.uid;
+    if (username == null || currentUserId == null) return;
 
-    _firestore.collection('safeSpace').doc('posts').collection('userPosts')
-        .snapshots().listen((snapshot) {
+    // Fetch blocked user IDs
+    final blockedSnapshot = await _firestore
+        .collection('users')
+        .doc(currentUserId)
+        .collection('blockedUsers')
+        .get();
+
+    final blockedUserIds = blockedSnapshot.docs.map((doc) => doc.id).toSet();
+
+    _firestore
+        .collection('safeSpace')
+        .doc('posts')
+        .collection('userPosts')
+        .snapshots()
+        .listen((snapshot) {
       List<Map<String, dynamic>> approved = [];
       List<Map<String, dynamic>> pending = [];
       List<Map<String, dynamic>> myPosts = [];
@@ -51,16 +83,16 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
         postData['id'] = doc.id;
         postData['comments'] ??= [];
 
-        // Compare username instead of userId
-        if (postData["status"] == "pending") {
+        if (blockedUserIds.contains(postData["userId"])) continue;
+
+        // Only add user's own pending posts
+        if (postData["status"] == "pending" && postData["userId"] == currentUserId) {
           pending.add(postData);
-        }
-        else if (postData["status"] == "approved") {
+        } else if (postData["status"] == "approved") {
           approved.add(postData);
         }
 
-        // Check if the username matches the current user's username
-        if (postData["username"] == username) {
+        if (postData["userId"] == currentUserId) {
           myPosts.add(postData);
         }
       }
@@ -70,9 +102,6 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
         _pendingPosts = pending;
         _myPosts = myPosts;
       });
-
-      print("Fetched ${_approvedPosts.length} approved posts");
-      print("Fetched ${_pendingPosts.length} pending posts");
     });
   }
 
@@ -85,21 +114,30 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     String? uid = _auth.currentUser?.uid;
     if (uid == null) return;
 
+    // 🚫 Check for bad words
+    if (_profanityFilter.hasProfanity(content)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Your post contains inappropriate language. Please revise it."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return; // Don't proceed with posting
+    }
+
     String now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
-    // Retrieve username from local storage
     String? username = _userStorage.getUsername();
-
     if (username == null || username.isEmpty) {
-      username = "Anonymous";  // Fallback in case username is not found
+      username = "Anonymous";
     }
 
     Map<String, dynamic> post = {
       "userId": uid,
-      "username": username, // Use the local username
+      "username": username,
       "time": now,
       "content": content,
-      "likes": [], // Likes will be a list of UIDs instead of count
+      "likes": [],
       "comments": [],
       "status": "pending",
     };
@@ -158,90 +196,179 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
   }
 
   Widget _buildKeepItCleanDialog(BuildContext context) {
-    return AlertDialog(
-      title: const Text(
-        "Welcome to Safe Community!",
-        style: TextStyle(fontWeight: FontWeight.bold, color: MyColors.color1, fontSize: 20),
-      ),
-      content: Container(
-        height: MediaQuery.of(context).size.height * 0.51, // 50% of screen height
-        child: Column(
-          children: [
+    bool hasAgreedToEULA = false;
 
-            Text(
-              textAlign: TextAlign.start,
-              "All together, let's create a warm and supportive mental health community.\n\n"
-                  "Share your thoughts, helpful quotes, and motivational words to help inspire and luminara fellow community members. "
-                  "Let's cultivate a space where we can all feel safe, heard, and understood.\n",
-              style: TextStyle(fontSize: 14),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return AlertDialog(
+          title: const Text(
+            "Welcome to Safe Community!",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: MyColors.color1,
+              fontSize: 20,
             ),
-            Container(
-
-              decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-              height: MediaQuery.of(context).size.height * 0.3, // 50% of screen height
-              width: MediaQuery.of(context).size.width * 0.9, // 90% of screen width
-              child: ScrollbarTheme(
-                data: ScrollbarThemeData(
-                  thumbColor: MaterialStateProperty.all(MyColors.color2), // Scroll wheel color
-                  thickness: MaterialStateProperty.all(6), // Scroll thickness
-                  radius: const Radius.circular(10), // Rounded edges
+          ),
+          content: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.58,
+            child: Column(
+              children: [
+                Text(
+                  textAlign: TextAlign.start,
+                  "All together, let's create a warm and supportive mental health community.\n\n"
+                      "Share your thoughts, helpful quotes, and motivational words to help inspire and luminara fellow community members. "
+                      "Let's cultivate a space where we can all feel safe, heard, and understood.\n",
+                  style: TextStyle(fontSize: 14),
                 ),
-                child: Scrollbar(
-                  thumbVisibility: true, // Always show scrollbar
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          Text(
-                            "Community Rules:",
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: MyColors.color1),
+                Container(
+                  decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+                  height: MediaQuery.of(context).size.height * 0.3,
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: ScrollbarTheme(
+                    data: ScrollbarThemeData(
+                      thumbColor: MaterialStateProperty.all(MyColors.color2),
+                      thickness: MaterialStateProperty.all(6),
+                      radius: const Radius.circular(10),
+                    ),
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Community Rules:",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: MyColors.color1,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              RichText(
+                                text: const TextSpan(
+                                  style: TextStyle(fontSize: 14, color: Colors.black),
+                                  children: [
+                                    TextSpan(
+                                      text: "1. Respect Everyone: ",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: "No cursing, malicious words, or hurtful language...\n\n"),
+                                    TextSpan(
+                                      text: "2. Be Supportive: ",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: "Offer advice with empathy...\n\n"),
+                                    TextSpan(
+                                      text: "3. Stay Positive: ",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: "Share uplifting content...\n\n"),
+                                    TextSpan(
+                                      text: "4. Privacy Matters: ",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: "Don't share personal info...\n\n"),
+                                    TextSpan(
+                                      text: "5. Be Mindful of Triggers: ",
+                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(text: "Be considerate of others’ emotions...\n\n"),
+                                  ],
+                                ),
+                              ),
+                              const Text(
+                                "Let's keep this space a sanctuary where everyone can express themselves freely and safely. Thank you for being a part of Safe Talk!",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 10),
-                          RichText(
-                            text: TextSpan(
-                              style: const TextStyle(fontSize: 14, color: Colors.black), // Default text style
-                              children: [
-                                TextSpan(
-                                  text: "1. Respect Everyone: ",
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: "No cursing, malicious words, or hurtful language. We are here to support each other, so kindness is key!\n\n"),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Checkbox
+                Row(
+                  children: [
+                    Checkbox(
+                      value: hasAgreedToEULA,
+                      onChanged: (value) {
+                        setState(() {
+                          hasAgreedToEULA = value ?? false;
+                        });
+                      },
+                      activeColor: MyColors.color2,           // Color of the checkbox when checked
+                      checkColor: Colors.white,               // Color of the tick inside the checkbox
+                      fillColor: MaterialStateProperty.resolveWith<Color>(
+                            (states) {
+                          if (states.contains(MaterialState.selected)) {
+                            return MyColors.color2;           // Filled background color when checked
+                          }
+                          return Colors.grey.shade300;        // Background when unchecked
+                        },
+                      ),
+                    ),
 
-                                TextSpan(
-                                  text: "2. Be Supportive: ",
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: "Offer advice with empathy, understanding that everyone's journey is different.\n\n"),
-
-                                TextSpan(
-                                  text: "3. Stay Positive: ",
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: "Share content that helps uplift others. Avoid negativity or harmful content.\n\n"),
-
-                                TextSpan(
-                                  text: "4. Privacy Matters: ",
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: "Don't share personal information about others (names, department) when posting content.\n\n"),
-
-                                TextSpan(
-                                  text: "5. Be Mindful of Triggers: ",
-                                  style: const TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(text: "Mental health topics can be sensitive. Please be aware and considerate of others' emotions.\n\n"),
-                              ],
-                            ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _showEulaDialog(context),
+                        child: Text(
+                          "I agree to the EULA and Community Guidelines.",
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: MyColors.color1, // optional: make it look tappable
+                            decoration: TextDecoration.underline, // optional: underline for clarity
                           ),
-                          Text(
-                            "Let's keep this space a sanctuary where everyone can express themselves freely and safely. "
-                                "Thank you for being a part of Safe Talk!",
-                            style: TextStyle(fontSize: 14,),
-                          ),
-                        ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(context);
+                  widget.onBackToHome?.call();
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    "Back to Home",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GestureDetector(
+                onTap: hasAgreedToEULA ? () => Navigator.pop(context) : null,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: hasAgreedToEULA ? MyColors.color2 : Colors.grey.shade400,
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: Text(
+                      "Agree",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: MyColors.white,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
@@ -249,52 +376,95 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
               ),
             ),
           ],
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-              widget.onBackToHome?.call();
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                "Back to Home",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+        );
+      },
+    );
+  }
+
+  void _showEulaDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+          title: Text(
+            "EULA & Community Guidelines",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: MyColors.color1,
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              decoration: BoxDecoration(color: MyColors.color2, borderRadius: BorderRadius.all(Radius.circular(5))),
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  "Agree",
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  "End User License Agreement (EULA):\n",
                   style: TextStyle(
-                    fontSize: 16,
-                    color: MyColors.white,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  "By using Luminara, you agree not to post or promote any abusive, harmful, or objectionable content. "
+                      "You are responsible for the content you share and must comply with community rules. "
+                      "We reserve the right to remove content and suspend users who violate our terms.\n",
+                  style: TextStyle(fontSize: 14),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Community Guidelines:\n",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  "1. Be respectful.\n"
+                      "2. Avoid sharing personal data of others.\n"
+                      "3. Use uplifting and constructive language.\n"
+                      "4. Report any abusive behavior immediately.\n"
+                      "5. Remember this is a safe space for everyone.\n",
+                  style: TextStyle(fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: MyColors.color2,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Text(
+                    "Close",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
-      ],
+
+          ],
+        );
+      },
     );
   }
+
+
+
 
 
 
@@ -496,22 +666,44 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
                         IconButton(
                           icon: Icon(Icons.send, color: MyColors.color2),
                           onPressed: () {
-                            if (commentController.text.isNotEmpty) {
-                              _addComment(
-                                postId: _approvedPosts[index]["id"],
-                                comment: commentController.text,
+                            String commentText = commentController.text.trim();
+
+                            if (commentText.isEmpty) return;
+
+                            // 🚫 Profanity check
+                            if (_profanityFilter.hasProfanity(commentText)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  behavior: SnackBarBehavior.floating,
+
+                                  margin: EdgeInsets.only(top: 20, left: 20, right: 20),
+                                  content: Text("Your comment contains inappropriate language. Please revise it."),
+                                  backgroundColor: Colors.redAccent,
+                                ),
                               );
-                              setState(() {
-                                comments.insert(0, {
-                                  "username": username, // Save username instead of uid
-                                  "time": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
-                                  "comment": commentController.text,
-                                });
-                              });
-                              commentController.clear();
+                              return;
                             }
+
+                            // ✅ Only proceed if clean
+                            _addComment(
+                              postId: _approvedPosts[index]["id"],
+                              comment: commentText,
+                            );
+
+                            setState(() {
+                              comments.insert(0, {
+                                "username": username,
+                                "time": DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()),
+                                "comment": commentText,
+                              });
+                            });
+
+                            commentController.clear();
                           },
-                        ),
+                        )
+
+
+
                       ],
                     ),
                   ),
@@ -530,6 +722,17 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     String? username = _userStorage.getUsername(); // Get username from local storage
     if (username == null) return;
 
+    // 🚫 Check for profanity before proceeding
+    if (_profanityFilter.hasProfanity(comment)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Your comment contains inappropriate language. Please revise it."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     String now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
 
     Map<String, dynamic> newComment = {
@@ -539,7 +742,12 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
     };
 
     try {
-      await _firestore.collection('safeSpace').doc('posts').collection('userPosts').doc(postId).update({
+      await _firestore
+          .collection('safeSpace')
+          .doc('posts')
+          .collection('userPosts')
+          .doc(postId)
+          .update({
         "comments": FieldValue.arrayUnion([newComment]),
       });
 
@@ -548,6 +756,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
       print("Error adding comment: $e");
     }
   }
+
 
 
 
@@ -668,18 +877,30 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
                 leading: const CircleAvatar(backgroundImage: AssetImage('assets/avatars/Avatar1.jpeg')),
                 title: Text(username ?? "Anonymous"), // Display username instead of uid
                 subtitle: Text(post["time"] ?? "Unknown time"),
-                trailing: PopupMenuButton<String>(
+                trailing: (post["userId"] != _auth.currentUser?.uid)
+                    ? PopupMenuButton<String>(
                   onSelected: (value) {
-                    if (value == "Report") {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Post reported.")),
+                    if (value == "ReportPost") {
+                      _reportPost(
+                        post["id"],
+                        post["content"],
+                        post["userId"],
+                        post["username"],
                       );
+                    } else if (value == "ReportUser") {
+                      _reportUser(post["userId"], post["username"]);
+                    } else if (value == "BlockUser") {
+                      _blockUser(post["userId"], post["username"]);
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(value: "Report", child: Text("Report Post")),
+                    const PopupMenuItem(value: "ReportPost", child: Text("Report Post")),
+                    const PopupMenuItem(value: "ReportUser", child: Text("Report User")),
+                    const PopupMenuItem(value: "BlockUser", child: Text("Block User")),
                   ],
-                ),
+                )
+                    : null,
+
               ),
               Text(post["content"] ?? ""),
               if (pending)
@@ -728,6 +949,111 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
         ),
       ),
     );
+  }
+
+  void _blockUser(String? userIdToBlock, String? usernameToBlock) async {
+    String? currentUserId = _auth.currentUser?.uid;
+
+    if (currentUserId == null || userIdToBlock == null || usernameToBlock == null) return;
+
+    try {
+      final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+
+      await _firestore
+          .collection('users')
+          .doc(currentUserId)
+          .collection('blockedUsers')
+          .doc(userIdToBlock)
+          .set({
+        "blockedUserId": userIdToBlock,
+        "blockedUsername": usernameToBlock,
+        "blockedAt": now,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("User has been blocked."),
+          backgroundColor: Colors.deepOrange,
+        ),
+      );
+
+      _fetchPosts(); // ✅ Refresh post list to hide blocked user's content
+
+    } catch (e) {
+      print("Error blocking user: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to block user."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
+
+  void _reportPost(String? postId, String? content, String? userId, String? username) async {
+    if (postId == null || content == null || userId == null || username == null) return;
+
+    try {
+      final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      final reporterUsername = _userStorage.getUsername() ?? 'Anonymous';
+
+      await _firestore.collection('reports').doc('posts').collection('postReports').add({
+        'reportedPostId': postId,
+        'reportedContent': content,
+        'reportedUserId': userId,
+        'reportedUsername': username,
+        'reportedAt': now,
+        'reporter': reporterUsername,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Post reported successfully."),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+    } catch (e) {
+      print("Error reporting post: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to report post."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
+
+  void _reportUser(String? userId, String? username) async {
+    if (userId == null || username == null) return;
+
+    try {
+      final now = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      final reporterUsername = _userStorage.getUsername() ?? 'Anonymous';
+
+      await _firestore.collection('reports').doc('users').collection('userReports').add({
+        'reportedUserId': userId,
+        'reportedUsername': username,
+        'reportedAt': now,
+        'reporter': reporterUsername,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("User reported successfully."),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+    } catch (e) {
+      print("Error reporting user: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Failed to report user."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
   }
 
 }

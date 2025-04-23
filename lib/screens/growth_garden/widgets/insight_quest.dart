@@ -222,7 +222,7 @@ class InsightQuestScreen extends StatelessWidget {
           child: PageView(
             scrollDirection: Axis.horizontal,
             children: [
-              _featuredQuizCard("Deep Focusoncentr", "Train your brain to maintain cation.", Colors.indigo, Icons.visibility),
+              _featuredQuizCard("Deep Focus", "Train your brain to maintain cation.", Colors.indigo, Icons.visibility),
               _featuredQuizCard("Mental Clarity", "Sharpen your ability to think critically.", Colors.purple, Icons.lightbulb),
               _featuredQuizCard("Positivity Boost", "Develop a more optimistic mindset.", Colors.pinkAccent, Icons.mood),
             ],

@@ -13,10 +13,10 @@ class CallPageWidget extends StatefulWidget {
   final RTCVideoRenderer localVideo;
   final VoidCallback leaveCall;
   final VoidCallback switchCamera;
-  // final VoidCallback toggleCamera;
+  final VoidCallback toggleCamera;
   final VoidCallback toggleMic;
   final bool isAudioOn;
-  // final bool isVideoOn;
+  final bool isVideoOn;
   final String? sessionType;
   final String? userId;
 
@@ -29,10 +29,10 @@ class CallPageWidget extends StatefulWidget {
     required this.localVideo,
     required this.leaveCall,
     required this.switchCamera,
-    // required this.toggleCamera,
+    required this.toggleCamera,
     required this.toggleMic,
     required this.isAudioOn,
-    // required this.isVideoOn,
+    required this.isVideoOn,
     this.sessionType,
     this.userId,
   });
@@ -107,7 +107,7 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Mental Health Specialist",
+                  "Customer Support",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -121,6 +121,7 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                       : "In Call",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
+
                     fontSize: 18,
                     fontWeight: FontWeight.w400,
                     color: Colors.black54,
@@ -173,7 +174,7 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                         setState(() {
                           isSpeakerOn = !isSpeakerOn;
                         });
-                        // widget.toggleCamera(); // Repurposed for speaker toggle
+                        widget.toggleCamera(); // Repurposed for speaker toggle
                       },
                       child: Column(
                         children: [
