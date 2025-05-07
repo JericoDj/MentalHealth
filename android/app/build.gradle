@@ -1,77 +1,94 @@
-plugins {
-    id "com.android.application"
-    // START: FlutterFire Configuration
-    id 'com.google.gms.google-services'
-    // END: FlutterFire Configuration
-    id 'org.jetbrains.kotlin.android' // ✅ Ensure Kotlin plugin is added
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
-}
-
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
-}
-
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
-android {
-    namespace "com.llps.mental_health.llps_mental_app"
-    compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+    plugins {
+        id "com.android.application"
+        id "com.google.gms.google-services" // Firebase
+        id "org.jetbrains.kotlin.android"
+        id "kotlin-android"
+        id "dev.flutter.flutter-gradle-plugin"
     }
 
-
-
-    kotlinOptions {
-        jvmTarget = '17'
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
-    }
-
-    defaultConfig {
-        applicationId "com.llps.mental_health.llps_mental_app"
-        minSdkVersion 24
-        targetSdkVersion 34 
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
-    }
-
-    buildTypes {
-        release {
-            signingConfig signingConfigs.debug
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.withReader('UTF-8') { reader ->
+            localProperties.load(reader)
         }
     }
-}
 
-flutter {
-    source '../..'
-}
+    def keystoreProperties = new Properties()
+    def keystorePropertiesFile = rootProject.file("key.properties")
+    println "📍 Gradle is looking for key.properties at: ${keystorePropertiesFile.absolutePath}"
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    }
 
-dependencies {
-    implementation platform("com.google.firebase:firebase-bom:32.7.0")
-    implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.google.firebase:firebase-auth-ktx'
+    def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+    def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
+
+    android {
+        namespace "com.llps.mental_health.llps_mental_app"
+        compileSdk flutter.compileSdkVersion
+        ndkVersion flutter.ndkVersion
+
+        defaultConfig {
+            applicationId "com.llps.mental_health.llps_mental_app"
+            minSdkVersion 24
+            targetSdkVersion 34
+            versionCode flutterVersionCode.toInteger()
+            versionName flutterVersionName
+        }
+
+        signingConfigs {
+            release {
+                def alias = keystoreProperties['keyAlias']
+                def keyPwd = keystoreProperties['keyPassword']
+                def storePwd = keystoreProperties['storePassword']
+                def storeFilePath = keystoreProperties['storeFile']
 
 
 
-    // Add other Firebase dependencies as needed
-}
+                println "🔍 keyAlias: ${keystoreProperties['keyAlias']}"
+                println "🔍 keyPassword: ${keystoreProperties['keyPassword']}"
+                println "🔍 storePassword: ${keystoreProperties['storePassword']}"
+                println "🔍 storeFile: ${keystoreProperties['storeFile']}"
 
+                keyAlias alias
+                keyPassword keyPwd
+                storeFile file(storeFilePath)
+                storePassword storePwd
+            }
+        }
+
+
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+                minifyEnabled false
+                shrinkResources false
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+        }
+
+        kotlinOptions {
+            jvmTarget = '17'
+        }
+
+        sourceSets {
+            main.java.srcDirs += 'src/main/kotlin'
+        }
+    }
+
+    flutter {
+        source '../..'
+    }
+
+    dependencies {
+        implementation platform("com.google.firebase:firebase-bom:32.7.0")
+        implementation 'com.google.firebase:firebase-analytics-ktx'
+        implementation 'com.google.firebase:firebase-auth-ktx'
+        // Add more Firebase modules as needed
+    }
