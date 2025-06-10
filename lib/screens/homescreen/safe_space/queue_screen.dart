@@ -15,8 +15,9 @@ import 'chat_screen.dart';
 class QueueScreen extends StatefulWidget {
   final String sessionType;
   final String userId;
+  final String queueDocId;
 
-  const QueueScreen({Key? key, required this.sessionType, required this.userId}) : super(key: key);
+  const QueueScreen({Key? key, required this.sessionType, required this.userId, required this.queueDocId}) : super(key: key);
 
   @override
   _QueueScreenState createState() => _QueueScreenState();

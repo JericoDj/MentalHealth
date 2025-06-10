@@ -67,36 +67,54 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
     }
 
     if (_selectedAction != null) {
-      String sessionType = _selectedAction == "chat" ? "chat" : "talk"; // Define session type
+      String sessionType = _selectedAction == "chat" ? "chat" : "talk";
       String formattedSessionType =
-          sessionType[0].toUpperCase() + sessionType.substring(1); // Capitalize first letter
-      String collectionPath = "safe_talk/$sessionType/queue"; // Dynamic Firestore path
+          sessionType[0].toUpperCase() + sessionType.substring(1);
+      String basePath = "safe_talk/$sessionType";
 
       try {
-        // ✅ Save Request to Firestore Queue in the appropriate collection
-        await FirebaseFirestore.instance
-            .collection(collectionPath)
-            .doc(userId!)
-            .set({
+        final queueDocRef = FirebaseFirestore.instance
+            .collection("$basePath/queue")
+            .doc(userId!);
+
+        final messagesCollection = FirebaseFirestore.instance
+            .collection("$basePath/sessions/$userId/messages");
+
+        // 🔥 Delete all old messages from previous session
+        final oldMessages = await messagesCollection.get();
+        for (final doc in oldMessages.docs) {
+          await doc.reference.delete();
+        }
+        print("🧹 Old messages deleted for $userId");
+
+        // 🔹 Generate a new docId for tracking
+        final newDocId = FirebaseFirestore.instance.collection("temp").doc().id;
+
+        // 🔹 Set the new queue request
+        await queueDocRef.set({
+          "docId": newDocId,
           "userId": userId,
-          "sessionType": formattedSessionType, // Store as "Chat" or "Talk"
-          "status": "queue", // Status is now "queue"
-          "timestamp": FieldValue.serverTimestamp(), // Timestamp for ordering
+          "fullName": UserStorage().getFullName() ?? "Unknown User",
+          "companyId": UserStorage().getCompanyId() ?? "Unknown Company",
+          "sessionType": formattedSessionType,
+          "status": "queue",
+          "timestamp": FieldValue.serverTimestamp(),
         });
 
-        print("✅ User added to $formattedSessionType queue");
+        print("✅ Session queued with docId: $newDocId");
 
-        // ✅ Navigate to Queue Screen
         Get.to(() => QueueScreen(
-          sessionType: formattedSessionType, // Pass as "Chat" or "Talk"
+          sessionType: formattedSessionType,
           userId: userId!,
+          queueDocId: newDocId,
         ));
       } catch (e) {
-        print("❌ Firestore Write Error: $e");
-        Get.snackbar("Error", "Failed to add request to queue: $e");
+        print("❌ Firestore Error: $e");
+        Get.snackbar("Error", "Failed to start new session: $e");
       }
     }
   }
+
 
 
 

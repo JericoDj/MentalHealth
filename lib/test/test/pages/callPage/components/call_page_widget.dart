@@ -107,7 +107,7 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                 ),
                 const SizedBox(height: 20),
                 const Text(
-                  "Customer Support",
+                  "Mental Health Specialist",
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

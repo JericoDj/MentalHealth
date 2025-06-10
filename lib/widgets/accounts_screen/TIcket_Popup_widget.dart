@@ -30,6 +30,9 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
   /// ✅ Submit ticket to Firestore
   void _submitTicket() async {
     String? userId = GetStorage().read("uid");
+    String? fullName = GetStorage().read("fullName");
+    String? companyId = GetStorage().read("company_id");
+
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("User not found. Please log in.")),
@@ -56,7 +59,11 @@ class _SupportTicketsPageState extends State<SupportTicketsPage> {
         "reply": "",
         "created_at": FieldValue.serverTimestamp(),
         "userId": userId, // Add the userId to the ticket
+        "fullName": fullName, // Add user's full name
+        "companyId": companyId, // Add the companyId to the ticket
       });
+
+      print(companyId);
 
       _ticketTitleController.clear();
       _ticketDetailsController.clear();
