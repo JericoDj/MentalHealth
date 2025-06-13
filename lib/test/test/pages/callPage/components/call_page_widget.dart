@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import '../../../../../controllers/call_controller.dart';
 import '../../../../../screens/homescreen/call_ended_screen.dart';
 
 class CallPageWidget extends StatefulWidget {
@@ -19,10 +20,12 @@ class CallPageWidget extends StatefulWidget {
   final bool isVideoOn;
   final String? sessionType;
   final String? userId;
+  final CallController callController;
 
   const CallPageWidget({
     super.key,
     required this.connectingLoading,
+    required this.callController,
     required this.roomId,
     required this.isCaller,
     required this.remoteVideo,
@@ -42,13 +45,20 @@ class CallPageWidget extends StatefulWidget {
 }
 
 class _CallPageWidgetState extends State<CallPageWidget> {
+
+  late CallController _callController;
+
+
   bool isMicMuted = false;
+  bool isSpeakerMuted = false;
   bool isSpeakerOn = true; // Speaker initially ON
   StreamSubscription<DocumentSnapshot>? _statusSubscription;
 
   @override
   void initState() {
     super.initState();
+
+    _callController = widget.callController; // ✅ Assign the passed controller
 
     // ✅ Track Call Status in Real-Time
     _trackCallStatus();
@@ -139,10 +149,12 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                     // Mic Button
                     GestureDetector(
                       onTap: () {
+                        widget.toggleMic(); // ✅ Call the passed-in function
+
+                        // Try to reflect mic state UI-wise
                         setState(() {
                           isMicMuted = !isMicMuted;
                         });
-                        widget.toggleMic(); // Call passed-in toggle function
                       },
                       child: Column(
                         children: [
@@ -170,11 +182,13 @@ class _CallPageWidgetState extends State<CallPageWidget> {
 
                     // Speaker Button
                     GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        final newSpeakerState = !isSpeakerMuted;
+                        await _callController.toggleSpeaker(newSpeakerState);
                         setState(() {
-                          isSpeakerOn = !isSpeakerOn;
+                          isSpeakerMuted = newSpeakerState;
+
                         });
-                        widget.toggleCamera(); // Repurposed for speaker toggle
                       },
                       child: Column(
                         children: [
@@ -188,14 +202,14 @@ class _CallPageWidgetState extends State<CallPageWidget> {
                               radius: 30,
                               backgroundColor: Colors.white,
                               child: Icon(
-                                isSpeakerOn ? Icons.volume_up : Icons.volume_off,
+                                isSpeakerMuted ? Icons.volume_up : Icons.volume_off,
                                 color: Colors.grey.shade700,
                                 size: 30,
                               ),
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(isSpeakerOn ? "Speaker On" : "Speaker Off"),
+                          Text(isSpeakerMuted ? "Speaker On" : "Speaker Off"),
                         ],
                       ),
                     ),

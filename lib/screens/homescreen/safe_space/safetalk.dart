@@ -5,6 +5,7 @@ import 'package:llps_mental_app/screens/homescreen/safe_space/queue_screen.dart'
 import 'package:llps_mental_app/test/test/pages/homePage/home_page.dart';
 import 'package:llps_mental_app/test/test/test.dart';
 import 'package:llps_mental_app/widgets/homescreen_widgets/safe_space/safe_space_bottom_buttons.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../test/test/pages/callPage/call_page.dart';
 import '../../../utils/constants/colors.dart';
 import '../../../utils/storage/user_storage.dart';
@@ -26,6 +27,7 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
   void initState() {
     super.initState();
     userId = UserStorage().getUid(); // ✅ Get user ID from local storage
+    WakelockPlus.enable(); // 🔒 Keep screen awake
   }
 
   // ✅ Navigate to Queue Screen & Save Request in Firestore
@@ -137,6 +139,7 @@ class _SafeSpaceBodyState extends State<SafeTalk> {
   @override
   void dispose() {
     _cancelQueueRequest(); // ✅ Auto-remove from queue on screen exit
+    WakelockPlus.disable(); // 🔓 Allow screen to sleep again
     super.dispose();
   }
 

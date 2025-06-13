@@ -91,6 +91,8 @@ class _CallPageState extends State<CallPage> {
       ),
       body: CallPageWidget(
         connectingLoading: connectingLoading,
+
+
         roomId: _currentRoomId ?? "",
         remoteVideo: _callController.remoteVideo,
         localVideo: _callController.localVideo,
@@ -105,6 +107,7 @@ class _CallPageState extends State<CallPage> {
         isAudioOn: _callController.isAudioOn,
         isVideoOn: _callController.isVideoOn,
         isCaller: widget.isCaller,
+        callController: _callController,
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:llps_mental_app/screens/homescreen/call_ended_screen.dart';
 import 'package:llps_mental_app/utils/constants/colors.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../controllers/call_controller.dart';
 import '../../test/test/services/webrtc_service.dart';
@@ -13,9 +14,7 @@ import '../../widgets/navigation_bar.dart';
 class CallingCustomerSupportScreen extends StatefulWidget {
   final String? roomId;
   final bool isCaller;
-  final String? userId;
-
-  CallingCustomerSupportScreen({
+  final String? userId;CallingCustomerSupportScreen({
     Key? key,
     required this.roomId,
     required this.isCaller,
@@ -47,9 +46,13 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
   // ✅ New Variable to Track Queue Count
   int _waitingCount = 0;
 
+
+
+
   @override
   void initState() {
     super.initState();
+    WakelockPlus.enable();
     _currentRoomId = widget.roomId;
 
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
@@ -250,7 +253,9 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
 
   @override
   void dispose() {
-    _stopCallDurationTimer(); // ✅ Ensure timer is stopped when leaving screen
+    _stopCallDurationTimer();
+    WakelockPlus.disable();
+    // ✅ Ensure timer is stopped when leaving screen
     super.dispose();
   }
 
@@ -302,11 +307,14 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        _callController.toggleMic(); // 🔥 Updated Function Call
-                        setState(() {
-                          isMicMuted = !isMicMuted;
-                        });
+                onTap: () {
+                      _callController.toggleMic();
+                          final audioTrack = _callController.localStream?.getAudioTracks().first;
+                            if (audioTrack != null) {
+                              setState(() {
+                            isMicMuted = !audioTrack.enabled;
+                          });
+                        }
                       },
                       child: Column(
                         children: [
@@ -332,11 +340,12 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                       ),
                     ),
 
-                    GestureDetector(
-                      onTap: () {
+                     GestureDetector(
+                      onTap: () async {
+                        final newSpeakerState = !isSpeakerMuted;
+                        await _callController.toggleSpeaker(newSpeakerState);
                         setState(() {
-                          _callController.toggleMic(); // ✅ Correctly call toggleMic() here
-                          isSpeakerMuted = !isSpeakerMuted;
+                          isSpeakerMuted = newSpeakerState;
                         });
                       },
                       child: Column(
@@ -351,17 +360,18 @@ class _CallingScreenState extends State<CallingCustomerSupportScreen> {
                               radius: 30,
                               backgroundColor: Colors.white,
                               child: Icon(
-                                isSpeakerMuted ? Icons.volume_off : Icons.volume_up,
+                                isSpeakerMuted ? Icons.volume_up : Icons.volume_down_sharp,
                                 color: MyColors.color2,
                                 size: 30,
                               ),
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(isSpeakerMuted ? "Speaker Off" : "Speaker On"),
+                          Text(isSpeakerMuted ? "Speaker on" : "Speaker Off"),
                         ],
                       ),
-                    )
+                    ),
+
                   ],
                 ),
 

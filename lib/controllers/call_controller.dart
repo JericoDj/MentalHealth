@@ -100,13 +100,22 @@ class CallController {
 
 
   void toggleMic() {
-    isAudioOn = !isAudioOn;
-    localStream?.getAudioTracks().forEach((track) {
-      track.enabled = isAudioOn;
-    });
-    onStateChanged(); // Notify UI
+    final audioTrack = localStream?.getAudioTracks().first;
+    if (audioTrack != null) {
+      audioTrack.enabled = !audioTrack.enabled;
+      debugPrint("🎙️ Mic is now ${audioTrack.enabled ? 'ON' : 'OFF'}");
+    } else {
+      debugPrint("❌ No audio track found");
+    }
   }
-
+  Future<void> toggleSpeaker(bool enableSpeaker) async {
+    try {
+      await Helper.setSpeakerphoneOn(enableSpeaker);
+      debugPrint("🔊 Speakerphone ${enableSpeaker ? 'ON' : 'OFF'}");
+    } catch (e) {
+      debugPrint("❌ Error toggling speaker: $e");
+    }
+  }
 
 
   void toggleCamera() {

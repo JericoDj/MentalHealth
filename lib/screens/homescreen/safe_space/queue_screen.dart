@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../../controllers/call_controller.dart';
 
 import '../../../controllers/queue_chat_controller.dart';
@@ -39,6 +40,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    WakelockPlus.enable(); // 🔒 Keep screen awake
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     if (widget.sessionType.toLowerCase() == "talk") {
@@ -255,6 +257,11 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
         sessionType: widget.sessionType,
       );
     } else if (widget.sessionType.toLowerCase() == "chat") {
+      await _callController.dispose(
+        context: context,
+        userId: widget.userId,
+        sessionType: widget.sessionType,
+      );
 
     }
 
@@ -285,6 +292,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
   void dispose() {
     queueSubscription?.cancel();
     ongoingSubscription?.cancel(); // ✅ Dispose Second Listener
+    WakelockPlus.disable(); // 🔓 Allow screen to sleep again
     WidgetsBinding.instance.removeObserver(this);
 
     if (!_isNavigating) {
@@ -308,7 +316,7 @@ class _QueueScreenState extends State<QueueScreen> with WidgetsBindingObserver {
         toggleMic: _callController.toggleMic,
         isAudioOn: _callController.isAudioOn,
         isVideoOn: _callController.isVideoOn,
-        isCaller: false,
+        isCaller: false, callController: _callController,
       );
     }
 

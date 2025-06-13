@@ -210,7 +210,7 @@ class _SafeSpaceScreenState extends State<SafeSpaceScreen> {
             ),
           ),
           content: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.58,
+            height: MediaQuery.of(context).size.height * 0.60,
             child: Column(
               children: [
                 Text(

@@ -142,10 +142,10 @@ class LoginController extends GetxController {
       // ✅ Step 5: Navigate to dashboard
       Get.offAll(() => NavigationBarMenu(dailyCheckIn: true));
 
-      Get.snackbar("Success", "Login successful!",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green,
-          colorText: Colors.white);
+      // Get.snackbar("Success", "Login successful!",
+      //     snackPosition: SnackPosition.BOTTOM,
+      //     backgroundColor: Colors.green,
+      //     colorText: Colors.white);
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Login failed. Please try again.";
       if (e.code == 'user-not-found') {

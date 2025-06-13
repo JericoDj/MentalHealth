@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../screens/homescreen/calling_customer_support_screen.dart';
 import '../../utils/constants/colors.dart';
@@ -11,14 +12,25 @@ class CallCustomerSupportPopup extends StatefulWidget {
 
 class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
   bool _agreeToPrivacy = false;
-  double _dragPosition = 0.0; // Drag position
-  bool _dragReachedEnd = false; // Whether drag reached the end
+  double _dragPosition = 0.0;
+  bool _dragReachedEnd = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+  @override
+  void dispose() {
+    WakelockPlus.disable();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Fixed width for the slideable button
-    double buttonWidth = 280.0; // Updated button width
-    double draggableSize = 50.0; // Draggable icon size
+    double buttonWidth = 280.0;
+    double draggableSize = 50.0;
 
     return AlertDialog(
       title: Row(
@@ -27,10 +39,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
           const Text("Call Customer Support"),
           GestureDetector(
             onTap: () => Navigator.of(context).pop(),
-            child: const Icon(
-              Icons.close,
-              color: MyColors.color2,
-            ),
+            child: const Icon(Icons.close, color: MyColors.color2),
           ),
         ],
       ),
@@ -46,29 +55,27 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
             children: [
               Checkbox(
                 value: _agreeToPrivacy,
-                activeColor: MyColors.color1, // Set checkbox color
+                activeColor: MyColors.color1,
                 onChanged: (value) {
                   setState(() => _agreeToPrivacy = value!);
                 },
               ),
-              const SizedBox(width: 4), // Small space between checkbox and text
+              const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   "I agree to the data privacy policy.",
                   style: TextStyle(
                     fontSize: 14,
-                    color: MyColors.black, // Change text color
+                    color: MyColors.black,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 20),
           Stack(
             children: [
-              // The background button
               Container(
                 width: buttonWidth,
                 height: 50,
@@ -86,7 +93,6 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                   ),
                 ),
               ),
-              // The draggable button
               Positioned(
                 left: _dragPosition,
                 child: GestureDetector(
@@ -94,30 +100,26 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
                     if (_agreeToPrivacy) {
                       setState(() {
                         _dragPosition += details.delta.dx;
-
-                        // Constrain the draggable within the button bounds
                         if (_dragPosition < 0) {
                           _dragPosition = 0;
                           _dragReachedEnd = false;
                         } else if (_dragPosition > buttonWidth - draggableSize) {
-                          _dragPosition = buttonWidth - draggableSize; // Adjust for draggable size
-                          _dragReachedEnd = true; // Mark as reaching the end
+                          _dragPosition = buttonWidth - draggableSize;
+                          _dragReachedEnd = true;
                         } else {
-                          _dragReachedEnd = false; // Reset if not at the end
+                          _dragReachedEnd = false;
                         }
                       });
                     }
                   },
                   onHorizontalDragEnd: (_) {
                     if (_dragReachedEnd) {
-                      // Only navigate when the drag reaches the end
-                      Navigator.of(context).pop(); // Close popup
+                      Navigator.of(context).pop();
                       Get.to(() => CallingCustomerSupportScreen(
                         roomId: null,
-                        isCaller: true,  // ✅ Corrected this line (Removed `()` after `true`)
-                      )); // Navigate to calling screen
+                        isCaller: true,
+                      ));
                     } else {
-                      // Reset the drag position if not completed
                       setState(() => _dragPosition = 0);
                     }
                   },
@@ -139,10 +141,7 @@ class _CallCustomerSupportPopupState extends State<CallCustomerSupportPopup> {
         color: Colors.white,
         shape: BoxShape.circle,
       ),
-      child: const Icon(
-        Icons.arrow_forward,
-        color: MyColors.color1,
-      ),
+      child: const Icon(Icons.arrow_forward, color: MyColors.color1),
     );
   }
 }

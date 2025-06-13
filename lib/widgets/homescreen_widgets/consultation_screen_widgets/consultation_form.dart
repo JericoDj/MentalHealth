@@ -41,7 +41,7 @@ class ConsultationForm extends StatelessWidget {
               ),
               child: const Text(
                 textAlign: TextAlign.center,
-                "Book a session with a specialist at your convenience. We're ready to assist you when needed.",
+                "Book a session with a professional at your convenience. We're ready to assist you when needed.",
                 style: TextStyle(
                     color: Colors.black87,
                     fontSize: 14,

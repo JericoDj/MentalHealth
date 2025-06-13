@@ -23,10 +23,8 @@ import 'App.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
 
-/// ✅ Background message handler (Must be a top-level function)
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  debugPrint("✅ Background Message: \${message.notification?.title}");
-}
+
+
 
 /// ✅ Initialize Firebase Messaging and Notifications
 Future<void> _initializeNotifications() async {
@@ -74,8 +72,6 @@ Future<void> _initializeNotifications() async {
     _showNotification(message);
   });
 
-  // ✅ Handle background messages
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // ✅ Ensure APNS token is fetched for iOS
   if (defaultTargetPlatform == TargetPlatform.iOS) {
@@ -119,6 +115,12 @@ Icon validateIcon(IconData iconData) {
   return Icon(iconData);
 }
 
+// ✅ Ensure this is a top-level function
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("🔔 Handling a background message: ${message.messageId}");
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -127,6 +129,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   ).then((FirebaseApp value) => Get.put(AuthenticationRepository()));
+
+
+
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
 
 
   // ✅ Request necessary permissions
@@ -177,11 +185,6 @@ void main() async {
   );
 
 
-  // ✅ Ensure this is a top-level function
-  @pragma('vm:entry-point')
-  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    print("🔔 Handling a background message: ${message.messageId}");
-  }
   // Ensure Notification Permissions for Android 13+
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
@@ -198,7 +201,6 @@ void main() async {
 
 
 
-    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     // ✅ Initialize notifications
     await _initializeNotifications();

@@ -80,10 +80,12 @@ class SpecialistSelection extends StatelessWidget {
 
   Future<String?> _showServicePicker(BuildContext context) async {
     final List<String> _specialists = [
+      "Counseling/Coaching",
+      "Psychological Consultation/\nPsychotherapy",//
+      "Psychiatric Consultation",
+      "Couple Therapy/Counseling",//
+      "Family Counselling",
       "Psychological Assessment",
-      "Consultation",
-      "Couple Therapy/Counseling",
-      "Counseling and Psychotherapy",
     ];
 
     return showModalBottomSheet<String>(
@@ -134,17 +136,25 @@ class SpecialistSelection extends StatelessWidget {
 
   String _getServiceDescription(String service) {
     const Map<String, String> _serviceDetails = {
-      "Psychological Assessment":
-      "Use of integrative tools such as testing, interviews, and observation, or other assessment tools to understand the client's concerns depending on their needs (e.g., school, employment, diagnosis, legal requirements, emotional support animals).",
-      "Consultation":
-      "A session where you can freely express and discuss your mental health concerns, thoughts, and emotions. Recommendations or therapeutic goals will be provided at the end.\n\n"
-          "A. Psychiatric Consultation – With a psychiatrist.\n"
-          "B. Adult Psychological Consultation – For adults.\n"
-          "C. Child and Adolescent Consultation – For children and teens.",
+      "Counseling/Coaching":
+      "a 40- min to 1-hour session with a counselor/coach facilitating supportive process that helps individuals explore and resolve emotional, psychological, personal or professional concerns",
+
+      "Psychological Consultation/\nPsychotherapy":
+      "a 40-min to 1-hour session with a psychologist where you can freely express and discuss your mental health concerns, thoughts and emotions. Recommendations or therapeutic goals will be provided.",
+
+      "Psychiatric Consultation":
+      "A psychiatric consultation is a professional session by a psychiatrist to evaluate a person’s mental health, provide a diagnosis, and recommend treatment such as medication, therapy, further testing",
+
       "Couple Therapy/Counseling":
       "An intervention to help couples build a healthy relationship and resolve conflicts affecting their relationship satisfaction.",
-      "Counseling and Psychotherapy":
-      "A therapeutic session with a psychologist to assist with healing, intervention, or recovery from mental health challenges, trauma, or personal concerns.",
+
+      "Family Counselling":
+      "a therapeutic session that involves working with families to address issues affecting their relationships, improve communication, and promote healthier family dynamics",
+
+
+      "Psychological Assessment":
+      "Use of integrative tools such as testing, interviews, and observation, or other assessment tools to understand the client's concerns depending on their needs (e.g., school, employment, diagnosis, legal requirements, emotional support animals).",
+
     };
 
     return _serviceDetails[service] ?? "No description available.";
@@ -152,10 +162,17 @@ class SpecialistSelection extends StatelessWidget {
 
   String _getServiceImage(String service) {
     const Map<String, String> _serviceImages = {
-      "Psychological Assessment": "assets/images/homescreen/Psychotherapy.jpg",
-      "Consultation": "assets/images/homescreen/Consultation.jpg",
+      "Counseling/Coaching": "assets/images/homescreen/Psychotherapy.jpg",
+
+      "Psychological Consultation/\nPsychotherapy": "assets/images/homescreen/Counselling.jpg",
+
+      "Psychiatric Consultation": "assets/images/homescreen/Consultation.jpg",
+
       "Couple Therapy/Counseling": "assets/images/homescreen/CoupleTherapy.jpg",
-      "Counseling and Psychotherapy": "assets/images/homescreen/Counselling.jpg",
+
+      "Family Counselling": "assets/images/homescreen/Counselling.jpg",
+
+      "Psychological Assessment": "assets/images/homescreen/Psychotherapy.jpg",
     };
 
     return _serviceImages[service] ?? "assets/images/default.png";
