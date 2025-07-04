@@ -147,7 +147,7 @@ class UserStorage {
 
 
   // ✅ Clear UID on logout
-  void clearUid() {
+  Future<void> clearUid()  async{
     _storage.remove("uid");
     clearMoods();
     clearStressLevels();

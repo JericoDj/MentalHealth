@@ -216,8 +216,13 @@ class SignUpScreen extends StatelessWidget {
                     height: 55,
                     width: double.infinity,
                     child: GestureDetector(
-                      onTap: controller.signUp, // Call the signUp function when tapped
-                      child: Container(
+                      onTap: () async {
+                        await controller.signUp();
+                      },
+                 
+                      child: Obx(() => controller.isLoading.value
+                          ? const Center(child: CircularProgressIndicator())
+                          : Container(
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: MyColors.color2,
@@ -227,7 +232,7 @@ class SignUpScreen extends StatelessWidget {
                           "Sign Up",
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
-                      ),
+                      )),
                     ),
                   ),
 

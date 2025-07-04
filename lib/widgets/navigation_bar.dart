@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../screens/accessDeniedPage.dart';
 import '../screens/account_screen/account.dart';
 import '../screens/book_now/booknowscreen.dart';
 import '../screens/growth_garden/growth_garden.dart';
@@ -38,7 +40,9 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
   void initState() {
     super.initState();
 
-    // Initialize the _pages list inside initState
+    // ✅ Call method to get user and proceed
+    _loadUserAndProceed();
+
     _pages = [
       HomeScreen(),
       GrowthGardenScreen(),
@@ -46,7 +50,7 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
       SafeSpaceScreen(
         onBackToHome: () {
           setState(() {
-            _selectedIndex = 0; // Switch to HomeScreen
+            _selectedIndex = 0;
           });
         },
       ),
@@ -58,7 +62,56 @@ class _NavigationBarMenuState extends State<NavigationBarMenu> {
         showMoodDialog(context);
       }
     });
+
+
   }
+
+  Future<void> _loadUserAndProceed() async {
+    final userStorage = UserStorage();
+    final uid = await userStorage.getUid();
+
+    if (kDebugMode) {
+      print("🔍 Retrieved UID from storage: $uid");
+    }
+
+    if (uid != null) {
+     await _doSomethingWithUser(uid); // ✅ safe to call
+    } else {
+      debugPrint("❌ UID is null. Cannot proceed.");
+      // Optional: Navigate to login or error screen
+    }
+  }
+
+
+
+  Future <void> _doSomethingWithUser(String uid) async {
+      try {
+        final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+        if (doc.exists) {
+          final data = doc.data();
+          final hasAccess = data?['access'] ?? true;
+
+          if (hasAccess == false) {
+            print(hasAccess);
+            // ❌ Access denied
+            await Get.offAll(() => const AccessDeniedPage());
+          } else {
+            // ✅ Access granted
+            debugPrint("✅ Access granted to ${data?['full_name'] ?? 'Unknown'}");
+          }
+        } else {
+          debugPrint("❌ User document not found.");
+        }
+      } catch (e) {
+        debugPrint("🔥 Error checking access: $e");
+      }
+    }
+
+
+
+
+
 
   void _onItemTapped(int index) {
     final userStorage = UserStorage();
